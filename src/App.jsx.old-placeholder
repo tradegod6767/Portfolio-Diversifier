@@ -1,0 +1,311 @@
+/*
+Minimal Investor Dashboard (single-file React preview)
+Drop-in ready App.jsx replacement for a Vite + React + Tailwind project.
+
+How to use:
+- Replace your existing src/App.jsx with this file (or extract components into their own files).
+- Tailwind is used for styling. This file uses default Tailwind colors (slate/blue) to match "Navy + Slate".
+- Swap the placeholder components (ImportPortfolio, Rebalance, etc.) with your actual components. I left small adapters where you can drop them in.
+
+Notes:
+- If you have a custom tailwind.config.js with a brand color, replace the utility classes that use 'bg-slate-900' / 'text-slate-50' etc. with your custom token classes.
+- The layout is responsive: collapsible sidebar on small screens.
+*/
+
+import React, {useState} from 'react';
+
+/* ---------- Sidebar nav items ---------- */
+const NAV_ITEMS = [
+  {key: 'dashboard', label: 'Dashboard'},
+  {key: 'import', label: 'Import Portfolio'},
+  {key: 'load', label: 'Load Portfolio'},
+  {key: 'rebalance', label: 'Rebalance'},
+  {key: 'health', label: 'Health Score'},
+  {key: 'charts', label: 'Allocation Charts'},
+  {key: 'comparison', label: 'Comparison'},
+  {key: 'export', label: 'Export / Save'},
+  {key: 'billing', label: 'Billing'},
+];
+
+/* ---------- Small utility components ---------- */
+function IconCircle({children}){
+  return (
+    <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-100 text-sm font-medium shadow-sm">
+      {children}
+    </div>
+  );
+}
+
+function NavItem({item, active, onClick}){
+  return (
+    <button
+      onClick={() => onClick(item.key)}
+      className={`flex gap-3 items-center w-full text-left px-4 py-2 rounded-md transition-colors 
+        ${active ? 'bg-slate-800 text-slate-50' : 'text-slate-200 hover:bg-slate-800/60 hover:text-slate-50'}`}
+    >
+      <IconCircle>{item.label.charAt(0)}</IconCircle>
+      <span className="text-sm font-medium">{item.label}</span>
+    </button>
+  );
+}
+
+/* ---------- Sidebar component ---------- */
+function Sidebar({activeKey, onNavigate, collapsed, onToggle}){
+  return (
+    <aside className={`flex flex-col ${collapsed ? 'w-16' : 'w-64'} bg-slate-900 text-slate-50 h-full transition-width duration-200`}>
+      <div className="flex items-center gap-3 px-4 py-4">
+        {!collapsed ? (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold">PR</div>
+            <div>
+              <div className="text-sm font-semibold">Portfolio Rebalancer</div>
+              <div className="text-xs text-slate-300">Investor workspace</div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center text-white font-semibold">PR</div>
+          </div>
+        )}
+        <button
+          onClick={onToggle}
+          className="ml-auto p-1 rounded hover:bg-slate-800/50 hidden sm:inline"
+          aria-label="Toggle sidebar"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" className="fill-slate-200"><path d="M4 6h16M4 12h10M4 18h16" strokeWidth="0"/></svg>
+        </button>
+      </div>
+
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-auto">
+        {NAV_ITEMS.map(item => (
+          <NavItem key={item.key} item={item} active={item.key === activeKey} onClick={onNavigate} />
+        ))}
+      </nav>
+
+      <div className="px-3 py-4 border-t border-slate-800">
+        <div className={`px-2 ${collapsed ? 'text-center' : ''}`}>
+          <button className="w-full flex items-center gap-3 text-sm text-slate-200 hover:text-white">
+            <svg width="16" height="16" viewBox="0 0 24 24" className="fill-slate-200"><path d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zM6 20v-1c0-2.21 3.58-4 6-4s6 1.79 6 4v1H6z"/></svg>
+            {!collapsed && <span>Account</span>}
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ---------- Topbar ---------- */
+function Topbar({onToggleSidebar, title}){
+  return (
+    <header className="flex items-center justify-between px-6 py-4 bg-transparent border-b border-slate-100/8">
+      <div className="flex items-center gap-4">
+        <button onClick={onToggleSidebar} className="sm:hidden p-2 rounded-md bg-slate-100/6">
+          <svg width="20" height="20" viewBox="0 0 24 24" className="fill-slate-100"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
+        <div className="text-sm text-slate-500">Minimal • Investor</div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="text-sm text-slate-600">USD</div>
+          <button className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm">Settings</button>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-slate-600">Signed in as <span className="font-medium text-slate-800">Investor</span></div>
+          <button className="px-3 py-2 bg-white border border-slate-200 rounded-md text-slate-700">Sign out</button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ---------- Generic Card ---------- */
+function Card({title, subtitle, children}){
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4">
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <div className="text-sm font-semibold text-slate-800">{title}</div>
+          {subtitle && <div className="text-xs text-slate-500">{subtitle}</div>}
+        </div>
+        <div className="text-xs text-slate-400">•••</div>
+      </div>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+/* ---------- Placeholder page components (wrap your real ones here) ---------- */
+function Placeholder({label}){
+  return (
+    <div className="text-sm text-slate-600 py-6">
+      <div className="text-slate-700 font-medium mb-2">{label}</div>
+      <div className="text-xs text-slate-500">This is a placeholder. Replace with your component or import the real one here.</div>
+    </div>
+  );
+}
+
+/* ---------- Page views ---------- */
+function DashboardView(){
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card title="Total Portfolio" subtitle="Market value">
+          <div className="text-2xl font-semibold text-slate-800">$1,234,567</div>
+          <div className="text-sm text-slate-500 mt-2">Performance 30d: <span className="font-medium text-green-600">+2.3%</span></div>
+        </Card>
+
+        <Card title="Health Score" subtitle="Overall portfolio risk">
+          <div className="text-xl font-semibold text-slate-800">82 / 100</div>
+          <div className="text-sm text-slate-500 mt-2">Allocation diversity looks good.</div>
+        </Card>
+
+        <Card title="Estimated Rebalance Cost" subtitle="Fees & taxes estimate">
+          <div className="text-xl font-semibold text-slate-800">$123</div>
+          <div className="text-sm text-slate-500 mt-2">Estimated cost for suggested rebalancing.</div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card title="Allocation Chart" subtitle="Current vs target">
+          <Placeholder label="AllocationCharts component" />
+        </Card>
+
+        <Card title="Recent Rebalances" subtitle="Latest actions">
+          <Placeholder label="RebalancingResults component" />
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card title="Portfolio Comparison">
+          <Placeholder label="PortfolioComparison component" />
+        </Card>
+
+        <Card title="Import / Export">
+          <div className="space-y-2">
+            <button className="px-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm">Import Portfolio</button>
+            <button className="px-3 py-2 bg-white border border-slate-200 rounded text-sm">Export CSV</button>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ImportView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Import Portfolio">
+        <Placeholder label="ImportPortfolioPage component" />
+      </Card>
+    </div>
+  );
+}
+
+function LoadView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Load Saved Portfolios">
+        <Placeholder label="LoadPortfolioPage component" />
+      </Card>
+    </div>
+  );
+}
+
+function RebalanceView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Rebalance" subtitle="Run suggested actions">
+        <Placeholder label="PortfolioForm / RebalancingCostEstimate components" />
+      </Card>
+    </div>
+  );
+}
+
+function HealthView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Portfolio Health Score">
+        <Placeholder label="PortfolioHealthScore component" />
+      </Card>
+    </div>
+  );
+}
+
+function ChartsView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Allocation Charts">
+        <Placeholder label="AllocationCharts component" />
+      </Card>
+    </div>
+  );
+}
+
+function ComparisonView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Portfolio Comparison">
+        <Placeholder label="PortfolioComparison component" />
+      </Card>
+    </div>
+  );
+}
+
+function ExportView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Export & Save">
+        <Placeholder label="ExportButtons / SavePortfolioModal components" />
+      </Card>
+    </div>
+  );
+}
+
+function BillingView(){
+  return (
+    <div className="space-y-4">
+      <Card title="Billing & Stripe">
+        <Placeholder label="StripePayment component" />
+      </Card>
+    </div>
+  );
+}
+
+/* ---------- Main App ---------- */
+export default function App(){
+  const [active, setActive] = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  function renderActive(){
+    switch(active){
+      case 'dashboard': return <DashboardView />;
+      case 'import': return <ImportView />;
+      case 'load': return <LoadView />;
+      case 'rebalance': return <RebalanceView />;
+      case 'health': return <HealthView />;
+      case 'charts': return <ChartsView />;
+      case 'comparison': return <ComparisonView />;
+      case 'export': return <ExportView />;
+      case 'billing': return <BillingView />;
+      default: return <DashboardView />;
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="flex h-screen">
+        <Sidebar activeKey={active} onNavigate={setActive} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
+
+        <div className="flex-1 flex flex-col">
+          <Topbar onToggleSidebar={() => setSidebarCollapsed(s => !s)} title={NAV_ITEMS.find(n => n.key === active)?.label || 'Dashboard'} />
+
+          <main className="p-6 overflow-auto">
+            {renderActive()}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
