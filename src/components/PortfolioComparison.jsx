@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { MODEL_PORTFOLIOS, compareToModel, generateSuggestions, findClosestModel } from '../utils/modelPortfolios';
 import { getAssetClassColor } from '../utils/assetClasses';
+import Tooltip from './Tooltip';
 
 function PortfolioComparison({ groupedPositions }) {
   // Find closest model automatically
@@ -50,8 +51,9 @@ function PortfolioComparison({ groupedPositions }) {
     <div className="bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-200 rounded-xl p-6 shadow-lg">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center">
             Compare to Model Portfolios
+            <Tooltip text="Compare your portfolio to popular investment strategies like 3-fund portfolio, 60/40 classic, or all-weather allocation." />
           </h3>
           <p className="text-sm text-gray-600">
             See how your allocation compares to standard portfolio strategies
@@ -108,7 +110,7 @@ function PortfolioComparison({ groupedPositions }) {
               label={{ value: 'Allocation (%)', angle: -90, position: 'insideLeft' }}
               tick={{ fontSize: 12 }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <ChartTooltip content={<CustomTooltip />} />
             <Legend
               wrapperStyle={{ paddingTop: '20px' }}
               iconType="rect"

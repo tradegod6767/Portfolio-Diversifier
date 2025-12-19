@@ -29,15 +29,9 @@ import { calculateRebalancing } from "./utils/calculations";
 
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
-  {key: 'dashboard', label: 'Dashboard'},
-  {key: 'import', label: 'Import Portfolio'},
-  {key: 'load', label: 'Load Portfolio'},
-  {key: 'rebalance', label: 'Rebalance'},
-  {key: 'health', label: 'Health Score'},
-  {key: 'charts', label: 'Allocation Charts'},
-  {key: 'comparison', label: 'Comparison'},
-  {key: 'export', label: 'Export / Save'},
-  {key: 'billing', label: 'Billing'},
+  {key: 'home', label: 'Home'},
+  {key: 'calculator', label: 'Calculator'},
+  {key: 'about', label: 'About'},
 ];
 
 /* ---------- Small utility components ---------- */
@@ -46,6 +40,57 @@ function IconCircle({children}){
     <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-100 text-sm font-medium shadow-sm">
       {children}
     </div>
+  );
+}
+
+/* ---------- Tooltip component ---------- */
+function Tooltip({children, text}){
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative inline-block">
+      <button
+        type="button"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        className="ml-1 text-slate-500 hover:text-slate-700 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+        </svg>
+      </button>
+      {show && (
+        <div className="absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl">
+          {text}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+            <div className="border-4 border-transparent border-t-slate-900"></div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Footer component ---------- */
+function Footer(){
+  return (
+    <footer className="bg-slate-900 text-slate-300 py-8 px-6 mt-auto border-t border-slate-800">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center md:text-left">
+            <p className="text-sm font-medium">Built by Lucas</p>
+            <p className="text-xs text-slate-400 mt-1">Free • No signup • Privacy-focused</p>
+          </div>
+          <div className="flex gap-6 text-sm">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+              GitHub
+            </a>
+            <a href="mailto:contact@example.com" className="hover:text-white transition-colors">
+              Contact
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }
 
@@ -152,214 +197,129 @@ function Card({title, subtitle, children}){
 /* ---------- Placeholder page components (wrap your real ones here) ---------- */
 
 /* ---------- Page views ---------- */
-function DashboardView({portfolio, rebalanceResults, onNavigate}){
-  const hasHoldings = portfolio?.holdings && portfolio.holdings.length > 0;
-
+/* Hero Landing Page */
+function HeroView({onNavigate, onLoadExample}){
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card title="Total Portfolio" subtitle="Market value">
-          <div className="text-2xl font-semibold text-slate-800">
-            ${portfolio?.holdings?.reduce((sum, h) => sum + (h.currentValue || 0), 0).toLocaleString() || '0'}
+    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
+      <div className="max-w-4xl mx-auto text-center space-y-8">
+        {/* Hero Section */}
+        <div className="space-y-4">
+          <h1 className="text-5xl md:text-6xl font-bold text-slate-900">
+            RebalanceKit
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto">
+            Calculate exact portfolio rebalancing trades in seconds. Tax-efficient add-only mode. No signup required.
+          </p>
+        </div>
+
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button
+            onClick={onLoadExample}
+            className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-lg rounded-xl transition duration-200 shadow-lg"
+          >
+            Try Calculator
+          </button>
+          <button
+            onClick={() => onNavigate('about')}
+            className="px-8 py-4 bg-white hover:bg-slate-50 border-2 border-slate-300 text-slate-700 font-bold text-lg rounded-xl transition duration-200 shadow-sm"
+          >
+            See Example
+          </button>
+        </div>
+
+        {/* Feature Highlights */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-12 border-t border-slate-200">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="text-4xl mb-3">📊</div>
+            <h3 className="font-bold text-slate-900 mb-2">Add-Only Mode</h3>
+            <p className="text-sm text-slate-600">Avoid triggering capital gains taxes</p>
           </div>
-          <div className="text-sm text-slate-500 mt-2">
-            {portfolio?.holdings?.length || 0} holdings
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="text-4xl mb-3">💯</div>
+            <h3 className="font-bold text-slate-900 mb-2">Health Score</h3>
+            <p className="text-sm text-slate-600">Know your portfolio's risk level</p>
           </div>
-        </Card>
-
-        <Card title="Health Score" subtitle="Overall portfolio risk">
-          {hasHoldings ? (
-            <PortfolioHealthScore positions={portfolio.holdings} />
-          ) : (
-            <div className="text-sm text-slate-600 py-4">Add holdings to see health score</div>
-          )}
-        </Card>
-
-        <Card title="Estimated Rebalance Cost" subtitle="Fees & taxes estimate">
-          {rebalanceResults ? (
-            <RebalancingCostEstimate results={rebalanceResults} />
-          ) : (
-            <div className="text-sm text-slate-600 py-4">Run rebalance to see cost estimate</div>
-          )}
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="Allocation Chart" subtitle="Current vs target">
-          {hasHoldings ? (
-            <AllocationCharts positions={portfolio.holdings} />
-          ) : (
-            <div className="text-sm text-slate-600 py-4">Add holdings to see allocation chart</div>
-          )}
-        </Card>
-
-        <Card title="Recent Rebalances" subtitle="Latest actions">
-          {rebalanceResults ? (
-            <RebalancingResults results={rebalanceResults} />
-          ) : (
-            <div className="text-sm text-slate-600 py-4">No rebalance results yet</div>
-          )}
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card title="Portfolio Comparison">
-          {hasHoldings ? (
-            <PortfolioComparison groupedPositions={groupByAssetClass(portfolio.holdings)} />
-          ) : (
-            <div className="text-sm text-slate-600 py-4">Add holdings to compare portfolios</div>
-          )}
-        </Card>
-
-        <Card title="Import / Export">
-          <div className="text-sm text-slate-600 py-4">
-            <button
-              onClick={() => onNavigate('import')}
-              className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 transition"
-            >
-              Import Portfolio
-            </button>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="text-4xl mb-3">📑</div>
+            <h3 className="font-bold text-slate-900 mb-2">PDF Reports</h3>
+            <p className="text-sm text-slate-600">Export professional summaries</p>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
 }
 
-function ImportView({onBack}){
+/* Calculator View - Main Portfolio Calculator */
+function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadClick}){
   return (
-    <div className="space-y-4">
-      <Card title="Import Portfolio">
-        <ImportPortfolioPage onBack={onBack} />
-      </Card>
-    </div>
-  );
-}
-
-function LoadView({onBack}){
-  return (
-    <div className="space-y-4">
-      <Card title="Load Saved Portfolios">
-        <LoadPortfolioPage onBack={onBack} />
-      </Card>
-    </div>
-  );
-}
-
-function RebalanceView({onCalculate, onImportClick, onLoadClick, loadedPositions}){
-  return (
-    <div className="space-y-4">
-      <Card title="Rebalance" subtitle="Run suggested actions">
+    <div className="space-y-6">
+      {/* Portfolio Form */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <PortfolioForm
           onCalculate={onCalculate}
-          onImportClick={onImportClick}
+          onImportClick={() => {}} // Removed import functionality from nav
           onLoadClick={onLoadClick}
           loadedPositions={loadedPositions}
         />
-      </Card>
+      </div>
+
+      {/* Results Section */}
+      {rebalanceResults && (
+        <div className="space-y-6">
+          <RebalancingResults results={rebalanceResults} />
+        </div>
+      )}
     </div>
   );
 }
 
-function HealthView({rebalanceResults}){
+/* About Page */
+function AboutView(){
   return (
-    <div className="space-y-4">
-      <Card title="Portfolio Health Score">
-        {rebalanceResults ? (
-          <PortfolioHealthScore positions={rebalanceResults.positions} />
-        ) : (
-          <div className="text-sm text-slate-600 py-4">
-            Run a rebalance calculation first to view health score
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-}
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+        <h2 className="text-3xl font-bold text-slate-900 mb-6">About RebalanceKit</h2>
 
-function ChartsView({rebalanceResults}){
-  return (
-    <div className="space-y-4">
-      <Card title="Allocation Charts">
-        {rebalanceResults ? (
-          <AllocationCharts
-            positions={rebalanceResults.positions}
-            viewMode="tickers"
-            groupedPositions={groupByAssetClass(rebalanceResults.positions)}
-          />
-        ) : (
-          <div className="text-sm text-slate-600 py-4">
-            Run a rebalance calculation first to view allocation charts
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-}
+        <div className="space-y-4 text-slate-700 leading-relaxed">
+          <p>
+            RebalanceKit helps investors calculate exact rebalancing trades to maintain their target portfolio allocations.
+          </p>
 
-function ComparisonView({rebalanceResults}){
-  return (
-    <div className="space-y-4">
-      <Card title="Portfolio Comparison">
-        {rebalanceResults ? (
-          <PortfolioComparison groupedPositions={groupByAssetClass(rebalanceResults.positions)} />
-        ) : (
-          <div className="text-sm text-slate-600 py-4">
-            Run a rebalance calculation first to view portfolio comparison
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-}
+          <h3 className="text-xl font-bold text-slate-900 mt-6 mb-3">Key Features</h3>
+          <ul className="list-disc list-inside space-y-2 ml-4">
+            <li><strong>Add-Only Mode:</strong> Only buy positions, never sell. Useful for avoiding capital gains taxes.</li>
+            <li><strong>Health Score:</strong> Measures portfolio concentration and drift risk (0-100).</li>
+            <li><strong>Model Portfolios:</strong> Compare to popular strategies like 3-fund or 60/40.</li>
+            <li><strong>PDF Reports:</strong> Export professional summaries with charts and analysis.</li>
+            <li><strong>AI Analysis:</strong> Get intelligent insights powered by Claude AI.</li>
+            <li><strong>Multiple Modes:</strong> Standard rebalancing, contributions, withdrawals, add-only, or sell-only.</li>
+          </ul>
 
-function ExportView({portfolio, rebalanceResults, showSaveModal, setShowSaveModal}){
-  return (
-    <div className="space-y-4">
-      <Card title="Export & Save">
-        {rebalanceResults ? (
-          <>
-            {/* Render charts for PDF capture */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Preview</h3>
-              <div data-charts>
-                <AllocationCharts
-                  positions={rebalanceResults.positions}
-                  viewMode="tickers"
-                  groupedPositions={groupByAssetClass(rebalanceResults.positions)}
-                />
-              </div>
-            </div>
+          <h3 className="text-xl font-bold text-slate-900 mt-6 mb-3">Example Portfolio</h3>
+          <p>
+            Try the calculator with our example portfolio to see how it works:
+          </p>
+          <ul className="list-disc list-inside space-y-1 ml-4">
+            <li>VTI (US Stocks) - $30,000 / 60% target</li>
+            <li>BND (Bonds) - $15,000 / 30% target</li>
+            <li>CASH - $5,000 / 10% target</li>
+          </ul>
 
-            <ExportButtons results={rebalanceResults} />
-          </>
-        ) : (
-          <div className="text-sm text-slate-600 py-4">
-            <p className="mb-4">Run a rebalance calculation first to export results.</p>
-            <button className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 transition">
-              Go to Rebalance
-            </button>
-          </div>
-        )}
-        {showSaveModal && <SavePortfolioModal onClose={() => setShowSaveModal(false)} />}
-      </Card>
-    </div>
-  );
-}
-
-function BillingView(){
-  return (
-    <div className="space-y-4">
-      <Card title="Billing & Stripe">
-        <StripePayment />
-      </Card>
+          <h3 className="text-xl font-bold text-slate-900 mt-6 mb-3">Privacy & Security</h3>
+          <p>
+            Your portfolio data is stored locally in your browser. We don't collect or store your financial information on our servers.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
 
 /* ---------- Main App ---------- */
 export default function App(){
-  const [active, setActive] = useState('dashboard');
+  const [active, setActive] = useState('home');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Portfolio state management
@@ -371,15 +331,28 @@ export default function App(){
   // Handler functions
   function handleCalculate(results) {
     setRebalanceResults(results);
-    setActive('dashboard');
   }
 
-  function handleImportClick() {
-    setActive('import');
+  function handleLoadExample() {
+    // Load example portfolio
+    const examplePositions = [
+      { id: 1, ticker: 'VTI', amount: '30000', targetPercent: '60' },
+      { id: 2, ticker: 'BND', amount: '15000', targetPercent: '30' },
+      { id: 3, ticker: 'CASH', amount: '5000', targetPercent: '10' }
+    ];
+    setLoadedPositions(examplePositions);
+
+    // Auto-calculate the example
+    const results = calculateRebalancing(examplePositions, 'standard', 0);
+    setRebalanceResults(results);
+
+    // Navigate to calculator
+    setActive('calculator');
   }
 
   function handleLoadClick() {
-    setActive('load');
+    // Open load portfolio modal - for now, just navigate
+    setActive('calculator');
   }
 
   function handleBack(loadedPositions) {
@@ -389,46 +362,35 @@ export default function App(){
       setRebalanceResults(results);
       setLoadedPositions(loadedPositions);
     }
-    setActive('dashboard');
+    setActive('calculator');
   }
 
   function renderActive(){
     switch(active){
-      case 'dashboard': return <DashboardView portfolio={portfolio} rebalanceResults={rebalanceResults} onNavigate={setActive} />;
-      case 'import': return <ImportView onBack={handleBack} />;
-      case 'load': return <LoadView onBack={handleBack} />;
-      case 'rebalance': return <RebalanceView
+      case 'home': return <HeroView onNavigate={setActive} onLoadExample={handleLoadExample} />;
+      case 'calculator': return <CalculatorView
         onCalculate={handleCalculate}
-        onImportClick={handleImportClick}
-        onLoadClick={handleLoadClick}
-        loadedPositions={loadedPositions}
-      />;
-      case 'health': return <HealthView rebalanceResults={rebalanceResults} />;
-      case 'charts': return <ChartsView rebalanceResults={rebalanceResults} />;
-      case 'comparison': return <ComparisonView rebalanceResults={rebalanceResults} />;
-      case 'export': return <ExportView
-        portfolio={portfolio}
         rebalanceResults={rebalanceResults}
-        showSaveModal={showSaveModal}
-        setShowSaveModal={setShowSaveModal}
+        loadedPositions={loadedPositions}
+        onLoadClick={handleLoadClick}
       />;
-      case 'billing': return <BillingView />;
-      default: return <DashboardView portfolio={portfolio} rebalanceResults={rebalanceResults} onNavigate={setActive} />;
+      case 'about': return <AboutView />;
+      default: return <HeroView onNavigate={setActive} onLoadExample={handleLoadExample} />;
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="flex h-screen">
-        <Sidebar activeKey={active} onNavigate={setActive} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex">
+      <Sidebar activeKey={active} onNavigate={setActive} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
 
-        <div className="flex-1 flex flex-col">
-          <Topbar onToggleSidebar={() => setSidebarCollapsed(s => !s)} title={NAV_ITEMS.find(n => n.key === active)?.label || 'Dashboard'} />
+      <div className="flex-1 flex flex-col min-h-screen">
+        <Topbar onToggleSidebar={() => setSidebarCollapsed(s => !s)} title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'} />
 
-          <main className="p-6 overflow-auto">
-            {renderActive()}
-          </main>
-        </div>
+        <main className="flex-1 p-6 overflow-auto">
+          {renderActive()}
+        </main>
+
+        <Footer />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { calculatePortfolioHealth, calculateDrift } from '../utils/portfolioHealth';
+import Tooltip from './Tooltip';
 
 function PortfolioHealthScore({ positions }) {
   const health = calculatePortfolioHealth(positions);
@@ -32,7 +33,10 @@ function PortfolioHealthScore({ positions }) {
       {/* Health Score */}
       <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-bold text-gray-900">Portfolio Health Score</h3>
+          <h3 className="text-lg font-bold text-gray-900 flex items-center">
+            Portfolio Health Score
+            <Tooltip text="Measures portfolio concentration and drift risk (0-100). Higher scores indicate better diversification and alignment with target allocations." />
+          </h3>
           <div className={`px-4 py-2 rounded-lg border-2 ${healthColorClasses[health.color]}`}>
             <div className="flex items-center gap-2">
               <span className="text-3xl font-bold">{health.score}</span>

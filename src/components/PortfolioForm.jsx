@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { savePortfolio, getSavedPortfolios } from '../utils/portfolioStorage';
 import SavePortfolioModal from './SavePortfolioModal';
+import Tooltip from './Tooltip';
 
 function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPositions }) {
   const [positions, setPositions] = useState([
@@ -157,19 +158,17 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Enter Your Portfolio Positions
             </h2>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={loadExamplePortfolio}
-                className="px-3 py-2 bg-gradient-to-r from-slate-500 to-slate-500 hover:from-slate-600 hover:to-slate-600 text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
-              >
-                Try Example
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={loadExamplePortfolio}
+              className="w-full px-6 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-lg rounded-xl transition duration-200 shadow-lg mb-4"
+            >
+              📊 Load Example Portfolio
+            </button>
           </div>
 
           {/* Rebalancing Mode Selector */}
@@ -205,7 +204,10 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                     : 'bg-white border-gray-300 text-gray-700 hover:border-slate-400 hover:bg-slate-50'
                 }`}
               >
-                <div className="font-bold mb-1">Add Money</div>
+                <div className="font-bold mb-1 flex items-center">
+                  Add Money
+                  <Tooltip text="Only buy positions, never sell. Useful for avoiding capital gains taxes when adding new funds to your portfolio." />
+                </div>
                 <div className={`text-xs ${rebalancingMode === 'contribution' ? 'text-slate-100' : 'text-gray-600'}`}>
                   Invest new contribution
                 </div>
