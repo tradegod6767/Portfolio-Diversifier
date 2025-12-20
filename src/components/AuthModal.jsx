@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { auth } from '../lib/supabase';
+import { login, signup } from '../lib/auth';
 
 function AuthModal({ isOpen, onClose, onSuccess }) {
   const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
@@ -16,17 +16,13 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      let result;
       if (mode === 'signup') {
-        result = await auth.signUp(email, password);
+        await signup(email, password);
+        alert('Check your email to confirm your account!');
+        onClose();
       } else {
-        result = await auth.signIn(email, password);
-      }
-
-      if (result.error) {
-        setError(result.error.message);
-      } else {
-        // Success!
+        await login(email, password);
+        // Auth state will update automatically via onAuthStateChange
         setEmail('');
         setPassword('');
         if (onSuccess) onSuccess();

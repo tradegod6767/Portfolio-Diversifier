@@ -46,13 +46,19 @@ function PaywallWrapper({ featureName, description, children, blur = true }) {
 
   // Handle upgrade button click
   const handleUpgradeClick = async () => {
-    // Bypass authentication - go directly to Stripe checkout
-    // Stripe will collect the email during checkout
+    // If not logged in, show auth modal
+    if (!user) {
+      console.log('[PaywallWrapper] User not logged in, showing auth modal');
+      setShowAuthModal(true);
+      return;
+    }
+
+    // User is logged in - redirect to Stripe checkout
     setIsUpgrading(true);
 
     const requestBody = {
-      userId: user?.id || 'guest-' + Date.now(),
-      email: user?.email || 'customer@example.com', // Fallback email for Stripe
+      userId: user.id,
+      email: user.email,
     };
 
     console.log('[PaywallWrapper] Creating checkout session with:', requestBody);
@@ -147,7 +153,7 @@ function PaywallWrapper({ featureName, description, children, blur = true }) {
                 </span>
               ) : (
                 <>
-                  {user ? 'Upgrade to Pro' : 'Sign Up to Upgrade'}
+                  {user ? 'Upgrade to Pro - $79/year' : 'Sign In to Upgrade'}
                 </>
               )}
             </button>
