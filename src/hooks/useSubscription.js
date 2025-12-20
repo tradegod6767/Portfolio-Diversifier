@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { auth, subscriptions } from '../lib/supabase';
 
 /**
@@ -9,26 +9,47 @@ export function useSubscription() {
   const [user, setUser] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isFetchingRef = useRef(false);
+  const hasInitializedRef = useRef(false);
 
-  // Fetch subscription data for a given user
-  const fetchSubscription = async (userId) => {
+  // Fetch subscription data for a given user (memoized)
+  const fetchSubscription = useCallback(async (userId) => {
     if (!userId) {
       setSubscription(null);
       return;
     }
 
-    const { data, error } = await subscriptions.getSubscription(userId);
-
-    if (error) {
-      console.error('Error fetching subscription:', error);
-      setSubscription(null);
-    } else {
-      setSubscription(data);
+    // Prevent multiple simultaneous fetches
+    if (isFetchingRef.current) {
+      console.log('[useSubscription] Already fetching, skipping...');
+      return;
     }
-  };
+
+    isFetchingRef.current = true;
+
+    try {
+      const { data, error } = await subscriptions.getSubscription(userId);
+
+      if (error) {
+        console.error('[useSubscription] Error fetching subscription:', error);
+        setSubscription(null);
+      } else {
+        setSubscription(data);
+      }
+    } finally {
+      isFetchingRef.current = false;
+    }
+  }, []);
 
   // Initialize and listen for auth state changes
   useEffect(() => {
+    // Prevent double initialization in React Strict Mode
+    if (hasInitializedRef.current) {
+      console.log('[useSubscription] Already initialized, skipping...');
+      return;
+    }
+    hasInitializedRef.current = true;
+
     let mounted = true;
 
     // Get initial user
@@ -72,6 +93,12 @@ export function useSubscription() {
 
       if (!mounted) return;
 
+      // Skip INITIAL_SESSION to avoid duplicate fetch
+      if (event === 'INITIAL_SESSION') {
+        console.log('[useSubscription] Skipping INITIAL_SESSION (already handled)');
+        return;
+      }
+
       const currentUser = session?.user || null;
       setUser(currentUser);
 
@@ -86,14 +113,14 @@ export function useSubscription() {
       mounted = false;
       authListener?.subscription?.unsubscribe();
     };
-  }, []);
+  }, [fetchSubscription]);
 
-  // Manual refetch function
-  const refetch = async () => {
+  // Manual refetch function (memoized)
+  const refetch = useCallback(async () => {
     if (user) {
       await fetchSubscription(user.id);
     }
-  };
+  }, [user, fetchSubscription]);
 
   // Calculate isPro status
   const isPro = subscriptions.isPro(subscription);
