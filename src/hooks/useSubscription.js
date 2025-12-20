@@ -31,61 +31,35 @@ export function useSubscription() {
   useEffect(() => {
     let mounted = true;
 
-    // Timeout fallback - stop loading after 2 seconds no matter what
-    const timeout = setTimeout(() => {
-      if (mounted && loading) {
-        console.warn('Auth initialization timed out - assuming no user');
-        setLoading(false);
-        setUser(null);
-        setSubscription(null);
-      }
-    }, 2000); // Reduced to 2 seconds
-
     // Get initial user
     const initializeAuth = async () => {
       setLoading(true);
-      console.log('[useSubscription] Starting auth initialization...');
+      console.log('[useSubscription] Initializing auth...');
+
       try {
-        console.log('[useSubscription] Calling getCurrentUser...');
-
-        // Wrap getCurrentUser with a timeout
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('getCurrentUser timed out')), 1500)
-        );
-
-        const authPromise = auth.getCurrentUser();
-
-        const { user: currentUser, error } = await Promise.race([authPromise, timeoutPromise])
-          .catch(err => {
-            console.error('[useSubscription] Auth call timed out or failed:', err);
-            return { user: null, error: err };
-          });
-
-        console.log('[useSubscription] getCurrentUser response:', {
-          hasUser: !!currentUser,
-          hasError: !!error,
-          errorMessage: error?.message
-        });
+        const { user: currentUser, error } = await auth.getCurrentUser();
 
         if (error) {
-          console.error('[useSubscription] Auth error:', error);
+          console.error('[useSubscription] Auth error:', error.message);
         }
 
-        if (mounted) {
-          setUser(currentUser);
-          if (currentUser) {
-            console.log('[useSubscription] Fetching subscription for user:', currentUser.id);
-            await fetchSubscription(currentUser.id);
-          }
-          clearTimeout(timeout);
-          setLoading(false);
-          console.log('[useSubscription] Auth initialization complete');
+        if (!mounted) return;
+
+        setUser(currentUser);
+
+        if (currentUser) {
+          console.log('[useSubscription] User logged in, fetching subscription...');
+          await fetchSubscription(currentUser.id);
         }
+
+        setLoading(false);
+        console.log('[useSubscription] Auth initialized');
       } catch (error) {
-        console.error('[useSubscription] Failed to initialize auth:', error);
+        console.error('[useSubscription] Auth initialization failed:', error);
         if (mounted) {
-          clearTimeout(timeout);
-          setLoading(false); // Stop loading even on error
+          setUser(null);
+          setSubscription(null);
+          setLoading(false);
         }
       }
     };
@@ -94,21 +68,22 @@ export function useSubscription() {
 
     // Listen for auth state changes
     const { data: authListener } = auth.onAuthStateChange(async (event, session) => {
-      if (mounted) {
-        const currentUser = session?.user || null;
-        setUser(currentUser);
+      console.log('[useSubscription] Auth state changed:', event);
 
-        if (currentUser) {
-          await fetchSubscription(currentUser.id);
-        } else {
-          setSubscription(null);
-        }
+      if (!mounted) return;
+
+      const currentUser = session?.user || null;
+      setUser(currentUser);
+
+      if (currentUser) {
+        await fetchSubscription(currentUser.id);
+      } else {
+        setSubscription(null);
       }
     });
 
     return () => {
       mounted = false;
-      clearTimeout(timeout);
       authListener?.subscription?.unsubscribe();
     };
   }, []);

@@ -28,7 +28,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Using fallback values - authentication will not work properly');
 }
 
-// Create Supabase client (use fallback values if missing to prevent crash)
+// Create Supabase client with proper Vercel edge configuration
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key',
@@ -38,13 +38,15 @@ export const supabase = createClient(
       persistSession: true,
       detectSessionInUrl: true,
       storage: window.localStorage,
-      flowType: 'pkce', // Use PKCE flow
+      storageKey: 'supabase.auth.token',
     },
     global: {
-      fetch: (...args) => fetch(...args), // Use native fetch
+      headers: {
+        'x-application-name': 'rebalancekit',
+      },
     },
-    db: {
-      schema: 'public',
+    realtime: {
+      enabled: false, // Disable realtime to reduce overhead
     },
   }
 );
@@ -73,30 +75,21 @@ export const auth = {
   },
 
   getCurrentUser: async () => {
+    console.log('[Auth] Getting current user...');
+
     try {
-      console.log('[Auth] Checking for session...');
+      const { data, error } = await supabase.auth.getUser();
 
-      // Try to read session from localStorage directly first
-      const sessionKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
-      const storedSession = localStorage.getItem(sessionKey);
-
-      if (storedSession) {
-        try {
-          const parsed = JSON.parse(storedSession);
-          if (parsed && parsed.user) {
-            console.log('[Auth] Found session in localStorage:', parsed.user.email);
-            return { user: parsed.user, error: null };
-          }
-        } catch (parseErr) {
-          console.error('[Auth] Failed to parse stored session:', parseErr);
-        }
+      if (error) {
+        console.error('[Auth] getUser error:', error.message);
+        return { user: null, error };
       }
 
-      console.log('[Auth] No session found in localStorage');
-      return { user: null, error: null };
+      console.log('[Auth] User check complete:', data.user ? data.user.email : 'No user');
+      return { user: data.user, error: null };
     } catch (err) {
-      console.error('[Auth] getCurrentUser exception:', err);
-      return { user: null, error: null };
+      console.error('[Auth] getCurrentUser exception:', err.message);
+      return { user: null, error: { message: err.message } };
     }
   },
 
