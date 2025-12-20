@@ -70,14 +70,38 @@ export const auth = {
       console.log('[Auth] Fetching current user from Supabase...');
       console.log('[Auth] Using URL:', supabaseUrl);
 
-      const { data: { user }, error } = await supabase.auth.getUser();
+      // Test basic connectivity first with a simple fetch
+      console.log('[Auth] Testing basic connectivity...');
+      try {
+        const testResponse = await fetch(`${supabaseUrl}/auth/v1/health`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
+        console.log('[Auth] Health check response:', testResponse.status);
+      } catch (fetchErr) {
+        console.error('[Auth] Health check failed:', fetchErr);
+      }
 
-      console.log('[Auth] getCurrentUser result:', {
-        hasUser: !!user,
-        error: error?.message,
-        errorDetails: error
-      });
-      return { user, error };
+      // Now try the actual auth call with a timeout
+      console.log('[Auth] Calling supabase.auth.getUser()...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        clearTimeout(timeoutId);
+
+        console.log('[Auth] getCurrentUser result:', {
+          hasUser: !!user,
+          error: error?.message,
+          errorDetails: error
+        });
+        return { user, error };
+      } catch (authErr) {
+        clearTimeout(timeoutId);
+        console.error('[Auth] Auth call failed:', authErr);
+        return { user: null, error: authErr };
+      }
     } catch (err) {
       console.error('[Auth] getCurrentUser exception:', err);
       console.error('[Auth] Error stack:', err.stack);
