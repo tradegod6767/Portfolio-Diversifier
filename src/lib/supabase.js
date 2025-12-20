@@ -68,50 +68,21 @@ export const auth = {
   getCurrentUser: async () => {
     try {
       console.log('[Auth] Fetching current user from Supabase...');
-      console.log('[Auth] Using URL:', supabaseUrl);
 
-      // Test basic connectivity first with a simple fetch with API key
-      console.log('[Auth] Testing basic connectivity with API key...');
-      try {
-        const testResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
-          method: 'GET',
-          headers: {
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`
-          },
-          signal: AbortSignal.timeout(5000) // 5 second timeout
-        });
-        console.log('[Auth] User endpoint test response:', testResponse.status);
-        const testData = await testResponse.json();
-        console.log('[Auth] User endpoint test data:', testData);
-      } catch (fetchErr) {
-        console.error('[Auth] User endpoint test failed:', fetchErr);
-      }
+      // Get the session from localStorage directly
+      const session = await supabase.auth.getSession();
+      console.log('[Auth] Session check:', { hasSession: !!session.data.session });
 
-      // Now try the actual auth call with a timeout
-      console.log('[Auth] Calling supabase.auth.getUser()...');
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        clearTimeout(timeoutId);
-
-        console.log('[Auth] getCurrentUser result:', {
-          hasUser: !!user,
-          error: error?.message,
-          errorDetails: error
-        });
-        return { user, error };
-      } catch (authErr) {
-        clearTimeout(timeoutId);
-        console.error('[Auth] Auth call failed:', authErr);
-        return { user: null, error: authErr };
+      if (session.data.session) {
+        console.log('[Auth] User is logged in:', session.data.session.user.email);
+        return { user: session.data.session.user, error: null };
+      } else {
+        console.log('[Auth] No active session - user not logged in');
+        return { user: null, error: null };
       }
     } catch (err) {
       console.error('[Auth] getCurrentUser exception:', err);
-      console.error('[Auth] Error stack:', err.stack);
-      return { user: null, error: err };
+      return { user: null, error: null }; // Return null user on error instead of throwing
     }
   },
 
