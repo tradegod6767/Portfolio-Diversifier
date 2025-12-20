@@ -68,20 +68,19 @@ export const auth = {
   getCurrentUser: async () => {
     try {
       console.log('[Auth] Fetching current user from Supabase...');
+      console.log('[Auth] Using URL:', supabaseUrl);
 
-      // Add a timeout wrapper to prevent hanging
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Auth request timed out after 3 seconds')), 3000)
-      );
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      const authPromise = supabase.auth.getUser();
-
-      const { data: { user }, error } = await Promise.race([authPromise, timeoutPromise]);
-
-      console.log('[Auth] getCurrentUser result:', { hasUser: !!user, error: error?.message });
+      console.log('[Auth] getCurrentUser result:', {
+        hasUser: !!user,
+        error: error?.message,
+        errorDetails: error
+      });
       return { user, error };
     } catch (err) {
-      console.error('[Auth] getCurrentUser failed:', err);
+      console.error('[Auth] getCurrentUser exception:', err);
+      console.error('[Auth] Error stack:', err.stack);
       return { user: null, error: err };
     }
   },
