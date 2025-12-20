@@ -44,23 +44,32 @@ export function useSubscription() {
     // Get initial user
     const initializeAuth = async () => {
       setLoading(true);
+      console.log('[useSubscription] Starting auth initialization...');
       try {
+        console.log('[useSubscription] Calling getCurrentUser...');
         const { user: currentUser, error } = await auth.getCurrentUser();
+        console.log('[useSubscription] getCurrentUser response:', {
+          hasUser: !!currentUser,
+          hasError: !!error,
+          errorMessage: error?.message
+        });
 
         if (error) {
-          console.error('Auth error:', error);
+          console.error('[useSubscription] Auth error:', error);
         }
 
         if (mounted) {
           setUser(currentUser);
           if (currentUser) {
+            console.log('[useSubscription] Fetching subscription for user:', currentUser.id);
             await fetchSubscription(currentUser.id);
           }
           clearTimeout(timeout);
           setLoading(false);
+          console.log('[useSubscription] Auth initialization complete');
         }
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
+        console.error('[useSubscription] Failed to initialize auth:', error);
         if (mounted) {
           clearTimeout(timeout);
           setLoading(false); // Stop loading even on error

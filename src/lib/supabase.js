@@ -7,8 +7,18 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 console.log('[Supabase Init] Environment check:', {
   supabaseUrl: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING',
   supabaseAnonKey: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING',
+  supabaseUrlLength: supabaseUrl?.length,
+  supabaseAnonKeyLength: supabaseAnonKey?.length,
   allEnvVars: Object.keys(import.meta.env),
 });
+
+// Validate that the values are complete strings, not just truncated
+if (supabaseUrl && supabaseUrl.length < 40) {
+  console.error('[Supabase Init] WARNING: supabaseUrl seems too short!', supabaseUrl);
+}
+if (supabaseAnonKey && supabaseAnonKey.length < 100) {
+  console.error('[Supabase Init] WARNING: supabaseAnonKey seems too short!', supabaseAnonKey);
+}
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables:', {
