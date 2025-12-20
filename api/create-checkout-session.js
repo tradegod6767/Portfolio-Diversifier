@@ -24,10 +24,18 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('[Checkout] Request received:', {
+      userId: req.body?.userId,
+      email: req.body?.email,
+      hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
+      hasPriceId: !!process.env.STRIPE_PRICE_ID,
+    });
+
     const { userId, email } = req.body;
 
     // Validate required fields
     if (!userId || !email) {
+      console.error('[Checkout] Missing required fields:', { userId, email });
       return res.status(400).json({ error: 'Missing userId or email' });
     }
 
@@ -38,8 +46,11 @@ export default async function handler(req, res) {
     const priceId = process.env.STRIPE_PRICE_ID;
 
     if (!priceId) {
+      console.error('[Checkout] STRIPE_PRICE_ID not configured');
       throw new Error('STRIPE_PRICE_ID not configured');
     }
+
+    console.log('[Checkout] Creating session with priceId:', priceId);
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -63,15 +74,23 @@ export default async function handler(req, res) {
       },
     });
 
+    console.log('[Checkout] Session created successfully:', session.id);
+
     // Return the checkout URL
     return res.status(200).json({
       url: session.url,
       sessionId: session.id,
     });
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    console.error('[Checkout] Error creating checkout session:', {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      stack: error.stack,
+    });
     return res.status(500).json({
       error: error.message || 'Failed to create checkout session',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     });
   }
 }
