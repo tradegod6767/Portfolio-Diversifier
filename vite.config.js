@@ -9,10 +9,16 @@ export default defineConfig(({ mode }) => {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL
 
   console.log('[Vite Build] Environment variables from process.env:')
-  console.log('  VITE_SUPABASE_URL:', supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING')
-  console.log('  VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING')
+  console.log('  VITE_SUPABASE_URL:', supabaseUrl ? `${supabaseUrl.substring(0, 30)}... (length: ${supabaseUrl.length})` : 'MISSING')
+  console.log('  VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}... (length: ${supabaseAnonKey.length})` : 'MISSING')
   console.log('  NEXT_PUBLIC_APP_URL:', appUrl || 'MISSING')
   console.log('  Mode:', mode)
+
+  // Log full URL to check for truncation
+  if (supabaseUrl && supabaseUrl.length !== 45) {
+    console.warn(`[Vite Build] WARNING: VITE_SUPABASE_URL length is ${supabaseUrl.length}, expected 45`)
+    console.warn(`[Vite Build] Full URL: ${supabaseUrl}`)
+  }
 
   return {
     plugins: [react()],

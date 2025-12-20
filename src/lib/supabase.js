@@ -66,8 +66,24 @@ export const auth = {
   },
 
   getCurrentUser: async () => {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    return { user, error };
+    try {
+      console.log('[Auth] Fetching current user from Supabase...');
+
+      // Add a timeout wrapper to prevent hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Auth request timed out after 3 seconds')), 3000)
+      );
+
+      const authPromise = supabase.auth.getUser();
+
+      const { data: { user }, error } = await Promise.race([authPromise, timeoutPromise]);
+
+      console.log('[Auth] getCurrentUser result:', { hasUser: !!user, error: error?.message });
+      return { user, error };
+    } catch (err) {
+      console.error('[Auth] getCurrentUser failed:', err);
+      return { user: null, error: err };
+    }
   },
 
   onAuthStateChange: (callback) => {
