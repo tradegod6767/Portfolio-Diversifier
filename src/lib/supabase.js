@@ -70,16 +70,22 @@ export const auth = {
       console.log('[Auth] Fetching current user from Supabase...');
       console.log('[Auth] Using URL:', supabaseUrl);
 
-      // Test basic connectivity first with a simple fetch
-      console.log('[Auth] Testing basic connectivity...');
+      // Test basic connectivity first with a simple fetch with API key
+      console.log('[Auth] Testing basic connectivity with API key...');
       try {
-        const testResponse = await fetch(`${supabaseUrl}/auth/v1/health`, {
+        const testResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
           method: 'GET',
+          headers: {
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`
+          },
           signal: AbortSignal.timeout(5000) // 5 second timeout
         });
-        console.log('[Auth] Health check response:', testResponse.status);
+        console.log('[Auth] User endpoint test response:', testResponse.status);
+        const testData = await testResponse.json();
+        console.log('[Auth] User endpoint test data:', testData);
       } catch (fetchErr) {
-        console.error('[Auth] Health check failed:', fetchErr);
+        console.error('[Auth] User endpoint test failed:', fetchErr);
       }
 
       // Now try the actual auth call with a timeout
