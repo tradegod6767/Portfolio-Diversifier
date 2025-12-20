@@ -141,8 +141,15 @@ function Topbar({onToggleSidebar, title}){
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleSignOut = async () => {
-    await logout();
-    window.location.reload(); // Refresh to clear state
+    try {
+      console.log('[App] Logging out...');
+      await logout();
+      console.log('[App] Logout successful, reloading...');
+      window.location.reload(); // Refresh to clear state
+    } catch (error) {
+      console.error('[App] Logout error:', error);
+      alert('Failed to sign out. Please try again.');
+    }
   };
 
   return (
