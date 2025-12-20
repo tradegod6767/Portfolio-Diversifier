@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSubscription } from '../hooks/useSubscription';
+import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 
 /**
@@ -12,7 +12,7 @@ import AuthModal from './AuthModal';
  * @param {boolean} props.blur - Whether to blur the content (default: true)
  */
 function PaywallWrapper({ featureName, description, children, blur = true }) {
-  const { user, isPro, loading } = useSubscription();
+  const { user, isPro, loading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
 

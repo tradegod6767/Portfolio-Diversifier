@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSubscription } from '../hooks/useSubscription';
+import { useAuth } from '../hooks/useAuth';
 
 function SuccessPage() {
   const navigate = useNavigate();
-  const { refetch } = useSubscription();
+  const { refetch } = useAuth();
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {

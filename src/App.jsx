@@ -27,7 +27,7 @@ import RebalancingResults from "./components/RebalancingResults";
 import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
 import SuccessPage from "./pages/SuccessPage";
 import AuthModal from "./components/AuthModal";
-import { useSubscription } from "./hooks/useSubscription";
+import { useAuth } from "./hooks/useAuth";
 import { auth } from "./lib/supabase";
 import { groupByAssetClass } from "./utils/assetClasses";
 import { calculateRebalancing } from "./utils/calculations";
@@ -137,7 +137,7 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle}){
 
 /* ---------- Topbar ---------- */
 function Topbar({onToggleSidebar, title}){
-  const { user, isPro } = useSubscription();
+  const { user, isPro } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleSignOut = async () => {
