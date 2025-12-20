@@ -141,17 +141,21 @@ function Topbar({onToggleSidebar, title}){
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleSignOut = async () => {
+    console.log('[App] Sign out button clicked');
+
     try {
-      console.log('Sign out clicked');
+      console.log('[App] Calling logout()...');
       await logout();
-      console.log('Logout successful');
-      // Clear all storage
+      console.log('[App] Logout successful');
+
+      // Clear all storage immediately
       localStorage.clear();
       sessionStorage.clear();
-      // Reload immediately
-      window.location.href = '/';
+
+      // Force reload to home page
+      window.location.href = window.location.origin;
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('[App] Sign out error:', error);
       alert('Failed to sign out: ' + error.message);
     }
   };
