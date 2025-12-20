@@ -4,9 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // Get environment variables from process.env (Vercel sets these during build)
-  const supabaseUrl = process.env.VITE_SUPABASE_URL
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  // Trim any whitespace that might have been added
+  const supabaseUrl = process.env.VITE_SUPABASE_URL?.trim() || 'https://gfuarcyulekmrkivcjzk.supabase.co'
+  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY?.trim() || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmdWFyY3l1bGVrbXJraXZjanprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxODkxNzcsImV4cCI6MjA4MTc2NTE3N30.IepoTNmI_3M25wUnxuNjndivkQF3A1nQ8GCn-T98sFs'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || 'https://rebalancekit.com'
 
   console.log('[Vite Build] Environment variables from process.env:')
   console.log('  VITE_SUPABASE_URL:', supabaseUrl ? `${supabaseUrl.substring(0, 30)}... (length: ${supabaseUrl.length})` : 'MISSING')
