@@ -141,15 +141,21 @@ function Topbar({onToggleSidebar, title}){
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleSignOut = async () => {
+    console.log('[App] Logging out...');
+
+    // Try to logout with a timeout
+    const logoutPromise = logout();
+    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 1000));
+
     try {
-      console.log('[App] Logging out...');
-      await logout();
-      console.log('[App] Logout successful, reloading...');
-      window.location.reload(); // Refresh to clear state
+      await Promise.race([logoutPromise, timeoutPromise]);
+      console.log('[App] Logout completed (or timed out), reloading...');
     } catch (error) {
       console.error('[App] Logout error:', error);
-      alert('Failed to sign out. Please try again.');
     }
+
+    // Always reload to clear the session
+    window.location.reload();
   };
 
   return (
