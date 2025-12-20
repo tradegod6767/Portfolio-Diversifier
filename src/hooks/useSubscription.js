@@ -31,7 +31,7 @@ export function useSubscription() {
   useEffect(() => {
     let mounted = true;
 
-    // Timeout fallback - stop loading after 5 seconds no matter what
+    // Timeout fallback - stop loading after 2 seconds no matter what
     const timeout = setTimeout(() => {
       if (mounted && loading) {
         console.warn('Auth initialization timed out - assuming no user');
@@ -39,7 +39,7 @@ export function useSubscription() {
         setUser(null);
         setSubscription(null);
       }
-    }, 5000);
+    }, 2000); // Reduced to 2 seconds
 
     // Get initial user
     const initializeAuth = async () => {
@@ -47,7 +47,20 @@ export function useSubscription() {
       console.log('[useSubscription] Starting auth initialization...');
       try {
         console.log('[useSubscription] Calling getCurrentUser...');
-        const { user: currentUser, error } = await auth.getCurrentUser();
+
+        // Wrap getCurrentUser with a timeout
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('getCurrentUser timed out')), 1500)
+        );
+
+        const authPromise = auth.getCurrentUser();
+
+        const { user: currentUser, error } = await Promise.race([authPromise, timeoutPromise])
+          .catch(err => {
+            console.error('[useSubscription] Auth call timed out or failed:', err);
+            return { user: null, error: err };
+          });
+
         console.log('[useSubscription] getCurrentUser response:', {
           hasUser: !!currentUser,
           hasError: !!error,
