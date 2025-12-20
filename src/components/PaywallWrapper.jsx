@@ -37,14 +37,10 @@ function PaywallWrapper({ featureName, description, children, blur = true }) {
 
   // Handle upgrade button click
   const handleUpgradeClick = async () => {
-    // If not logged in, show auth modal
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-
-    // If logged in, redirect to Stripe checkout
+    // Bypass authentication - go directly to Stripe checkout
+    // Stripe will collect the email during checkout
     setIsUpgrading(true);
+
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -52,8 +48,8 @@ function PaywallWrapper({ featureName, description, children, blur = true }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: user.id,
-          email: user.email,
+          userId: user?.id || 'guest-' + Date.now(),
+          email: user?.email || '', // Stripe checkout will ask for email if empty
         }),
       });
 
