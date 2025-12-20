@@ -38,6 +38,13 @@ export const supabase = createClient(
       persistSession: true,
       detectSessionInUrl: true,
       storage: window.localStorage,
+      flowType: 'pkce', // Use PKCE flow
+    },
+    global: {
+      fetch: (...args) => fetch(...args), // Use native fetch
+    },
+    db: {
+      schema: 'public',
     },
   }
 );
@@ -67,22 +74,29 @@ export const auth = {
 
   getCurrentUser: async () => {
     try {
-      console.log('[Auth] Fetching current user from Supabase...');
+      console.log('[Auth] Checking for session...');
 
-      // Get the session from localStorage directly
-      const session = await supabase.auth.getSession();
-      console.log('[Auth] Session check:', { hasSession: !!session.data.session });
+      // Try to read session from localStorage directly first
+      const sessionKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
+      const storedSession = localStorage.getItem(sessionKey);
 
-      if (session.data.session) {
-        console.log('[Auth] User is logged in:', session.data.session.user.email);
-        return { user: session.data.session.user, error: null };
-      } else {
-        console.log('[Auth] No active session - user not logged in');
-        return { user: null, error: null };
+      if (storedSession) {
+        try {
+          const parsed = JSON.parse(storedSession);
+          if (parsed && parsed.user) {
+            console.log('[Auth] Found session in localStorage:', parsed.user.email);
+            return { user: parsed.user, error: null };
+          }
+        } catch (parseErr) {
+          console.error('[Auth] Failed to parse stored session:', parseErr);
+        }
       }
+
+      console.log('[Auth] No session found in localStorage');
+      return { user: null, error: null };
     } catch (err) {
       console.error('[Auth] getCurrentUser exception:', err);
-      return { user: null, error: null }; // Return null user on error instead of throwing
+      return { user: null, error: null };
     }
   },
 
