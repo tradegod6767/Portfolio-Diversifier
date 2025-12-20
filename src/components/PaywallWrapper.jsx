@@ -41,29 +41,43 @@ function PaywallWrapper({ featureName, description, children, blur = true }) {
     // Stripe will collect the email during checkout
     setIsUpgrading(true);
 
+    const requestBody = {
+      userId: user?.id || 'guest-' + Date.now(),
+      email: user?.email || 'customer@example.com', // Fallback email for Stripe
+    };
+
+    console.log('[PaywallWrapper] Creating checkout session with:', requestBody);
+
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userId: user?.id || 'guest-' + Date.now(),
-          email: user?.email || '', // Stripe checkout will ask for email if empty
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('[PaywallWrapper] Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[PaywallWrapper] API error response:', errorText);
+        throw new Error(`API returned ${response.status}: ${errorText}`);
+      }
+
       const data = await response.json();
+      console.log('[PaywallWrapper] Response data:', data);
 
       if (data.url) {
         // Redirect to Stripe checkout
+        console.log('[PaywallWrapper] Redirecting to:', data.url);
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      alert('Failed to start checkout. Please try again.');
+      console.error('[PaywallWrapper] Error creating checkout session:', error);
+      alert(`Failed to start checkout: ${error.message}`);
       setIsUpgrading(false);
     }
   };
