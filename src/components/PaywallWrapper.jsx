@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 
@@ -15,23 +15,32 @@ function PaywallWrapper({ featureName, description, children, blur = true }) {
   const { user, isPro, loading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const [showTimeout, setShowTimeout] = useState(false);
 
-  // Show loading state while checking subscription
-  if (loading) {
+  // Add timeout and logging
+  useEffect(() => {
+    console.log('[PaywallWrapper] isPro:', isPro, 'loading:', loading);
+
+    if (loading) {
+      const timer = setTimeout(() => {
+        console.warn('[PaywallWrapper] Timeout - assuming free user');
+        setShowTimeout(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, isPro]);
+
+  // If timed out, treat as free user
+  if (loading && !showTimeout) {
     return (
-      <div className="relative isolate mb-8 rounded-xl overflow-hidden min-h-[400px]">
-        <div className={blur ? 'filter blur-sm pointer-events-none' : ''}>
-          {children}
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/50">
-          <div className="animate-spin h-8 w-8 border-4 border-slate-900 border-t-transparent rounded-full"></div>
-        </div>
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   // If user is Pro, show full content
-  if (isPro) {
+  if (isPro && !showTimeout) {
     return <>{children}</>;
   }
 
