@@ -5,6 +5,7 @@ import ExportButtons from './ExportButtons';
 import PortfolioHealthScore from './PortfolioHealthScore';
 import RebalancingCostEstimate from './RebalancingCostEstimate';
 import PortfolioComparison from './PortfolioComparison';
+import PaywallWrapper from './PaywallWrapper';
 import { groupByAssetClass } from '../utils/assetClasses';
 
 function RebalancingResults({ results }) {
@@ -205,7 +206,12 @@ function RebalancingResults({ results }) {
       </div>
 
       {/* Portfolio Health Score and Drift */}
-      <PortfolioHealthScore positions={positions} />
+      <PaywallWrapper
+        featureName="Portfolio Health Score"
+        description="Advanced portfolio risk and diversification analysis with concentration metrics"
+      >
+        <PortfolioHealthScore positions={positions} />
+      </PaywallWrapper>
 
       {/* Pie Charts */}
       <div data-charts>
@@ -307,12 +313,27 @@ function RebalancingResults({ results }) {
       )}
 
       {/* Rebalancing Cost Estimate */}
-      <RebalancingCostEstimate results={results} />
+      <PaywallWrapper
+        featureName="Tax Impact Estimates"
+        description="Detailed tax calculations and capital gains estimates for your rebalancing trades"
+      >
+        <RebalancingCostEstimate results={results} />
+      </PaywallWrapper>
 
       {/* Portfolio Comparison to Models */}
-      <PortfolioComparison groupedPositions={groupedPositions} />
+      <PaywallWrapper
+        featureName="Model Portfolio Comparison"
+        description="Compare your portfolio to proven investment strategies like 3-Fund, 60/40, and All Weather"
+      >
+        <PortfolioComparison groupedPositions={groupedPositions} />
+      </PaywallWrapper>
 
-      <ExportButtons results={results} />
+      <PaywallWrapper
+        featureName="PDF Export"
+        description="Export professional PDF reports with charts, analysis, and detailed rebalancing instructions"
+      >
+        <ExportButtons results={results} />
+      </PaywallWrapper>
     </div>
   );
 }

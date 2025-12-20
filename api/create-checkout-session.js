@@ -1,3 +1,6 @@
+// Vercel Serverless Function - Create Stripe Checkout Session
+// This creates a Stripe checkout session for the $79/year subscription
+
 import Stripe from 'stripe';
 
 export default async function handler(req, res) {
@@ -21,34 +24,54 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { userId, email } = req.body;
+
+    // Validate required fields
+    if (!userId || !email) {
+      return res.status(400).json({ error: 'Missing userId or email' });
+    }
+
+    // Initialize Stripe
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // Create Checkout Session
+    // Get the price ID from environment variables
+    const priceId = process.env.STRIPE_PRICE_ID;
+
+    if (!priceId) {
+      throw new Error('STRIPE_PRICE_ID not configured');
+    }
+
+    // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      customer_email: email,
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Portfolio Rebalancing Analysis',
-              description: 'Detailed portfolio rebalancing insights and recommendations',
-            },
-            unit_amount: 1000, // $10.00 in cents
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
-      mode: 'payment',
-      success_url: `${req.headers.origin || 'http://localhost:5173'}/success`,
-      cancel_url: `${req.headers.origin || 'http://localhost:5173'}/`,
+      mode: 'subscription',
+      success_url: `${req.headers.origin || 'http://localhost:5176'}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin || 'http://localhost:5176'}/`,
+      metadata: {
+        userId: userId,
+      },
+      subscription_data: {
+        metadata: {
+          userId: userId,
+        },
+      },
     });
 
-    return res.status(200).json({ url: session.url });
+    // Return the checkout URL
+    return res.status(200).json({
+      url: session.url,
+      sessionId: session.id,
+    });
   } catch (error) {
     console.error('Error creating checkout session:', error);
     return res.status(500).json({
-      error: 'Failed to create checkout session'
+      error: error.message || 'Failed to create checkout session',
     });
   }
 }

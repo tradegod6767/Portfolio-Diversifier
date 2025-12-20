@@ -13,6 +13,7 @@ Notes:
 */
 
 import React, {useState} from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ImportPortfolioPage from "./components/ImportPortfolioPage";
 import LoadPortfolioPage from "./components/LoadPortfolioPage";
 import PortfolioForm from "./components/PortfolioForm";
@@ -24,6 +25,10 @@ import SavePortfolioModal from "./components/SavePortfolioModal";
 import StripePayment from "./components/StripePayment";
 import RebalancingResults from "./components/RebalancingResults";
 import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
+import SuccessPage from "./pages/SuccessPage";
+import AuthModal from "./components/AuthModal";
+import { useSubscription } from "./hooks/useSubscription";
+import { auth } from "./lib/supabase";
 import { groupByAssetClass } from "./utils/assetClasses";
 import { calculateRebalancing } from "./utils/calculations";
 
@@ -73,22 +78,9 @@ function Tooltip({children, text}){
 /* ---------- Footer component ---------- */
 function Footer(){
   return (
-    <footer className="bg-slate-900 text-slate-300 py-8 px-6 mt-auto border-t border-slate-800">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-center md:text-left">
-            <p className="text-sm font-medium">Built by Lucas</p>
-            <p className="text-xs text-slate-400 mt-1">Free • No signup • Privacy-focused</p>
-          </div>
-          <div className="flex gap-6 text-sm">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-              GitHub
-            </a>
-            <a href="mailto:contact@example.com" className="hover:text-white transition-colors">
-              Contact
-            </a>
-          </div>
-        </div>
+    <footer className="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 w-full">
+      <div className="flex justify-center items-center">
+        <p className="text-sm font-medium">#1 Portfolio Rebalancer for Beginners</p>
       </div>
     </footer>
   );
@@ -114,15 +106,15 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle}){
       <div className="flex items-center gap-3 px-4 py-4">
         {!collapsed ? (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold">PR</div>
+            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold">RK</div>
             <div>
-              <div className="text-sm font-semibold">Portfolio Rebalancer</div>
+              <div className="text-sm font-semibold">RebalanceKit</div>
               <div className="text-xs text-slate-300">Investor workspace</div>
             </div>
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <div className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center text-white font-semibold">PR</div>
+            <div className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center text-white font-semibold">RK</div>
           </div>
         )}
         <button
@@ -139,42 +131,68 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle}){
           <NavItem key={item.key} item={item} active={item.key === activeKey} onClick={onNavigate} />
         ))}
       </nav>
-
-      <div className="px-3 py-4 border-t border-slate-800">
-        <div className={`px-2 ${collapsed ? 'text-center' : ''}`}>
-          <button className="w-full flex items-center gap-3 text-sm text-slate-200 hover:text-white">
-            <svg width="16" height="16" viewBox="0 0 24 24" className="fill-slate-200"><path d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zM6 20v-1c0-2.21 3.58-4 6-4s6 1.79 6 4v1H6z"/></svg>
-            {!collapsed && <span>Account</span>}
-          </button>
-        </div>
-      </div>
     </aside>
   );
 }
 
 /* ---------- Topbar ---------- */
 function Topbar({onToggleSidebar, title}){
-  return (
-    <header className="flex items-center justify-between px-6 py-4 bg-transparent border-b border-slate-100/8">
-      <div className="flex items-center gap-4">
-        <button onClick={onToggleSidebar} className="sm:hidden p-2 rounded-md bg-slate-100/6">
-          <svg width="20" height="20" viewBox="0 0 24 24" className="fill-slate-100"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-        <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
-        <div className="text-sm text-slate-500">Minimal • Investor</div>
-      </div>
+  const { user, isPro } = useSubscription();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
-      <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-2">
-          <div className="text-sm text-slate-600">USD</div>
-          <button className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm">Settings</button>
+  const handleSignOut = async () => {
+    await auth.signOut();
+  };
+
+  return (
+    <>
+      <header className="flex items-center justify-between px-6 py-4 bg-transparent border-b border-slate-100/8">
+        <div className="flex items-center gap-4">
+          <button onClick={onToggleSidebar} className="sm:hidden p-2 rounded-md bg-slate-100/6">
+            <svg width="20" height="20" viewBox="0 0 24 24" className="fill-slate-100"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
+          <div className="text-sm text-slate-500">Minimal • Investor</div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-sm text-slate-600">Signed in as <span className="font-medium text-slate-800">Investor</span></div>
-          <button className="px-3 py-2 bg-white border border-slate-200 rounded-md text-slate-700">Sign out</button>
+
+        <div className="flex items-center gap-4">
+          {!user ? (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors shadow-sm"
+            >
+              Sign In
+            </button>
+          ) : (
+            <div className="flex items-center gap-3">
+              {isPro ? (
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm font-bold border border-emerald-200">
+                  Pro ⭐
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-semibold border border-slate-300">
+                  Free
+                </span>
+              )}
+              <div className="text-sm text-slate-600 hidden md:block">
+                {user.email}
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="px-3 py-2 bg-white hover:bg-red-50 border border-slate-200 rounded-md text-slate-700 hover:text-red-600 hover:border-red-200 transition-colors text-sm font-medium"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-    </header>
+      </header>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+    </>
   );
 }
 
@@ -317,8 +335,8 @@ function AboutView(){
   );
 }
 
-/* ---------- Main App ---------- */
-export default function App(){
+/* ---------- Main App Content ---------- */
+function MainApp(){
   const [active, setActive] = useState('home');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -380,18 +398,32 @@ export default function App(){
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex">
-      <Sidebar activeKey={active} onNavigate={setActive} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+      <div className="flex flex-1">
+        <Sidebar activeKey={active} onNavigate={setActive} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
 
-      <div className="flex-1 flex flex-col min-h-screen">
-        <Topbar onToggleSidebar={() => setSidebarCollapsed(s => !s)} title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'} />
+        <div className="flex-1 flex flex-col">
+          <Topbar onToggleSidebar={() => setSidebarCollapsed(s => !s)} title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'} />
 
-        <main className="flex-1 p-6 overflow-auto">
-          {renderActive()}
-        </main>
-
-        <Footer />
+          <main className="flex-1 p-6 overflow-auto">
+            {renderActive()}
+          </main>
+        </div>
       </div>
+
+      <Footer />
     </div>
+  );
+}
+
+/* ---------- App with Router ---------- */
+export default function App(){
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/success" element={<SuccessPage />} />
+        <Route path="/" element={<MainApp />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
