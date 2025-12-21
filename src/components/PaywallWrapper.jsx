@@ -155,7 +155,7 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
                 </span>
               ) : (
                 <>
-                  {user ? 'Upgrade to Pro - $79/year' : 'Sign In to Upgrade'}
+                  {user ? 'Upgrade to Pro - $9.99/month' : 'Sign In to Upgrade'}
                 </>
               )}
             </button>
