@@ -28,7 +28,7 @@ import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
 import SuccessPage from "./pages/SuccessPage";
 import AuthModal from "./components/AuthModal";
 import { useAuth } from "./hooks/useAuth";
-import { logout } from "./lib/auth";
+import { supabase } from './lib/supabase';
 import { groupByAssetClass } from "./utils/assetClasses";
 import { calculateRebalancing } from "./utils/calculations";
 
@@ -141,22 +141,29 @@ function Topbar({onToggleSidebar, title}){
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleSignOut = async () => {
-    console.log('[App] Sign out button clicked');
+    console.log('[App] Sign out clicked')
 
     try {
-      console.log('[App] Calling logout()...');
-      await logout();
-      console.log('[App] Logout successful');
+      // Clear storage first
+      localStorage.clear()
+      sessionStorage.clear()
 
-      // Clear all storage immediately
-      localStorage.clear();
-      sessionStorage.clear();
+      // Call Supabase directly
+      console.log('[App] Calling supabase.auth.signOut()...')
+      const { error } = await supabase.auth.signOut()
 
-      // Force reload to home page
-      window.location.href = window.location.origin;
+      if (error) {
+        console.error('[App] Supabase error:', error)
+        throw error
+      }
+
+      console.log('[App] Sign out successful')
+
+      // Redirect to home
+      window.location.href = window.location.origin
     } catch (error) {
-      console.error('[App] Sign out error:', error);
-      alert('Failed to sign out: ' + error.message);
+      console.error('[App] Sign out failed:', error)
+      alert('Failed to sign out: ' + error.message)
     }
   };
 
