@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 
 /**
  * PaywallWrapper - Wraps premium features with paywall protection
  *
  * @param {Object} props
+ * @param {Object} props.user - User object from useAuth
+ * @param {boolean} props.isPro - Pro status from useAuth
+ * @param {boolean} props.loading - Loading state from useAuth
  * @param {string} props.featureName - Name of the feature (e.g., "PDF Export")
  * @param {string} props.description - Description of the feature
  * @param {ReactNode} props.children - The premium content to protect
  * @param {boolean} props.blur - Whether to blur the content (default: true)
  */
-function PaywallWrapper({ featureName, description, children, blur = true }) {
-  const { user, isPro, loading } = useAuth();
+function PaywallWrapper({ user, isPro, loading, featureName, description, children, blur = true }) {
+  // Use auth state passed as props instead of calling useAuth again
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [showTimeout, setShowTimeout] = useState(false);

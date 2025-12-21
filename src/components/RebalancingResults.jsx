@@ -8,7 +8,7 @@ import PortfolioComparison from './PortfolioComparison';
 import PaywallWrapper from './PaywallWrapper';
 import { groupByAssetClass } from '../utils/assetClasses';
 
-function RebalancingResults({ results }) {
+function RebalancingResults({ results, user, isPro, loading }) {
   const { totalValue, positions, aiExplanation, mode, modeData } = results;
   const [viewMode, setViewMode] = useState('tickers'); // 'tickers' or 'asset-classes'
 
@@ -207,6 +207,9 @@ function RebalancingResults({ results }) {
 
       {/* Portfolio Health Score and Drift */}
       <PaywallWrapper
+        user={user}
+        isPro={isPro}
+        loading={loading}
         featureName="Portfolio Health Score"
         description="Advanced portfolio risk and diversification analysis with concentration metrics"
       >
@@ -314,6 +317,9 @@ function RebalancingResults({ results }) {
 
       {/* Rebalancing Cost Estimate */}
       <PaywallWrapper
+        user={user}
+        isPro={isPro}
+        loading={loading}
         featureName="Tax Impact Estimates"
         description="Detailed tax calculations and capital gains estimates for your rebalancing trades"
       >
@@ -322,6 +328,9 @@ function RebalancingResults({ results }) {
 
       {/* Portfolio Comparison to Models */}
       <PaywallWrapper
+        user={user}
+        isPro={isPro}
+        loading={loading}
         featureName="Model Portfolio Comparison"
         description="Compare your portfolio to proven investment strategies like 3-Fund, 60/40, and All Weather"
       >
@@ -329,6 +338,9 @@ function RebalancingResults({ results }) {
       </PaywallWrapper>
 
       <PaywallWrapper
+        user={user}
+        isPro={isPro}
+        loading={loading}
         featureName="PDF Export"
         description="Export professional PDF reports with charts, analysis, and detailed rebalancing instructions"
       >

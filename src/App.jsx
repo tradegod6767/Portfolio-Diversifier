@@ -293,7 +293,7 @@ function HeroView({onNavigate, onLoadExample}){
 }
 
 /* Calculator View - Main Portfolio Calculator */
-function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadClick}){
+function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadClick, user, isPro, loading}){
   return (
     <div className="space-y-6">
       {/* Portfolio Form */}
@@ -309,7 +309,12 @@ function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadC
       {/* Results Section */}
       {rebalanceResults && (
         <div className="space-y-6">
-          <RebalancingResults results={rebalanceResults} />
+          <RebalancingResults
+            results={rebalanceResults}
+            user={user}
+            isPro={isPro}
+            loading={loading}
+          />
         </div>
       )}
     </div>
@@ -363,6 +368,9 @@ function MainApp(){
   const [active, setActive] = useState('home');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Auth state
+  const { user, isPro, loading } = useAuth();
+
   // Portfolio state management
   const [portfolio, setPortfolio] = useState({ holdings: [], targetAllocations: {} });
   const [rebalanceResults, setRebalanceResults] = useState(null);
@@ -414,6 +422,9 @@ function MainApp(){
         rebalanceResults={rebalanceResults}
         loadedPositions={loadedPositions}
         onLoadClick={handleLoadClick}
+        user={user}
+        isPro={isPro}
+        loading={loading}
       />;
       case 'about': return <AboutView />;
       default: return <HeroView onNavigate={setActive} onLoadExample={handleLoadExample} />;
