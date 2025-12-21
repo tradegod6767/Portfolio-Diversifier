@@ -19,8 +19,23 @@ export async function signup(email, password) {
 }
 
 export async function logout() {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
+  console.log('[auth.js] Logging out...')
+  console.log('[auth.js] Supabase client exists?', !!supabase)
+
+  try {
+    const { error } = await supabase.auth.signOut()
+    console.log('[auth.js] Supabase signOut result:', { error })
+
+    if (error) {
+      console.error('[auth.js] SignOut error:', error)
+      throw error
+    }
+
+    console.log('[auth.js] Logout complete - no errors')
+  } catch (err) {
+    console.error('[auth.js] Logout exception:', err)
+    throw err
+  }
 }
 
 export async function getCurrentUser() {
