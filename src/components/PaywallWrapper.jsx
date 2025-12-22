@@ -132,15 +132,6 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
           </div>
         </div>
       </div>
-
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          onSuccess={handleUpgradeClick}
-        />
-      )}
     </>
   );
 }
