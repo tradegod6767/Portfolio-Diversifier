@@ -19,7 +19,7 @@ export function useAuth() {
         setUser(currentUser)
 
         if (currentUser) {
-          const proStatus = await checkIfPro(currentUser.id)
+          const proStatus = await checkIfPro(currentUser)
           if (mounted) {
             setIsPro(proStatus)
           }
@@ -43,7 +43,7 @@ export function useAuth() {
         setUser(newUser)
 
         if (newUser) {
-          const proStatus = await checkIfPro(newUser.id)
+          const proStatus = await checkIfPro(newUser)
           if (mounted) {
             setIsPro(proStatus)
           }
@@ -61,7 +61,7 @@ export function useAuth() {
 
   async function refetch() {
     if (user) {
-      const proStatus = await checkIfPro(user.id)
+      const proStatus = await checkIfPro(user)
       setIsPro(proStatus)
     }
   }

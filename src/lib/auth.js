@@ -43,25 +43,21 @@ export async function getCurrentUser() {
   return user
 }
 
-export async function checkIfPro(userId) {
-  if (!userId) return false
+export async function checkIfPro(user) {
+  if (!user) return false
 
   try {
-    const { data, error } = await supabase
-      .from('user_subscriptions')
-      .select('subscription_status, current_period_end')
-      .eq('id', userId)
-      .maybeSingle()
+    // Check user metadata for Pro status (set by Gumroad webhook)
+    const isPro = user.user_metadata?.is_pro === true
 
-    if (error || !data) return false
+    console.log('[auth.js] checkIfPro:', {
+      userId: user.id,
+      email: user.email,
+      isPro,
+      metadata: user.user_metadata
+    })
 
-    if (data.subscription_status !== 'active') return false
-
-    if (data.current_period_end) {
-      return new Date(data.current_period_end) > new Date()
-    }
-
-    return true
+    return isPro
   } catch (err) {
     console.error('Error checking Pro status:', err)
     return false
