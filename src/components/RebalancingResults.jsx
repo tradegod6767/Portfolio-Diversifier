@@ -211,7 +211,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
         isPro={isPro}
         loading={loading}
         featureName="Portfolio Health Score"
-        description="Advanced portfolio risk and diversification analysis with concentration metrics"
+        description="Risk score based on diversification, asset concentration, and sector exposure. See if you're properly balanced across asset classes."
       >
         <PortfolioHealthScore positions={positions} />
       </PaywallWrapper>
@@ -321,7 +321,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
         isPro={isPro}
         loading={loading}
         featureName="Tax Impact Estimates"
-        description="Detailed tax calculations and capital gains estimates for your rebalancing trades"
+        description="Estimated capital gains if you rebalance today. See your tax bill before you trade so you can plan accordingly."
       >
         <RebalancingCostEstimate results={results} />
       </PaywallWrapper>
@@ -332,7 +332,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
         isPro={isPro}
         loading={loading}
         featureName="Model Portfolio Comparison"
-        description="Compare your portfolio to proven investment strategies like 3-Fund, 60/40, and All Weather"
+        description="Compare your allocation to proven strategies like the classic 60/40, 3-Fund Portfolio, and All Weather. See how you stack up."
       >
         <PortfolioComparison groupedPositions={groupedPositions} />
       </PaywallWrapper>
@@ -342,7 +342,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
         isPro={isPro}
         loading={loading}
         featureName="PDF Export"
-        description="Export professional PDF reports with charts, analysis, and detailed rebalancing instructions"
+        description="Professional report with all your charts, trade instructions, and analysis in one shareable PDF. Perfect for advisors or record-keeping."
       >
         <ExportButtons results={results} />
       </PaywallWrapper>
