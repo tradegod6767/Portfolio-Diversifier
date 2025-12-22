@@ -22,11 +22,8 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
         onClose();
       } else {
         await login(email, password);
-        // Auth state will update automatically via onAuthStateChange
-        setEmail('');
-        setPassword('');
-        if (onSuccess) onSuccess();
-        onClose();
+        // Reload page to ensure auth state is fresh
+        window.location.reload();
       }
     } catch (err) {
       setError(err.message || 'An error occurred');
