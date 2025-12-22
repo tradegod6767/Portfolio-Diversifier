@@ -45,22 +45,15 @@ export async function getCurrentUser() {
 
 export async function checkIfPro(userId) {
   try {
-    // Add timeout to prevent hanging
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('checkIfPro timeout')), 5000)
-    )
-
-    const getUserPromise = supabase.auth.getUser()
-
-    const { data: { user }, error } = await Promise.race([getUserPromise, timeoutPromise])
+    const { data: { user }, error } = await supabase.auth.getUser()
 
     if (error || !user) {
-      console.log('No user found')
+      // User not logged in - silently return false without logging
       return false
     }
 
     const isPro = user.user_metadata?.is_pro === true
-    console.log('Checking Pro status:', { email: user.email, isPro })
+    console.log('Checking Pro status:', { email: user.email, isPro, metadata: user.user_metadata })
 
     return isPro
   } catch (error) {
