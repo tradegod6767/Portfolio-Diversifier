@@ -45,7 +45,14 @@ export async function getCurrentUser() {
 
 export async function checkIfPro(userId) {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser()
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('checkIfPro timeout')), 5000)
+    )
+
+    const getUserPromise = supabase.auth.getUser()
+
+    const { data: { user }, error } = await Promise.race([getUserPromise, timeoutPromise])
 
     if (error || !user) {
       console.log('No user found')
