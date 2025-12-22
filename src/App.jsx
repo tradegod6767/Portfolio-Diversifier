@@ -144,26 +144,28 @@ function Topbar({onToggleSidebar, title}){
     console.log('[App] Sign out clicked')
 
     try {
-      // Clear storage first
-      localStorage.clear()
-      sessionStorage.clear()
-
-      // Call Supabase directly
+      // Call Supabase signOut (handles both local and server session)
       console.log('[App] Calling supabase.auth.signOut()...')
       const { error } = await supabase.auth.signOut()
 
+      // Even if there's an error, clear local storage and redirect
+      // (Session might be expired, but we still want to log out locally)
       if (error) {
-        console.error('[App] Supabase error:', error)
-        throw error
+        console.warn('[App] Supabase signOut error (continuing anyway):', error)
+      } else {
+        console.log('[App] Sign out successful')
       }
-
-      console.log('[App] Sign out successful')
-
-      // Redirect to home
-      window.location.href = window.location.origin
     } catch (error) {
-      console.error('[App] Sign out failed:', error)
-      alert('Failed to sign out: ' + error.message)
+      // Catch any exceptions, but still proceed with local cleanup
+      console.warn('[App] Sign out exception (continuing anyway):', error)
+    } finally {
+      // Always clear local state and redirect, even if signOut failed
+      console.log('[App] Clearing local storage and redirecting...')
+      localStorage.clear()
+      sessionStorage.clear()
+      
+      // Force a full page reload to clear all state
+      window.location.href = window.location.origin
     }
   };
 
