@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import AuthModal from './AuthModal';
 
 /**
  * PaywallWrapper - Wraps premium features with paywall protection
@@ -15,8 +14,6 @@ import AuthModal from './AuthModal';
  */
 function PaywallWrapper({ user, isPro, loading, featureName, description, children, blur = true }) {
   // Use auth state passed as props instead of calling useAuth again
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isUpgrading, setIsUpgrading] = useState(false);
   const [showTimeout, setShowTimeout] = useState(false);
 
   // Add timeout and logging
@@ -45,59 +42,6 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
   if (isPro && !showTimeout) {
     return <>{children}</>;
   }
-
-  // Handle upgrade button click
-  const handleUpgradeClick = async () => {
-    // If not logged in, show auth modal
-    if (!user) {
-      console.log('[PaywallWrapper] User not logged in, showing auth modal');
-      setShowAuthModal(true);
-      return;
-    }
-
-    // User is logged in - redirect to Stripe checkout
-    setIsUpgrading(true);
-
-    const requestBody = {
-      userId: user.id,
-      email: user.email,
-    };
-
-    console.log('[PaywallWrapper] Creating checkout session with:', requestBody);
-
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log('[PaywallWrapper] Response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[PaywallWrapper] API error response:', errorText);
-        throw new Error(`API returned ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      console.log('[PaywallWrapper] Response data:', data);
-
-      if (data.url) {
-        // Redirect to Stripe checkout
-        console.log('[PaywallWrapper] Redirecting to:', data.url);
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL received');
-      }
-    } catch (error) {
-      console.error('[PaywallWrapper] Error creating checkout session:', error);
-      alert(`Failed to start checkout: ${error.message}`);
-      setIsUpgrading(false);
-    }
-  };
 
   // Show locked content with upgrade overlay
   return (
@@ -140,25 +84,14 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
             </div>
 
             {/* Upgrade button */}
-            <button
-              onClick={handleUpgradeClick}
-              disabled={isUpgrading}
-              className="w-full bg-white hover:bg-slate-100 disabled:bg-slate-300 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg disabled:cursor-not-allowed"
+            <a
+              href="https://rebalancekit.gumroad.com/l/fvdfk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg text-center block"
             >
-              {isUpgrading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Loading checkout...
-                </span>
-              ) : (
-                <>
-                  {user ? 'Upgrade to Pro - $9.99/month' : 'Sign In to Upgrade'}
-                </>
-              )}
-            </button>
+              Upgrade to Pro - $9.99/month
+            </a>
 
             {/* Feature list */}
             <div className="mt-6 text-left">
