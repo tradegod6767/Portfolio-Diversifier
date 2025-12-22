@@ -159,8 +159,9 @@ function Topbar({onToggleSidebar, title}){
     }
 
     // Force a full page reload to clear all state
-    console.log('[App] Redirecting to home...')
-    window.location.href = window.location.origin
+    // Use window.location.reload() instead of href to ensure proper reload
+    console.log('[App] Reloading page...')
+    window.location.reload()
   };
 
   return (
