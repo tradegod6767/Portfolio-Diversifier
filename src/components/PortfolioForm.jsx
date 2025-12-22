@@ -45,7 +45,41 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
     }
   };
 
+  const validateTicker = (ticker) => {
+    if (!ticker || ticker.trim() === '') {
+      return '' // Allow empty during typing
+    }
+
+    // Clean and uppercase
+    const cleanTicker = ticker.trim().toUpperCase()
+
+    // Allow CASH as special case
+    if (cleanTicker === 'CASH') {
+      return cleanTicker
+    }
+
+    // Validate format: 1-5 uppercase letters only
+    const tickerRegex = /^[A-Z]{1,5}$/
+
+    if (!tickerRegex.test(cleanTicker)) {
+      return null // Invalid ticker
+    }
+
+    return cleanTicker
+  }
+
   const updatePosition = (id, field, value) => {
+    if (field === 'ticker') {
+      const validated = validateTicker(value)
+      if (validated === null) {
+        // Invalid ticker - show error and don't update
+        setError('Invalid ticker symbol. Please use 1-5 letters only (e.g., VTI, BND, AAPL)')
+        return
+      }
+      setError('') // Clear error if valid
+      value = validated
+    }
+
     setPositions(positions.map(pos =>
       pos.id === id ? { ...pos, [field]: value } : pos
     ));
