@@ -14,7 +14,23 @@ export async function signup(email, password) {
     email,
     password,
   })
-  if (error) throw error
+
+  if (error) {
+    // Check if it's a "user already exists" error
+    if (error.message?.includes('already registered') ||
+        error.message?.includes('already exists') ||
+        error.status === 422) {
+      throw new Error('An account with this email already exists. Please sign in instead.')
+    }
+    throw error
+  }
+
+  // Supabase returns a user even if email is already registered (for security)
+  // Check if this is a new signup or existing user
+  if (data.user && !data.user.confirmed_at && data.user.identities?.length === 0) {
+    throw new Error('An account with this email already exists. Please sign in instead.')
+  }
+
   return data.user
 }
 
