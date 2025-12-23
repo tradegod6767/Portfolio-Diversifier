@@ -143,13 +143,23 @@ function Topbar({onToggleSidebar, title}){
   const handleSignOut = async () => {
     console.log('[App] Sign out clicked')
 
-    try {
-      // Sign out from Supabase
-      console.log('[App] Calling supabase.auth.signOut()...')
-      const { error } = await supabase.auth.signOut()
+    // Create a timeout promise to prevent hanging
+    const signOutPromise = supabase.auth.signOut()
+    const timeoutPromise = new Promise((resolve) =>
+      setTimeout(() => {
+        console.log('[App] Sign out timeout - proceeding anyway')
+        resolve({ timedOut: true })
+      }, 1000)
+    )
 
-      if (error) {
-        console.error('[App] Sign out error:', error)
+    try {
+      console.log('[App] Calling supabase.auth.signOut()...')
+      const result = await Promise.race([signOutPromise, timeoutPromise])
+
+      if (result?.timedOut) {
+        console.warn('[App] Sign out timed out after 1s')
+      } else if (result?.error) {
+        console.error('[App] Sign out error:', result.error)
       } else {
         console.log('[App] Sign out successful')
       }
@@ -157,17 +167,14 @@ function Topbar({onToggleSidebar, title}){
       console.error('[App] Sign out exception:', error)
     }
 
-    // Clear all storage to ensure clean state
+    // Clear all storage
     console.log('[App] Clearing all storage...')
     localStorage.clear()
     sessionStorage.clear()
 
-    // Give the auth listener a moment to fire, then reload
-    console.log('[App] Waiting for auth listener...')
-    setTimeout(() => {
-      console.log('[App] Reloading page...')
-      window.location.href = '/'
-    }, 100) // Short delay to let the auth listener fire
+    // Reload page immediately
+    console.log('[App] Reloading page...')
+    window.location.href = '/'
   };
 
   return (
