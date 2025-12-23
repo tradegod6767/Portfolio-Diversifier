@@ -144,24 +144,27 @@ function Topbar({onToggleSidebar, title}){
     console.log('[App] Sign out clicked')
 
     try {
-      // Call Supabase signOut - this will trigger the auth state listener in useAuth
+      // Call Supabase signOut first (before clearing storage)
       console.log('[App] Calling supabase.auth.signOut()...')
-      await supabase.auth.signOut()
-      console.log('[App] Sign out successful')
+      const { error } = await supabase.auth.signOut()
 
-      // Clear storage after successful sign out
-      console.log('[App] Clearing local storage...')
-      localStorage.clear()
-      sessionStorage.clear()
+      if (error) {
+        console.error('[App] Sign out error:', error)
+      } else {
+        console.log('[App] Sign out successful')
+      }
     } catch (error) {
-      console.error('[App] Sign out error:', error)
-      // Clear storage even if sign out fails
-      localStorage.clear()
-      sessionStorage.clear()
+      console.error('[App] Sign out exception:', error)
     }
 
-    // The auth state listener in useAuth will automatically update the UI
-    // No need for page reload
+    // Clear storage after sign out attempt
+    console.log('[App] Clearing local storage...')
+    localStorage.clear()
+    sessionStorage.clear()
+
+    // Reload the page to reset all state
+    console.log('[App] Reloading page...')
+    window.location.href = '/'
   };
 
   return (
