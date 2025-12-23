@@ -37,8 +37,8 @@ export const supabase = createClient(
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
-      storage: window.localStorage,
-      storageKey: 'supabase.auth.token',
+      // Remove custom storageKey - let Supabase use the default
+      // This fixes sign out hanging issues
     },
     global: {
       headers: {
