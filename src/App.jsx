@@ -140,31 +140,15 @@ function Topbar({onToggleSidebar, title}){
   const { user, isPro } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const handleSignOut = async () => {
-    console.log('[App] Sign out clicked')
+  const handleSignOut = () => {
+    console.log('[App] Sign out clicked - clearing storage and reloading')
 
-    try {
-      // Use scope: 'local' to sign out locally without calling the server
-      // This should be instant and never hang
-      console.log('[App] Calling supabase.auth.signOut({ scope: "local" })...')
-      const { error } = await supabase.auth.signOut({ scope: 'local' })
-
-      if (error) {
-        console.error('[App] Sign out error:', error)
-      } else {
-        console.log('[App] Sign out successful')
-      }
-    } catch (error) {
-      console.error('[App] Sign out exception:', error)
-    }
-
-    // Clear all storage
-    console.log('[App] Clearing all storage...')
+    // Simply clear storage and reload - this is the most reliable method
+    // Clearing localStorage removes the Supabase session, effectively signing out
     localStorage.clear()
     sessionStorage.clear()
 
-    // Reload page immediately
-    console.log('[App] Reloading page...')
+    // Immediate reload
     window.location.href = '/'
   };
 
