@@ -144,31 +144,30 @@ function Topbar({onToggleSidebar, title}){
     console.log('[App] Sign out clicked')
 
     try {
-      // Sign out from Supabase - this will trigger the auth listener
+      // Sign out from Supabase
       console.log('[App] Calling supabase.auth.signOut()...')
       const { error } = await supabase.auth.signOut()
 
       if (error) {
         console.error('[App] Sign out error:', error)
       } else {
-        console.log('[App] Sign out successful - waiting for auth listener...')
+        console.log('[App] Sign out successful')
       }
     } catch (error) {
       console.error('[App] Sign out exception:', error)
     }
 
-    // Clear portfolio-related data from storage (keep auth storage for Supabase)
-    console.log('[App] Clearing portfolio data...')
-    // Only clear specific keys, not all localStorage (Supabase needs its keys)
-    const keysToRemove = Object.keys(localStorage).filter(
-      key => !key.startsWith('sb-') // Keep Supabase auth keys
-    )
-    keysToRemove.forEach(key => localStorage.removeItem(key))
+    // Clear all storage to ensure clean state
+    console.log('[App] Clearing all storage...')
+    localStorage.clear()
     sessionStorage.clear()
 
-    // The auth state listener will update the UI automatically
-    // No page reload needed - React will handle the state change
-    console.log('[App] Sign out complete - auth listener should update UI')
+    // Give the auth listener a moment to fire, then reload
+    console.log('[App] Waiting for auth listener...')
+    setTimeout(() => {
+      console.log('[App] Reloading page...')
+      window.location.href = '/'
+    }, 100) // Short delay to let the auth listener fire
   };
 
   return (
