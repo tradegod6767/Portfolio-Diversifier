@@ -143,13 +143,26 @@ function Topbar({onToggleSidebar, title}){
   const handleSignOut = async () => {
     console.log('[App] Sign out clicked')
 
-    try {
-      // Call Supabase signOut first (before clearing storage)
-      console.log('[App] Calling supabase.auth.signOut()...')
-      const { error } = await supabase.auth.signOut()
+    // Create a timeout promise
+    const timeoutPromise = new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('[App] Sign out timeout - proceeding anyway')
+        resolve({ timedOut: true })
+      }, 2000) // 2 second timeout
+    })
 
-      if (error) {
-        console.error('[App] Sign out error:', error)
+    // Race between signOut and timeout
+    try {
+      console.log('[App] Calling supabase.auth.signOut()...')
+      const result = await Promise.race([
+        supabase.auth.signOut(),
+        timeoutPromise
+      ])
+
+      if (result?.timedOut) {
+        console.warn('[App] Sign out timed out')
+      } else if (result?.error) {
+        console.error('[App] Sign out error:', result.error)
       } else {
         console.log('[App] Sign out successful')
       }
@@ -157,7 +170,7 @@ function Topbar({onToggleSidebar, title}){
       console.error('[App] Sign out exception:', error)
     }
 
-    // Clear storage after sign out attempt
+    // Clear storage
     console.log('[App] Clearing local storage...')
     localStorage.clear()
     sessionStorage.clear()
