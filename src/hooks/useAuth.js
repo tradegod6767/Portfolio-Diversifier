@@ -36,10 +36,13 @@ export function useAuth() {
     initAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        console.log('[useAuth] Auth state change:', event, 'Session:', session ? 'exists' : 'null')
+
         if (!mounted) return
 
         const newUser = session?.user ?? null
+        console.log('[useAuth] Setting user to:', newUser ? newUser.email : 'null')
         setUser(newUser)
 
         if (newUser) {
