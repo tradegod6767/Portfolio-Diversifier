@@ -143,23 +143,14 @@ function Topbar({onToggleSidebar, title}){
   const handleSignOut = async () => {
     console.log('[App] Sign out clicked')
 
-    // Create a timeout promise to prevent hanging
-    const signOutPromise = supabase.auth.signOut()
-    const timeoutPromise = new Promise((resolve) =>
-      setTimeout(() => {
-        console.log('[App] Sign out timeout - proceeding anyway')
-        resolve({ timedOut: true })
-      }, 1000)
-    )
-
     try {
-      console.log('[App] Calling supabase.auth.signOut()...')
-      const result = await Promise.race([signOutPromise, timeoutPromise])
+      // Use scope: 'local' to sign out locally without calling the server
+      // This should be instant and never hang
+      console.log('[App] Calling supabase.auth.signOut({ scope: "local" })...')
+      const { error } = await supabase.auth.signOut({ scope: 'local' })
 
-      if (result?.timedOut) {
-        console.warn('[App] Sign out timed out after 1s')
-      } else if (result?.error) {
-        console.error('[App] Sign out error:', result.error)
+      if (error) {
+        console.error('[App] Sign out error:', error)
       } else {
         console.log('[App] Sign out successful')
       }
