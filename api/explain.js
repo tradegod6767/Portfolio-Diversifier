@@ -61,7 +61,7 @@ Explain the current allocation state and what specific rebalancing actions are n
 Assess concentration risk and portfolio volatility. Discuss any concerning position sizes or lack of diversification. Mention specific risks related to the holdings (e.g., sector concentration, asset class exposure).
 
 **Paragraph 3 - Tax & Implementation Considerations:**
-Briefly mention tax implications of selling positions (capital gains considerations) and suggest whether this rebalancing should be done all at once or gradually. Keep this practical and actionable.
+Provide a brief 2-3 sentence teaser about tax implications. If the rebalancing only involves deploying cash (no selling positions), acknowledge there are no immediate tax implications. If selling positions is required, mention that it may trigger capital gains. Always end with: "Upgrade to Pro for detailed tax optimization strategies including tax-loss harvesting, capital gains minimization, and wash sale rule guidance."
 
 Write in clear, professional language that a non-expert investor can understand. Be specific and reference actual ticker symbols and dollar amounts from the data above.`;
 
