@@ -19,11 +19,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // Claude API endpoint
 app.post('/api/explain', async (req, res) => {
   try {
-    const { rebalancingData } = req.body;
+    const { rebalancingData, isPro } = req.body;
 
     if (!rebalancingData) {
       return res.status(400).json({ error: 'Missing rebalancing data' });
     }
+
+    // Default to free tier if not specified
+    const isProUser = isPro === true;
+
+    // Create conditional tax section based on subscription status
+    const taxSection = isProUser
+      ? `**Paragraph 3 - Tax & Implementation Considerations:**
+Provide COMPREHENSIVE tax analysis including:
+- Calculate and specify exact capital gains/losses from any position sales (use the dollar amounts provided)
+- Identify specific tax-loss harvesting opportunities if any positions are being sold at a loss
+- Discuss wash sale rule considerations if similar securities are involved
+- Recommend optimal timing for tax efficiency (end of year considerations, holding period strategies)
+- Break down long-term vs short-term capital gains implications based on typical holding periods
+- Suggest specific tax optimization strategies relevant to this portfolio
+- Provide actionable recommendations for minimizing tax liability
+
+Be detailed and specific - this is a Pro subscriber who paid for comprehensive tax guidance.`
+      : `**Paragraph 3 - Tax & Implementation Considerations:**
+Provide a brief 2-3 sentence teaser about tax implications. If the rebalancing only involves deploying cash (no selling positions), acknowledge there are no immediate tax implications. If selling positions is required, mention that it may trigger capital gains. Always end with: "Upgrade to Pro for detailed tax optimization strategies including tax-loss harvesting, capital gains minimization, and wash sale rule guidance."`;
 
     const prompt = `You are an experienced financial advisor providing detailed portfolio rebalancing analysis. Based on the following data, provide a comprehensive 2-3 paragraph analysis that includes:
 
@@ -42,14 +61,13 @@ Explain the current allocation state and what specific rebalancing actions are n
 **Paragraph 2 - Risk Assessment:**
 Assess concentration risk and portfolio volatility. Discuss any concerning position sizes or lack of diversification. Mention specific risks related to the holdings (e.g., sector concentration, asset class exposure).
 
-**Paragraph 3 - Tax & Implementation Considerations:**
-Provide a brief 2-3 sentence teaser about tax implications. If the rebalancing only involves deploying cash (no selling positions), acknowledge there are no immediate tax implications. If selling positions is required, mention that it may trigger capital gains. Always end with: "Upgrade to Pro for detailed tax optimization strategies including tax-loss harvesting, capital gains minimization, and wash sale rule guidance."
+${taxSection}
 
 Write in clear, professional language that a non-expert investor can understand. Be specific and reference actual ticker symbols and dollar amounts from the data above.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 800,
+      max_tokens: isProUser ? 1500 : 800, // More tokens for detailed Pro analysis
       messages: [
         {
           role: 'user',

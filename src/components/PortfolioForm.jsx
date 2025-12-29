@@ -6,7 +6,7 @@ import { savePortfolio, getSavedPortfolios } from '../utils/portfolioStorage';
 import SavePortfolioModal from './SavePortfolioModal';
 import Tooltip from './Tooltip';
 
-function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPositions }) {
+function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPositions, isPro }) {
   const [positions, setPositions] = useState([
     { id: 1, ticker: '', amount: '', targetPercent: '' }
   ]);
@@ -172,7 +172,8 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
   const getAIExplanation = async (data) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/explain`, {
-        rebalancingData: data
+        rebalancingData: data,
+        isPro: isPro || false // Pass subscription status to API
       });
       return response.data.explanation;
     } catch (err) {
