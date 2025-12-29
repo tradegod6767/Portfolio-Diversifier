@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { login, signup } from '../lib/auth';
 
-function AuthModal({ isOpen, onClose, onSuccess }) {
+function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
   const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -107,6 +107,20 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
                 <p className="text-xs text-gray-500 mt-2">
                   Must be at least 6 characters
                 </p>
+              )}
+              {mode === 'signin' && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleClose();
+                      onForgotPassword?.();
+                    }}
+                    className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               )}
             </div>
 

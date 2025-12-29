@@ -81,3 +81,23 @@ export async function checkIfPro(userId) {
     return false
   }
 }
+
+export async function resetPasswordForEmail(email) {
+  const redirectTo = `${window.location.origin}/reset-password`
+
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  })
+
+  if (error) throw error
+  return data
+}
+
+export async function updatePassword(newPassword) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword
+  })
+
+  if (error) throw error
+  return data
+}

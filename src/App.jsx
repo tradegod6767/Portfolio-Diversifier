@@ -26,7 +26,9 @@ import StripePayment from "./components/StripePayment";
 import RebalancingResults from "./components/RebalancingResults";
 import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
 import SuccessPage from "./pages/SuccessPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthModal from "./components/AuthModal";
+import ForgotPasswordModal from "./components/ForgotPasswordModal";
 import { useAuth } from "./hooks/useAuth";
 import { supabase } from './lib/supabase';
 import { groupByAssetClass } from "./utils/assetClasses";
@@ -139,6 +141,7 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle}){
 function Topbar({onToggleSidebar, title}){
   const { user, isPro } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleSignOut = () => {
     console.log('[App] Sign out clicked - clearing storage and reloading')
@@ -199,6 +202,15 @@ function Topbar({onToggleSidebar, title}){
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
+        onForgotPassword={() => {
+          setShowAuthModal(false);
+          setShowForgotPassword(true);
+        }}
+      />
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
       />
     </>
   );
@@ -441,6 +453,7 @@ export default function App(){
     <BrowserRouter>
       <Routes>
         <Route path="/success" element={<SuccessPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/" element={<MainApp />} />
       </Routes>
     </BrowserRouter>
