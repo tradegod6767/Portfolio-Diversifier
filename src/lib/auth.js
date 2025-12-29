@@ -72,10 +72,22 @@ export async function checkIfPro(userId) {
       return false
     }
 
-    const isPro = user.user_metadata?.is_pro === true
-    console.log('[checkIfPro] Checking Pro status:', { email: user.email, isPro, metadata: user.user_metadata })
+    const metadata = user.user_metadata || {}
+    const isPro = metadata.is_pro === true
+    const subscriptionStatus = metadata.subscription_status
 
-    return isPro
+    // User must have is_pro = true AND subscription_status must not be 'cancelled'
+    const hasActiveSubscription = isPro && subscriptionStatus !== 'cancelled'
+
+    console.log('[checkIfPro] Checking Pro status:', {
+      email: user.email,
+      isPro,
+      subscriptionStatus,
+      hasActiveSubscription,
+      metadata: user.user_metadata
+    })
+
+    return hasActiveSubscription
   } catch (error) {
     console.error('[checkIfPro] Error checking pro status:', error)
     return false

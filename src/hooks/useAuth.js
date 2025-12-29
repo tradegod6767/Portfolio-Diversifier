@@ -19,11 +19,21 @@ export function useAuth() {
         setUser(currentUser)
 
         if (currentUser) {
-          // Get Pro status directly from user metadata instead of calling checkIfPro
-          const proStatus = currentUser.user_metadata?.is_pro === true
-          console.log('[useAuth initAuth] Pro status from metadata:', proStatus, 'metadata:', currentUser.user_metadata)
+          // Check Pro status AND subscription status
+          const metadata = currentUser.user_metadata || {}
+          const isPro = metadata.is_pro === true
+          const subscriptionStatus = metadata.subscription_status
+          const hasActiveSubscription = isPro && subscriptionStatus !== 'cancelled'
+
+          console.log('[useAuth initAuth] Pro status check:', {
+            isPro,
+            subscriptionStatus,
+            hasActiveSubscription,
+            metadata: currentUser.user_metadata
+          })
+
           if (mounted) {
-            setIsPro(proStatus)
+            setIsPro(hasActiveSubscription)
           }
         }
       } catch (error) {
@@ -48,12 +58,21 @@ export function useAuth() {
         setUser(newUser)
 
         if (newUser) {
-          // Get Pro status directly from user metadata instead of calling checkIfPro
-          // This avoids the hanging supabase.auth.getUser() call
-          const proStatus = newUser.user_metadata?.is_pro === true
-          console.log('[useAuth] Pro status from metadata:', proStatus, 'metadata:', newUser.user_metadata)
+          // Check Pro status AND subscription status
+          const metadata = newUser.user_metadata || {}
+          const isPro = metadata.is_pro === true
+          const subscriptionStatus = metadata.subscription_status
+          const hasActiveSubscription = isPro && subscriptionStatus !== 'cancelled'
+
+          console.log('[useAuth] Pro status check:', {
+            isPro,
+            subscriptionStatus,
+            hasActiveSubscription,
+            metadata: newUser.user_metadata
+          })
+
           if (mounted) {
-            setIsPro(proStatus)
+            setIsPro(hasActiveSubscription)
           }
         } else {
           setIsPro(false)
