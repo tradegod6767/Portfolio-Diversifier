@@ -102,38 +102,71 @@ function NavItem({item, active, onClick}){
 }
 
 /* ---------- Sidebar component ---------- */
-function Sidebar({activeKey, onNavigate, collapsed, onToggle}){
+function Sidebar({activeKey, onNavigate, collapsed, onToggle, mobileOpen, onMobileClose}){
   return (
-    <aside className={`flex flex-col ${collapsed ? 'w-16' : 'w-64'} bg-slate-900 text-slate-50 h-full transition-width duration-200`}>
-      <div className="flex items-center gap-3 px-4 py-4">
-        {!collapsed ? (
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold">RK</div>
-            <div>
-              <div className="text-sm font-semibold">RebalanceKit</div>
-              <div className="text-xs text-slate-300">Investor workspace</div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center text-white font-semibold">RK</div>
-          </div>
-        )}
-        <button
-          onClick={onToggle}
-          className="ml-auto p-1 rounded hover:bg-slate-800/50 hidden sm:inline"
-          aria-label="Toggle sidebar"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" className="fill-slate-200"><path d="M4 6h16M4 12h10M4 18h16" strokeWidth="0"/></svg>
-        </button>
-      </div>
+    <>
+      {/* Mobile overlay backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onMobileClose}
+          aria-label="Close menu"
+        />
+      )}
 
-      <nav className="flex-1 px-2 py-4 space-y-1 overflow-auto">
-        {NAV_ITEMS.map(item => (
-          <NavItem key={item.key} item={item} active={item.key === activeKey} onClick={onNavigate} />
-        ))}
-      </nav>
-    </aside>
+      {/* Sidebar */}
+      <aside className={`
+        fixed md:static inset-y-0 left-0 z-50
+        flex flex-col bg-slate-900 text-slate-50 h-full transition-all duration-300
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+        ${collapsed ? 'w-16' : 'w-64'}
+      `}>
+        <div className="flex items-center gap-3 px-4 py-4">
+          {!collapsed ? (
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 rounded-md bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold">RK</div>
+              <div>
+                <div className="text-sm font-semibold">RebalanceKit</div>
+                <div className="text-xs text-slate-300">Investor workspace</div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center text-white font-semibold">RK</div>
+            </div>
+          )}
+
+          {/* Close button for mobile */}
+          <button
+            onClick={onMobileClose}
+            className="md:hidden p-2 rounded hover:bg-slate-800"
+            aria-label="Close menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Desktop toggle */}
+          <button
+            onClick={onToggle}
+            className="hidden md:inline ml-auto p-1 rounded hover:bg-slate-800/50"
+            aria-label="Toggle sidebar"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" className="fill-slate-200"><path d="M4 6h16M4 12h10M4 18h16" strokeWidth="0"/></svg>
+          </button>
+        </div>
+
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-auto">
+          {NAV_ITEMS.map(item => (
+            <NavItem key={item.key} item={item} active={item.key === activeKey} onClick={(key) => {
+              onNavigate(key);
+              onMobileClose(); // Close sidebar on mobile after navigation
+            }} />
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }
 
@@ -157,42 +190,52 @@ function Topbar({onToggleSidebar, title}){
 
   return (
     <>
-      <header className="flex items-center justify-between px-6 py-4 bg-transparent border-b border-slate-100/8">
-        <div className="flex items-center gap-4">
-          <button onClick={onToggleSidebar} className="sm:hidden p-2 rounded-md bg-slate-100/6">
-            <svg width="20" height="20" viewBox="0 0 24 24" className="fill-slate-100"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white border-b border-slate-200 min-h-[60px]">
+        <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
+          {/* Hamburger menu for mobile */}
+          <button
+            onClick={onToggleSidebar}
+            className="md:hidden p-2 -ml-2 rounded-md hover:bg-slate-100 flex-shrink-0"
+            aria-label="Open menu"
+          >
+            <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
-          <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
-          <div className="text-sm text-slate-500">Minimal • Investor</div>
+
+          {/* Title - responsive sizing */}
+          <h1 className="text-base md:text-lg font-semibold text-slate-900 truncate">{title}</h1>
+          <div className="hidden lg:block text-sm text-slate-500">Minimal • Investor</div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
           {!user ? (
             <button
               onClick={() => setShowAuthModal(true)}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors shadow-sm"
+              className="px-3 py-2 md:px-4 md:py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors shadow-sm text-sm md:text-base min-h-[44px]"
             >
               Sign In
             </button>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               {isPro ? (
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm font-bold border border-emerald-200">
+                <span className="px-2 py-1 md:px-3 md:py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs md:text-sm font-bold border border-emerald-200">
                   Pro ⭐
                 </span>
               ) : (
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-semibold border border-slate-300">
+                <span className="px-2 py-1 md:px-3 md:py-1 bg-slate-100 text-slate-700 rounded-full text-xs md:text-sm font-semibold border border-slate-300">
                   Free
                 </span>
               )}
-              <div className="text-sm text-slate-600 hidden md:block">
+              <div className="text-sm text-slate-600 hidden lg:block max-w-[150px] truncate">
                 {user.email}
               </div>
               <button
                 onClick={handleSignOut}
-                className="px-3 py-2 bg-white hover:bg-red-50 border border-slate-200 rounded-md text-slate-700 hover:text-red-600 hover:border-red-200 transition-colors text-sm font-medium"
+                className="px-2 py-2 md:px-3 md:py-2 bg-white hover:bg-red-50 border border-slate-200 rounded-md text-slate-700 hover:text-red-600 hover:border-red-200 transition-colors text-xs md:text-sm font-medium min-h-[44px]"
               >
-                Sign Out
+                <span className="hidden sm:inline">Sign Out</span>
+                <span className="sm:hidden">Out</span>
               </button>
             </div>
           )}
@@ -238,29 +281,29 @@ function Card({title, subtitle, children}){
 /* Hero Landing Page */
 function HeroView({onNavigate, onLoadExample}){
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
+    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 md:px-6">
       <div className="max-w-4xl mx-auto text-center space-y-8">
         {/* Hero Section */}
-        <div className="space-y-4">
-          <h1 className="text-5xl md:text-6xl font-bold text-slate-900">
+        <div className="space-y-4 md:space-y-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 px-2">
             RebalanceKit
           </h1>
-          <p className="text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto px-2 leading-relaxed">
             Calculate exact portfolio rebalancing trades in seconds. Tax-efficient add-only mode. No signup required.
           </p>
         </div>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full max-w-md mx-auto sm:max-w-none px-2">
           <button
             onClick={onLoadExample}
-            className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-lg rounded-xl transition duration-200 shadow-lg"
+            className="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold text-base sm:text-lg rounded-xl transition duration-200 shadow-lg min-h-[56px]"
           >
             Try Calculator
           </button>
           <button
             onClick={() => onNavigate('about')}
-            className="px-8 py-4 bg-white hover:bg-slate-50 border-2 border-slate-300 text-slate-700 font-bold text-lg rounded-xl transition duration-200 shadow-sm"
+            className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 active:bg-slate-100 border-2 border-slate-300 text-slate-700 font-bold text-base sm:text-lg rounded-xl transition duration-200 shadow-sm min-h-[56px]"
           >
             See Example
           </button>
@@ -365,6 +408,7 @@ function AboutView(){
 function MainApp(){
   const [active, setActive] = useState('home');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Auth state
   const { user, isPro, loading } = useAuth();
@@ -431,13 +475,23 @@ function MainApp(){
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      <div className="flex flex-1">
-        <Sidebar activeKey={active} onNavigate={setActive} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar
+          activeKey={active}
+          onNavigate={setActive}
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(s => !s)}
+          mobileOpen={mobileMenuOpen}
+          onMobileClose={() => setMobileMenuOpen(false)}
+        />
 
-        <div className="flex-1 flex flex-col">
-          <Topbar onToggleSidebar={() => setSidebarCollapsed(s => !s)} title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'} />
+        <div className="flex-1 flex flex-col min-w-0">
+          <Topbar
+            onToggleSidebar={() => setMobileMenuOpen(true)}
+            title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
+          />
 
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-4 md:p-6 overflow-auto">
             {renderActive()}
           </main>
         </div>

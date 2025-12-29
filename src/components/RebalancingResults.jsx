@@ -17,31 +17,31 @@ function RebalancingResults({ results, user, isPro, loading }) {
   const displayPositions = viewMode === 'asset-classes' ? groupedPositions : positions;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
             Rebalancing Results
           </h2>
 
           {/* View By Toggle */}
-          <div className="bg-white border-2 border-gray-300 rounded-lg p-1 flex shadow-sm">
+          <div className="bg-white border-2 border-gray-300 rounded-lg p-1 flex shadow-sm w-full md:w-auto">
             <button
               onClick={() => setViewMode('tickers')}
-              className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
+              className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded-md font-medium text-sm transition-all duration-200 min-h-[48px] md:min-h-0 ${
                 viewMode === 'tickers'
                   ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
               }`}
             >
               Individual Tickers
             </button>
             <button
               onClick={() => setViewMode('asset-classes')}
-              className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
+              className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded-md font-medium text-sm transition-all duration-200 min-h-[48px] md:min-h-0 ${
                 viewMode === 'asset-classes'
                   ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
               }`}
             >
               Asset Classes
@@ -49,8 +49,8 @@ function RebalancingResults({ results, user, isPro, loading }) {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-50 to-slate-50 border-2 border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-          <p className="text-xl font-bold text-gray-900">
+        <div className="bg-gradient-to-r from-blue-50 to-slate-50 border-2 border-blue-200 rounded-xl p-4 md:p-6 mb-6 shadow-sm">
+          <p className="text-lg md:text-xl font-bold text-gray-900">
             Total Portfolio Value: {formatCurrency(totalValue)}
           </p>
         </div>
@@ -225,92 +225,113 @@ function RebalancingResults({ results, user, isPro, loading }) {
         />
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-200">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                {viewMode === 'asset-classes' ? 'Asset Class' : 'Ticker'}
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Current Value
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Current %
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Target %
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Action
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Amount
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {displayPositions.map((position, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 hover:bg-gray-100'} style={{ transition: 'background-color 0.2s' }}>
-                <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                  <div>
-                    {viewMode === 'asset-classes' ? position.assetClass : position.ticker}
-                  </div>
-                  {viewMode === 'asset-classes' && position.tickers && (
-                    <div className="text-xs text-gray-500 font-normal mt-1">
-                      {position.tickers.join(', ')}
-                    </div>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {formatCurrency(position.currentAmount)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {formatPercent(position.currentPercent)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {formatPercent(position.targetPercent)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-sm ${
-                      position.action === 'BUY'
-                        ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                        : position.action === 'SELL'
-                        ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                        : 'bg-gray-100 text-gray-800 border border-gray-300'
-                    }`}
-                  >
-                    {position.action}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold">
-                  <span
-                    className={
-                      position.difference > 0
-                        ? 'text-slate-600'
-                        : position.difference < 0
-                        ? 'text-slate-600'
-                        : 'text-gray-600'
-                    }
-                  >
-                    {position.difference > 0 ? '+' : ''}
-                    {formatCurrency(Math.abs(position.difference))}
-                  </span>
-                </td>
+      <div className="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-200 -mx-4 md:mx-0">
+        <div className="min-w-[640px]">
+          <table className="w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  {viewMode === 'asset-classes' ? 'Asset Class' : 'Ticker'}
+                </th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Current Value
+                </th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Current %
+                </th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Target %
+                </th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Action
+                </th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Amount
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {displayPositions.map((position, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 hover:bg-gray-100'} style={{ transition: 'background-color 0.2s' }}>
+                  <td className="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-gray-900">
+                    <div>
+                      {viewMode === 'asset-classes' ? position.assetClass : position.ticker}
+                    </div>
+                    {viewMode === 'asset-classes' && position.tickers && (
+                      <div className="text-xs text-gray-500 font-normal mt-1">
+                        {position.tickers.join(', ')}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-700">
+                    {formatCurrency(position.currentAmount)}
+                  </td>
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-700">
+                    {formatPercent(position.currentPercent)}
+                  </td>
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-700">
+                    {formatPercent(position.targetPercent)}
+                  </td>
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                    <span
+                      className={`px-2 md:px-3 py-1.5 text-xs font-bold rounded-full shadow-sm ${
+                        position.action === 'BUY'
+                          ? 'bg-slate-100 text-slate-800 border border-slate-300'
+                          : position.action === 'SELL'
+                          ? 'bg-slate-100 text-slate-800 border border-slate-300'
+                          : 'bg-gray-100 text-gray-800 border border-gray-300'
+                      }`}
+                    >
+                      {position.action}
+                    </span>
+                  </td>
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm font-bold">
+                    <span
+                      className={
+                        position.difference > 0
+                          ? 'text-slate-600'
+                          : position.difference < 0
+                          ? 'text-slate-600'
+                          : 'text-gray-600'
+                      }
+                    >
+                      {position.difference > 0 ? '+' : ''}
+                      {formatCurrency(Math.abs(position.difference))}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {aiExplanation && (
-        <div className="bg-gradient-to-br from-slate-50 to-slate-50 border border-slate-200 rounded-lg p-5 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-2">
+        <div className="bg-gradient-to-br from-slate-50 to-slate-50 border border-slate-200 rounded-lg p-5 md:p-6 shadow-sm">
+          <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 md:mb-6">
             Professional Analysis
           </h3>
-          <div className="text-gray-800 leading-relaxed whitespace-pre-line text-sm">
-            {aiExplanation}
+          <div className="text-gray-800 leading-relaxed space-y-6 text-base md:text-sm max-w-3xl">
+            {aiExplanation.split('\n\n').map((paragraph, index) => {
+              // Check if paragraph is a header (starts with ** or #)
+              const isHeader = paragraph.trim().startsWith('**') || paragraph.trim().startsWith('#');
+
+              if (isHeader) {
+                // Remove markdown formatting
+                const headerText = paragraph.replace(/\*\*/g, '').replace(/^#+\s*/, '').trim();
+                return (
+                  <h4 key={index} className="text-lg md:text-base font-bold text-slate-900 mt-6 mb-3 first:mt-0">
+                    {headerText}
+                  </h4>
+                );
+              }
+
+              return (
+                <p key={index} className="mb-4 last:mb-0">
+                  {paragraph}
+                </p>
+              );
+            })}
           </div>
         </div>
       )}
