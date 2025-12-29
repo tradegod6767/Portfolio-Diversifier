@@ -60,20 +60,24 @@ export async function getCurrentUser() {
 }
 
 export async function checkIfPro(userId) {
+  console.log('[checkIfPro] Starting check for userId:', userId)
+
   try {
+    console.log('[checkIfPro] Calling supabase.auth.getUser()...')
     const { data: { user }, error } = await supabase.auth.getUser()
+    console.log('[checkIfPro] getUser returned:', { user: user ? 'exists' : 'null', error })
 
     if (error || !user) {
-      // User not logged in - silently return false without logging
+      console.log('[checkIfPro] No user or error, returning false')
       return false
     }
 
     const isPro = user.user_metadata?.is_pro === true
-    console.log('Checking Pro status:', { email: user.email, isPro, metadata: user.user_metadata })
+    console.log('[checkIfPro] Checking Pro status:', { email: user.email, isPro, metadata: user.user_metadata })
 
     return isPro
   } catch (error) {
-    console.error('Error checking pro status:', error)
+    console.error('[checkIfPro] Error checking pro status:', error)
     return false
   }
 }
