@@ -117,7 +117,7 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle, mobileOpen, onMobi
       {/* Sidebar */}
       <aside className={`
         fixed md:static inset-y-0 left-0 z-50
-        flex flex-col bg-slate-900 text-slate-50 h-full transition-all duration-300
+        flex flex-col bg-slate-900 text-slate-50 h-screen md:h-auto md:min-h-screen transition-all duration-300
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
         ${collapsed ? 'w-16' : 'w-64'}
       `}>
@@ -474,30 +474,28 @@ function MainApp(){
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          activeKey={active}
-          onNavigate={setActive}
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(s => !s)}
-          mobileOpen={mobileMenuOpen}
-          onMobileClose={() => setMobileMenuOpen(false)}
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex">
+      <Sidebar
+        activeKey={active}
+        onNavigate={setActive}
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(s => !s)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <Topbar
+          onToggleSidebar={() => setMobileMenuOpen(true)}
+          title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
         />
 
-        <div className="flex-1 flex flex-col min-w-0">
-          <Topbar
-            onToggleSidebar={() => setMobileMenuOpen(true)}
-            title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
-          />
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
+          {renderActive()}
+        </main>
 
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
-            {renderActive()}
-          </main>
-        </div>
+        <Footer />
       </div>
-
-      <Footer />
     </div>
   );
 }
