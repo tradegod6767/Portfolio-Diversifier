@@ -22,9 +22,9 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
 
     if (loading) {
       const timer = setTimeout(() => {
-        console.warn('[PaywallWrapper] Timeout - assuming free user');
+        console.warn('[PaywallWrapper] Timeout after 5s - assuming free user');
         setShowTimeout(true);
-      }, 2000);
+      }, 5000); // Increased to 5 seconds
       return () => clearTimeout(timer);
     }
   }, [loading, isPro]);
