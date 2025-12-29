@@ -19,7 +19,9 @@ export function useAuth() {
         setUser(currentUser)
 
         if (currentUser) {
-          const proStatus = await checkIfPro(currentUser.id)
+          // Get Pro status directly from user metadata instead of calling checkIfPro
+          const proStatus = currentUser.user_metadata?.is_pro === true
+          console.log('[useAuth initAuth] Pro status from metadata:', proStatus, 'metadata:', currentUser.user_metadata)
           if (mounted) {
             setIsPro(proStatus)
           }
@@ -46,7 +48,10 @@ export function useAuth() {
         setUser(newUser)
 
         if (newUser) {
-          const proStatus = await checkIfPro(newUser.id)
+          // Get Pro status directly from user metadata instead of calling checkIfPro
+          // This avoids the hanging supabase.auth.getUser() call
+          const proStatus = newUser.user_metadata?.is_pro === true
+          console.log('[useAuth] Pro status from metadata:', proStatus, 'metadata:', newUser.user_metadata)
           if (mounted) {
             setIsPro(proStatus)
           }
