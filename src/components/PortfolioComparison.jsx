@@ -93,40 +93,46 @@ function PortfolioComparison({ groupedPositions }) {
 
       {/* Bar Chart Comparison */}
       <div className="bg-white rounded-xl p-4 mb-4 border-2 border-gray-200 shadow-sm">
-        <h4 className="text-lg font-bold text-gray-900 mb-4 text-center">
+        <h4 className="text-base md:text-lg font-bold text-gray-900 mb-4 text-center">
           Asset Class Allocation Comparison
         </h4>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="assetClass"
-              tick={{ fontSize: 12 }}
-              angle={-45}
-              textAnchor="end"
-              height={80}
-            />
-            <YAxis
-              label={{ value: 'Allocation (%)', angle: -90, position: 'insideLeft' }}
-              tick={{ fontSize: 12 }}
-            />
-            <ChartTooltip content={<CustomTooltip />} />
-            <Legend
-              wrapperStyle={{ paddingTop: '20px' }}
-              iconType="rect"
-            />
-            <Bar
-              dataKey="Your Portfolio"
-              fill="#0f172a"
-              radius={[8, 8, 0, 0]}
-            />
-            <Bar
-              dataKey={comparison.model.name}
-              fill="#475569"
-              radius={[8, 8, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        {/* Chart container with explicit height for mobile */}
+        <div className="w-full overflow-x-auto" style={{ minHeight: '400px' }}>
+          <div style={{ minWidth: '300px', height: '400px' }}>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={chartData} margin={{ top: 20, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="assetClass"
+                  tick={{ fontSize: 11 }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis
+                  label={{ value: 'Allocation (%)', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
+                  tick={{ fontSize: 11 }}
+                  width={60}
+                />
+                <ChartTooltip content={<CustomTooltip />} />
+                <Legend
+                  wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }}
+                  iconType="rect"
+                />
+                <Bar
+                  dataKey="Your Portfolio"
+                  fill="#0f172a"
+                  radius={[8, 8, 0, 0]}
+                />
+                <Bar
+                  dataKey={comparison.model.name}
+                  fill="#475569"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
       {/* Model Portfolio Info */}

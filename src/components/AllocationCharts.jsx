@@ -62,43 +62,46 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
     { title: 'Current Allocation', data: currentData },
     { title: 'Target Allocation', data: targetData }
   ].map(({ title, data }) => (
-    <div key={title} className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-lg border-2 border-gray-200">
-      <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+    <div key={title} className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-4 md:p-6 shadow-lg border-2 border-gray-200">
+      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 text-center">
         {title}
       </h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={renderCustomLabel}
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <ChartTooltip content={<CustomTooltip />} />
-          <Legend
-            verticalAlign="bottom"
-            height={36}
-            formatter={(value, entry) => (
-              <span className="text-sm text-gray-700 font-medium">
-                {value} ({entry.payload.value}%)
-              </span>
-            )}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      {/* Chart container with explicit min-height */}
+      <div className="w-full" style={{ minHeight: '300px', height: '300px' }}>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={renderCustomLabel}
+              outerRadius={100}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <ChartTooltip content={<CustomTooltip />} />
+            <Legend
+              verticalAlign="bottom"
+              height={36}
+              formatter={(value, entry) => (
+                <span className="text-sm text-gray-700 font-medium">
+                  {value} ({entry.payload.value}%)
+                </span>
+              )}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   ));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 my-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 my-6 md:my-8">
       {charts}
     </div>
   );

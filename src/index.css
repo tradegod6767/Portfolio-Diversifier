@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-* {
-  /* Prevent horizontal scrolling */
+/* Prevent horizontal scrolling - but exclude SVG and chart elements */
+*:not(svg):not(svg *):not(.recharts-wrapper):not(.recharts-wrapper *) {
   max-width: 100%;
 }
 
