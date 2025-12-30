@@ -13,12 +13,13 @@ Complete Gumroad webhook system to automatically manage Pro subscriptions when u
 **Features:**
 - ✅ Handles POST requests from Gumroad
 - ✅ Processes multiple event types:
-  - `sale` / `subscription_created` → Activates Pro
-  - `subscription_cancelled` → Revokes Pro
-  - `subscription_ended` → Revokes Pro
-  - `sale_refunded` → Revokes Pro
+  - `sale` / `subscription_created` → Activates Pro + sends upgrade email
+  - `subscription_cancelled` → Revokes Pro + sends cancellation email
+  - `subscription_ended` → Revokes Pro + sends cancellation email
+  - `sale_refunded` → Revokes Pro + sends cancellation email
 - ✅ Logs all events to `webhook_logs` table
 - ✅ Updates user metadata in Supabase Auth
+- ✅ Sends transactional emails via Resend
 - ✅ Returns 200 to acknowledge receipt
 - ✅ Comprehensive error handling and logging
 
@@ -131,10 +132,71 @@ node test-webhook.js user@example.com cancelled https://your-app.vercel.app/api/
 - Shows expected results
 - Debugging tips
 
-### 7. **WEBHOOK-IMPLEMENTATION-SUMMARY.md** (NEW - THIS FILE)
+### 7. **api/send-email.js** (NEW)
+**Purpose:** Resend email API endpoint
+**Location:** `/api/send-email`
+
+**Email Templates:**
+1. **welcome** - Welcome email sent on signup
+   - Professional HTML design with gradient header
+   - Lists key features of RebalanceKit
+   - CTA button to try the calculator
+
+2. **proUpgrade** - Pro subscription confirmation
+   - Congratulatory message with star icon
+   - Detailed list of Pro features with descriptions
+   - Next steps for getting started
+   - Link to manage subscription on Gumroad
+
+3. **subscriptionCancelled** - Cancellation confirmation
+   - Professional and respectful tone
+   - Info box showing when access ends
+   - List of free plan features
+   - CTA to resubscribe with pre-filled email
+
+**All emails:**
+- Responsive HTML table-based design
+- Mobile-friendly layout
+- RebalanceKit branding
+- Professional typography
+- Sent from: `RebalanceKit <hello@rebalancekit.com>`
+
+### 8. **src/lib/auth.js** (UPDATED)
+**Purpose:** Authentication helper functions
+
+**Changes:**
+- Updated `signup()` function to send welcome email
+- Calls `/api/send-email` asynchronously after successful signup
+- Email send doesn't block signup flow
+- Errors are logged but don't fail the signup
+
+### 9. **.env.example** (NEW)
+**Purpose:** Environment variable documentation
+
+**Documents required variables:**
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-side only)
+- `ANTHROPIC_API_KEY` - Claude API key for AI analysis
+- `RESEND_API_KEY` - Resend API key for transactional emails
+
+### 10. **WEBHOOK-IMPLEMENTATION-SUMMARY.md** (NEW - THIS FILE)
 **Purpose:** Overview of implementation
 
 ## 🔄 Data Flow
+
+### User Signup
+```
+User signs up → Supabase Auth creates account
+                         ↓
+                  Send welcome email via Resend
+                         ↓
+              User receives confirmation email
+                         ↓
+                User confirms email + Welcome email
+                         ↓
+                  User can sign in ✅
+```
 
 ### New Subscription
 ```
@@ -148,9 +210,11 @@ User purchases → Gumroad webhook → /api/gumroad-webhook
                              - is_pro = true
                              - subscription_status = 'active'
                                     ↓
+                          Send Pro upgrade email via Resend
+                                    ↓
                                 Return 200 OK
                                     ↓
-                          User has Pro access ✅
+                   User has Pro access + receives email ✅
 ```
 
 ### Subscription Cancelled
@@ -166,9 +230,11 @@ User cancels → Gumroad webhook → /api/gumroad-webhook
                            - subscription_status = 'cancelled'
                            - cancelled_at = timestamp
                                   ↓
+                     Send cancellation email via Resend
+                                  ↓
                               Return 200 OK
                                   ↓
-                        User loses Pro access ❌
+                User loses Pro access + receives email ❌
 ```
 
 ### Access Check (Frontend)
@@ -235,18 +301,55 @@ updated_at: TIMESTAMPTZ
 - Users can only read their own subscriptions
 - All policies properly configured
 
+## 📧 Email Integration
+
+### Resend Setup
+1. Sign up at [resend.com](https://resend.com)
+2. Add and verify domain: `rebalancekit.com`
+3. Create API key with sending permissions
+4. Add `RESEND_API_KEY` to environment variables
+
+### Email Types and Triggers
+
+| Email Type | Trigger | Sent When | Template |
+|------------|---------|-----------|----------|
+| Welcome | User signup | `signup()` function in auth.js | `welcome` |
+| Pro Upgrade | Subscription created | Gumroad webhook: `subscription_created` or `sale` | `proUpgrade` |
+| Subscription Cancelled | Subscription cancelled | Gumroad webhook: `subscription_cancelled`, `subscription_ended`, `sale_refunded` | `subscriptionCancelled` |
+
+### Email Content
+All emails use professional HTML templates with:
+- Responsive table-based layout for email client compatibility
+- Inline CSS for maximum compatibility
+- Mobile-friendly design
+- RebalanceKit branding (gradient headers, logo placement)
+- Clear CTAs (buttons with proper styling)
+- Footer with unsubscribe info
+
 ## ✅ Testing Checklist
 
+**Database & Infrastructure:**
 - [ ] Database migration executed
-- [ ] Environment variables configured
+- [ ] Environment variables configured (including `RESEND_API_KEY`)
 - [ ] Webhook deployed to Vercel
 - [ ] Gumroad webhook configured
+- [ ] Resend domain verified
+
+**Webhook & Subscription Testing:**
 - [ ] Test new subscription (is_pro = true)
 - [ ] Test cancellation (is_pro = false)
 - [ ] Test refund (is_pro = false)
 - [ ] Verify access is revoked after cancel
 - [ ] Check webhook_logs table
 - [ ] Review Vercel logs
+
+**Email Testing:**
+- [ ] Test welcome email on new signup
+- [ ] Test Pro upgrade email on subscription purchase
+- [ ] Test cancellation email when subscription cancelled
+- [ ] Verify all emails render correctly on mobile
+- [ ] Check email delivery and spam scores
+- [ ] Verify "from" address shows as RebalanceKit
 
 ## 🚀 Deployment
 

@@ -31,6 +31,23 @@ export async function signup(email, password) {
     throw new Error('An account with this email already exists. Please sign in instead.')
   }
 
+  // Send welcome email asynchronously (don't block signup on email send)
+  if (data.user) {
+    const userName = email.split('@')[0]
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'welcome',
+        email: email,
+        userName: userName
+      })
+    }).catch(err => {
+      // Log but don't fail signup if email fails
+      console.error('[Signup] Failed to send welcome email:', err)
+    })
+  }
+
   return data.user
 }
 
