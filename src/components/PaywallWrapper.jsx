@@ -83,9 +83,21 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
               </p>
             </div>
 
+            {/* Email notice - shows which email to use */}
+            {user?.email && (
+              <div className="bg-emerald-500/20 border border-emerald-400/30 rounded-lg p-3 mb-4">
+                <p className="text-xs text-emerald-100 font-semibold mb-1">
+                  ✓ Use this email when checking out:
+                </p>
+                <p className="text-sm text-white font-mono">
+                  {user.email}
+                </p>
+              </div>
+            )}
+
             {/* Upgrade button */}
             <a
-              href="https://rebalancekit.gumroad.com/l/fvdfk"
+              href={`https://rebalancekit.gumroad.com/l/fvdfk${user?.email ? `?email=${encodeURIComponent(user.email)}` : ''}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg text-center block"
