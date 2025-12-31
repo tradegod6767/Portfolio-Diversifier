@@ -26,6 +26,9 @@ import StripePayment from "./components/StripePayment";
 import RebalancingResults from "./components/RebalancingResults";
 import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
 import SuccessPage from "./pages/SuccessPage";
+import AuthCallbackPage from "./pages/AuthCallbackPage";
+import Toast from "./components/Toast";
+import { ToastProvider } from "./context/ToastContext";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthModal from "./components/AuthModal";
 import ForgotPasswordModal from "./components/ForgotPasswordModal";
@@ -499,16 +502,19 @@ function MainApp(){
     </div>
   );
 }
-
 /* ---------- App with Router ---------- */
 export default function App(){
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/success" element={<SuccessPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/" element={<MainApp />} />
-      </Routes>
+      <ToastProvider>
+        <Routes>
+          <Route path="/success" element={<SuccessPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/" element={<MainApp />} />
+        </Routes>
+        <Toast />
+      </ToastProvider>
     </BrowserRouter>
   );
 }
