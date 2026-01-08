@@ -36,10 +36,10 @@ function NavItem({ item, active, onClick }) {
       onClick={() => onClick(item.key)}
       className={`
         group flex items-center gap-3 w-full px-3 py-2.5 rounded-lg
-        font-medium text-sm transition-all duration-150
+        font-medium text-sm transition-all duration-200 ease-out
         ${active
           ? 'bg-[#0A2540] text-white shadow-md'
-          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+          : 'text-slate-300 hover:bg-slate-800 hover:text-white hover:scale-[1.02]'
         }
       `}
     >

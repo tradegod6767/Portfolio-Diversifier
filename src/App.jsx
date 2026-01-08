@@ -371,7 +371,7 @@ function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadC
 /* About Page */
 function AboutView(){
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
         <h2 className="text-4xl font-bold text-[#0A2540] mb-8">About RebalanceKit</h2>
 

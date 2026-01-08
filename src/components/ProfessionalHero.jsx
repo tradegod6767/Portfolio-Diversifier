@@ -11,7 +11,7 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
       <div className="flex-1 flex items-center justify-center px-4 md:px-6 py-12 md:py-20">
         <div className="max-w-6xl mx-auto">
           {/* Main Hero Content */}
-          <div className="text-center space-y-8 mb-16">
+          <div className="text-center space-y-8 mb-16 animate-fade-in">
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
               <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
@@ -77,7 +77,7 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
           </div>
 
           {/* Feature Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto stagger-fade-in">
             {/* Feature 1 */}
             <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">

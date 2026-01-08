@@ -17,7 +17,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
   const displayPositions = viewMode === 'asset-classes' ? groupedPositions : positions;
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-6 md:space-y-8 animate-fade-in">
       <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">

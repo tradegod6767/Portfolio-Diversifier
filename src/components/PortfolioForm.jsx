@@ -193,7 +193,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
         existingNames={savedPortfolios.map(p => p.name)}
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
         <div>
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">

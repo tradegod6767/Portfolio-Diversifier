@@ -19,7 +19,7 @@ export default function Card({
     lg: 'p-8',
   };
 
-  const hoverClass = hoverable ? 'hover:shadow-lg transition-shadow duration-200' : '';
+  const hoverClass = hoverable ? 'hover:shadow-lg hover:-translate-y-1 hover:border-slate-300 transition-all duration-200 ease-out cursor-pointer' : '';
 
   return (
     <div
