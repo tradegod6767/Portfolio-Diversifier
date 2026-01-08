@@ -36,6 +36,8 @@ import { useAuth } from "./hooks/useAuth";
 import { supabase } from './lib/supabase';
 import { groupByAssetClass } from "./utils/assetClasses";
 import { calculateRebalancing } from "./utils/calculations";
+import ProfessionalTopbar from "./components/ProfessionalTopbar";
+import ProfessionalSidebar from "./components/ProfessionalSidebar";
 
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
@@ -477,8 +479,8 @@ function MainApp(){
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex">
-      <Sidebar
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex">
+      <ProfessionalSidebar
         activeKey={active}
         onNavigate={setActive}
         collapsed={sidebarCollapsed}
@@ -488,7 +490,7 @@ function MainApp(){
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <Topbar
+        <ProfessionalTopbar
           onToggleSidebar={() => setMobileMenuOpen(true)}
           title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
         />
