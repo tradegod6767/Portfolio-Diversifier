@@ -1,0 +1,68 @@
+/* Professional Styling for PortfolioForm */
+
+/* Position Input Containers */
+.portfolio-position-row {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 150ms ease-in-out;
+}
+
+.portfolio-position-row:hover {
+  border-color: #0A2540;
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.08);
+}
+
+/* Professional Input Fields */
+.portfolio-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #E2E8F0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 150ms ease-in-out;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.portfolio-input:focus {
+  outline: none;
+  border-color: #0A2540;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
+}
+
+.portfolio-input::placeholder {
+  color: #94A3B8;
+}
+
+/* Mode Selector Buttons */
+.mode-btn {
+  padding: 16px;
+  border-radius: 8px;
+  border: 2px solid #E2E8F0;
+  background: white;
+  transition: all 150ms ease-in-out;
+  cursor: pointer;
+}
+
+.mode-btn:hover {
+  border-color: #0A2540;
+  background: #F8FAFC;
+}
+
+.mode-btn.active {
+  background: #0A2540;
+  border-color: #0A2540;
+  color: white;
+}
+
+/* Error Messages */
+.portfolio-error {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  padding: 16px;
+  color: #991B1B;
+  font-size: 14px;
+}

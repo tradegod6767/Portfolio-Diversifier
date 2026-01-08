@@ -6,6 +6,8 @@ import { savePortfolio, getSavedPortfolios } from '../utils/portfolioStorage';
 import SavePortfolioModal from './SavePortfolioModal';
 import Tooltip from './Tooltip';
 
+import { Button, Card } from "./ui";
+import "./PortfolioFormStyles.css";
 function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPositions, isPro }) {
   const [positions, setPositions] = useState([
     { id: 1, ticker: '', amount: '', targetPercent: '' }
@@ -200,14 +202,14 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
             <button
               type="button"
               onClick={loadExamplePortfolio}
-              className="w-full px-6 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-lg rounded-xl transition duration-200 shadow-lg mb-4"
+              className="w-full px-6 py-4 bg-[#0A2540] hover:bg-[#0D2F52] text-white font-semibold text-base rounded-lg transition duration-200 shadow-lg mb-4"
             >
               📊 Load Example Portfolio
             </button>
           </div>
 
           {/* Rebalancing Mode Selector */}
-          <div className="mb-6 bg-gradient-to-r from-slate-50 to-slate-100 p-5 rounded-xl border-2 border-slate-300 shadow-sm">
+          <div className="mb-6 bg-gradient-to-r white p-6 rounded-lg border border-slate-200 shadow-sm">
             <label className="block text-sm font-bold text-gray-700 mb-3">
               Choose Action
             </label>
@@ -220,7 +222,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                 }}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                   rebalancingMode === 'standard'
-                    ? 'bg-slate-900 border-slate-700 text-white shadow-md'
+                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md'
                     : 'bg-white border-gray-300 text-gray-700 hover:border-slate-400 hover:bg-slate-100'
                 }`}
               >
@@ -235,7 +237,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                 onClick={() => setRebalancingMode('contribution')}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                   rebalancingMode === 'contribution'
-                    ? 'bg-slate-600 border-slate-700 text-white shadow-md'
+                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md'
                     : 'bg-white border-gray-300 text-gray-700 hover:border-slate-400 hover:bg-slate-50'
                 }`}
               >
@@ -253,7 +255,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                 onClick={() => setRebalancingMode('withdrawal')}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                   rebalancingMode === 'withdrawal'
-                    ? 'bg-slate-600 border-slate-700 text-white shadow-md'
+                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md'
                     : 'bg-white border-gray-300 text-gray-700 hover:border-slate-400 hover:bg-slate-50'
                 }`}
               >
@@ -276,7 +278,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                   placeholder={rebalancingMode === 'contribution' ? '5000' : '3000'}
                   value={modeAmount}
                   onChange={(e) => setModeAmount(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-slate-800 text-lg font-semibold"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-md focus:ring-2 focus:ring-[#0A2540]/10 focus:border-[#0A2540] text-lg font-semibold"
                   required={rebalancingMode === 'contribution' || rebalancingMode === 'withdrawal'}
                 />
                 <p className="text-xs text-gray-600 mt-2">
@@ -293,7 +295,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
             <button
               type="button"
               onClick={() => setShowSaveModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-[#0A2540] hover:bg-[#0D2F52] text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -315,7 +317,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
             <button
               type="button"
               onClick={onImportClick}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-[#0A2540] hover:bg-[#0D2F52] text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -325,7 +327,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
           </div>
 
         {positions.map((position, index) => (
-          <div key={position.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-xl border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+          <div key={position.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 bg-gradient-to-r white p-5 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
                 Ticker Symbol
@@ -335,7 +337,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                 placeholder="AAPL"
                 value={position.ticker}
                 onChange={(e) => updatePosition(position.id, 'ticker', e.target.value.toUpperCase())}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-slate-800 font-semibold uppercase"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-md focus:ring-2 focus:ring-[#0A2540]/10 focus:border-[#0A2540] font-semibold uppercase"
                 required
               />
             </div>
@@ -350,7 +352,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                 placeholder="10000"
                 value={position.amount}
                 onChange={(e) => updatePosition(position.id, 'amount', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-slate-800"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-md focus:ring-2 focus:ring-[#0A2540]/10 focus:border-[#0A2540]"
                 required
               />
             </div>
@@ -365,7 +367,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
                 placeholder="25"
                 value={position.targetPercent}
                 onChange={(e) => updatePosition(position.id, 'targetPercent', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-slate-800"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-md focus:ring-2 focus:ring-[#0A2540]/10 focus:border-[#0A2540]"
                 required
               />
             </div>
@@ -393,15 +395,15 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
       </div>
 
       {error && (
-        <div className="p-4 bg-slate-50 border-2 border-slate-300 rounded-xl shadow-sm">
-          <p className="text-slate-800 font-medium">{error}</p>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+          <p className="text-red-800 font-medium">{error}</p>
         </div>
       )}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-blue-600 to-slate-600 hover:from-blue-700 hover:to-slate-700 disabled:from-blue-400 disabled:to-slate-400 text-white font-bold text-lg py-4 px-8 rounded-xl transition duration-200 shadow-lg disabled:cursor-not-allowed"
+        className="w-full bg-[#0A2540] hover:bg-[#0D2F52] disabled:opacity-50 text-white font-bold text-lg py-4 px-8 rounded-xl transition duration-200 shadow-lg disabled:cursor-not-allowed"
       >
         {loading ? 'Calculating...' : 'Calculate Rebalancing'}
       </button>
