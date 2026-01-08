@@ -38,6 +38,7 @@ import { groupByAssetClass } from "./utils/assetClasses";
 import { calculateRebalancing } from "./utils/calculations";
 import ProfessionalTopbar from "./components/ProfessionalTopbar";
 import ProfessionalSidebar from "./components/ProfessionalSidebar";
+import ProfessionalHero from "./components/ProfessionalHero";
 
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
@@ -372,14 +373,14 @@ function AboutView(){
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-6">About RebalanceKit</h2>
+        <h2 className="text-4xl font-bold text-[#0A2540] mb-8">About RebalanceKit</h2>
 
         <div className="space-y-4 text-slate-700 leading-relaxed">
           <p>
             RebalanceKit helps investors calculate exact rebalancing trades to maintain their target portfolio allocations.
           </p>
 
-          <h3 className="text-xl font-bold text-slate-900 mt-6 mb-3">Key Features</h3>
+          <h3 className="text-2xl font-semibold text-slate-900 mt-8 mb-4">Key Features</h3>
           <ul className="list-disc list-inside space-y-2 ml-4">
             <li><strong>Add-Only Mode:</strong> Only buy positions, never sell. Useful for avoiding capital gains taxes.</li>
             <li><strong>Health Score:</strong> Measures portfolio concentration and drift risk (0-100).</li>
@@ -389,7 +390,7 @@ function AboutView(){
             <li><strong>Multiple Modes:</strong> Standard rebalancing, contributions, withdrawals, add-only, or sell-only.</li>
           </ul>
 
-          <h3 className="text-xl font-bold text-slate-900 mt-6 mb-3">Example Portfolio</h3>
+          <h3 className="text-2xl font-semibold text-slate-900 mt-8 mb-4">Example Portfolio</h3>
           <p>
             Try the calculator with our example portfolio to see how it works:
           </p>
@@ -399,7 +400,7 @@ function AboutView(){
             <li>CASH - $5,000 / 10% target</li>
           </ul>
 
-          <h3 className="text-xl font-bold text-slate-900 mt-6 mb-3">Privacy & Security</h3>
+          <h3 className="text-2xl font-semibold text-slate-900 mt-8 mb-4">Privacy & Security</h3>
           <p>
             Your portfolio data is stored locally in your browser. We don't collect or store your financial information on our servers.
           </p>
@@ -463,7 +464,7 @@ function MainApp(){
 
   function renderActive(){
     switch(active){
-      case 'home': return <HeroView onNavigate={setActive} onLoadExample={handleLoadExample} />;
+      case 'home': return <ProfessionalHero onNavigate={setActive} onLoadExample={handleLoadExample} />;
       case 'calculator': return <CalculatorView
         onCalculate={handleCalculate}
         rebalanceResults={rebalanceResults}
@@ -474,7 +475,7 @@ function MainApp(){
         loading={loading}
       />;
       case 'about': return <AboutView />;
-      default: return <HeroView onNavigate={setActive} onLoadExample={handleLoadExample} />;
+      default: return <ProfessionalHero onNavigate={setActive} onLoadExample={handleLoadExample} />;
     }
   }
 
