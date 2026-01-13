@@ -1,33 +1,50 @@
 import { useState, useEffect } from 'react';
 import { getSavedPortfolios, deletePortfolio, getPortfolio } from '../utils/portfolioStorage';
 
-function LoadPortfolioPage({ onBack }) {
+function LoadPortfolioPage({ onBack, user, isPro }) {
   const [savedPortfolios, setSavedPortfolios] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadSavedPortfolios();
-  }, []);
+  }, [user, isPro]);
 
-  const loadSavedPortfolios = () => {
-    setSavedPortfolios(getSavedPortfolios());
+  const loadSavedPortfolios = async () => {
+    setLoading(true);
+    try {
+      const portfolios = await getSavedPortfolios(user, isPro);
+      setSavedPortfolios(portfolios);
+    } catch (error) {
+      console.error('Error loading portfolios:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleLoadPortfolio = (name) => {
-    const portfolio = getPortfolio(name);
+  const handleLoadPortfolio = (portfolio) => {
+    console.log('Loading portfolio:', portfolio);
     if (portfolio) {
       const positions = portfolio.positions.map((p, index) => ({
         ...p,
         id: Date.now() + index
       }));
+      console.log('Mapped positions:', positions);
       onBack(positions);
+    } else {
+      console.error('Portfolio not found');
     }
   };
 
-  const handleDeletePortfolio = (name, e) => {
+  const handleDeletePortfolio = async (portfolio, e) => {
     e.stopPropagation();
-    if (confirm(`Delete portfolio "${name}"?`)) {
-      deletePortfolio(name);
-      loadSavedPortfolios();
+    if (confirm(`Delete portfolio "${portfolio.name}"?`)) {
+      try {
+        await deletePortfolio(portfolio, user, isPro);
+        await loadSavedPortfolios();
+      } catch (error) {
+        console.error('Error deleting portfolio:', error);
+        alert('Failed to delete portfolio. Please try again.');
+      }
     }
   };
 
@@ -46,7 +63,53 @@ function LoadPortfolioPage({ onBack }) {
 
       <h2 className="text-2xl font-bold text-gray-900">Load Saved Portfolio</h2>
 
-      {savedPortfolios.length === 0 ? (
+      {/* Pro Feature Callout for Free Users */}
+      {(!user || !isPro) && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-5">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Unlimited Cloud Storage with Pro
+              </h3>
+              <p className="text-gray-700 mb-3">
+                Free users can save up to 5 portfolios locally. Upgrade to Pro for unlimited portfolios with cloud sync across all your devices!
+              </p>
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Unlimited portfolios
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Cloud sync
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Access anywhere
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">Loading portfolios...</p>
+        </div>
+      ) : savedPortfolios.length === 0 ? (
         <div className="text-center py-12">
           <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -60,14 +123,24 @@ function LoadPortfolioPage({ onBack }) {
         <div className="space-y-3">
           {savedPortfolios.map((portfolio) => (
             <div
-              key={portfolio.name}
+              key={portfolio.id || portfolio.name}
               className="flex items-center justify-between p-5 bg-gradient-to-r from-gray-50 to-blue-50 border-2 border-gray-200 rounded-xl hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => handleLoadPortfolio(portfolio.name)}
+              onClick={() => handleLoadPortfolio(portfolio)}
             >
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">
-                  {portfolio.name}
-                </h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {portfolio.name}
+                  </h3>
+                  {!portfolio.isLocal && (
+                    <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+                      </svg>
+                      PRO
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,6 +154,14 @@ function LoadPortfolioPage({ onBack }) {
                     </svg>
                     {portfolio.positions.length} position{portfolio.positions.length !== 1 ? 's' : ''}
                   </span>
+                  {!portfolio.isLocal && (
+                    <span className="flex items-center gap-1 text-blue-600 font-medium">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                      </svg>
+                      Cloud synced
+                    </span>
+                  )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {portfolio.positions.slice(0, 5).map((pos, idx) => (
@@ -100,7 +181,7 @@ function LoadPortfolioPage({ onBack }) {
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={(e) => handleDeletePortfolio(portfolio.name, e)}
+                  onClick={(e) => handleDeletePortfolio(portfolio, e)}
                   className="p-3 text-red-600 hover:bg-red-50 rounded-lg transition"
                   title="Delete"
                 >

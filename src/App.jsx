@@ -371,6 +371,7 @@ function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadC
           onImportClick={() => {}} // Removed import functionality from nav
           onLoadClick={onLoadClick}
           loadedPositions={loadedPositions}
+          user={user}
           isPro={isPro}
         />
       </div>

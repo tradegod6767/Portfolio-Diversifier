@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { login, signup } from '../lib/auth';
+import './AuthModal.css';
 
 function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
   const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
@@ -40,25 +41,26 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl">
+    <div className="auth-modal-overlay">
+      <div className="auth-modal-content">
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="auth-modal-close"
+          aria-label="Close"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="p-8">
+        <div className="auth-modal-body">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">
+          <div className="auth-modal-header">
+            <h2 className="auth-modal-title">
               {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
             </h2>
-            <p className="text-slate-600">
+            <p className="auth-modal-subtitle">
               {mode === 'signin'
                 ? 'Sign in to access your portfolio'
                 : 'Start managing your portfolio today'}
@@ -67,31 +69,31 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
 
           {/* Error message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">{error}</p>
+            <div className="auth-error-message">
+              <p>{error}</p>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="auth-form-field">
+              <label className="auth-form-label">
+                EMAIL ADDRESS
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all"
+                className="auth-form-input"
                 placeholder="you@example.com"
                 disabled={loading}
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
+            <div className="auth-form-field">
+              <label className="auth-form-label">
+                PASSWORD
               </label>
               <input
                 type="password"
@@ -99,24 +101,24 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all"
+                className="auth-form-input"
                 placeholder="••••••••"
                 disabled={loading}
               />
               {mode === 'signup' && (
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="auth-form-hint">
                   Must be at least 6 characters
                 </p>
               )}
               {mode === 'signin' && (
-                <div className="text-right">
+                <div className="auth-forgot-password-container">
                   <button
                     type="button"
                     onClick={() => {
                       handleClose();
                       onForgotPassword?.();
                     }}
-                    className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium"
+                    className="auth-forgot-password-link"
                   >
                     Forgot password?
                   </button>
@@ -127,11 +129,11 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg disabled:cursor-not-allowed"
+              className={`auth-submit-btn ${loading ? 'loading' : ''}`}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <span className="auth-submit-btn-content">
+                  <svg className="auth-spinner" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -144,23 +146,23 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
           </form>
 
           {/* Toggle mode */}
-          <div className="mt-6 text-center">
+          <div className="auth-toggle-mode">
             <button
               onClick={() => {
                 setMode(mode === 'signin' ? 'signup' : 'signin');
                 setError('');
               }}
-              className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
+              className="auth-toggle-link"
             >
               {mode === 'signin' ? (
                 <>
                   Don't have an account?{' '}
-                  <span className="font-semibold">Sign up</span>
+                  <span className="auth-toggle-link-emphasis">Sign up</span>
                 </>
               ) : (
                 <>
                   Already have an account?{' '}
-                  <span className="font-semibold">Sign in</span>
+                  <span className="auth-toggle-link-emphasis">Sign in</span>
                 </>
               )}
             </button>

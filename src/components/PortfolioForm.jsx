@@ -5,10 +5,11 @@ import { API_BASE_URL } from '../config';
 import { savePortfolio, getSavedPortfolios } from '../utils/portfolioStorage';
 import SavePortfolioModal from './SavePortfolioModal';
 import Tooltip from './Tooltip';
+import { supabase } from '../lib/supabase';
 
 import { Button, Card } from "./ui";
 import "./PortfolioFormStyles.css";
-function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPositions, isPro }) {
+function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPositions, user, isPro }) {
   const [positions, setPositions] = useState([
     { id: 1, ticker: '', amount: '', targetPercent: '' }
   ]);
@@ -21,17 +22,21 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
 
   useEffect(() => {
     loadSavedPortfolios();
-  }, []);
+  }, [user, isPro]);
 
   useEffect(() => {
-    if (loadedPositions) {
+    if (loadedPositions && loadedPositions.length > 0) {
+      console.log('PortfolioForm received loadedPositions:', loadedPositions);
       setPositions(loadedPositions);
       setError('');
+      // Scroll to top to show the loaded positions
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loadedPositions]);
 
-  const loadSavedPortfolios = () => {
-    setSavedPortfolios(getSavedPortfolios());
+  const loadSavedPortfolios = async () => {
+    const portfolios = await getSavedPortfolios(user, isPro);
+    setSavedPortfolios(portfolios);
   };
 
   const addPosition = () => {
@@ -96,10 +101,10 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
     setError('');
   };
 
-  const handleSavePortfolio = (name) => {
+  const handleSavePortfolio = async (name) => {
     try {
-      savePortfolio(name, positions);
-      loadSavedPortfolios();
+      await savePortfolio(name, positions, user, isPro);
+      await loadSavedPortfolios();
       setShowSaveModal(false);
     } catch (err) {
       throw err;
@@ -173,10 +178,23 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
 
   const getAIExplanation = async (data) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/explain`, {
-        rebalancingData: data,
-        isPro: isPro || false // Pass subscription status to API
-      });
+      // SECURITY FIX: Send auth token instead of client-controlled isPro flag
+      // The server will verify the actual subscription status from the database
+      const headers = {};
+
+      // Get Supabase session token if user is logged in
+      if (user) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          headers.Authorization = `Bearer ${session.access_token}`;
+        }
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/explain`,
+        { rebalancingData: data },
+        { headers }
+      );
       return response.data.explanation;
     } catch (err) {
       console.error('Failed to get AI explanation:', err);
@@ -295,7 +313,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
             <button
               type="button"
               onClick={() => setShowSaveModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#0A2540] hover:bg-[#0D2F52] text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
+              className="portfolio-action-btn portfolio-save-btn"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -306,7 +324,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
             <button
               type="button"
               onClick={onLoadClick}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
+              className="portfolio-action-btn portfolio-load-btn"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -317,7 +335,7 @@ function PortfolioForm({ onCalculate, onImportClick, onLoadClick, loadedPosition
             <button
               type="button"
               onClick={onImportClick}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#0A2540] hover:bg-[#0D2F52] text-white font-medium rounded-lg transition duration-200 text-xs shadow-sm"
+              className="portfolio-action-btn portfolio-import-btn"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />

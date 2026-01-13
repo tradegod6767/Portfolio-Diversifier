@@ -1,4 +1,5 @@
 import { Button } from './ui';
+import FinancialDisclaimer from './FinancialDisclaimer';
 
 /**
  * Professional Landing Page Hero
@@ -77,7 +78,7 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
           </div>
 
           {/* Feature Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto stagger-fade-in">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto stagger-fade-in">
             {/* Feature 1 */}
             <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
@@ -110,7 +111,28 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
               </p>
             </div>
 
-            {/* Feature 3 */}
+            {/* Feature 3 - Cloud Sync */}
+            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-8 border-2 border-indigo-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+              <div className="absolute top-3 right-3">
+                <span className="px-2 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold rounded-full">
+                  PRO
+                </span>
+              </div>
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-3">Cloud Portfolio Sync</h3>
+              <p className="text-slate-600 leading-relaxed mb-4">
+                Save unlimited portfolios with automatic cloud sync. Access your configurations from any device, anytime.
+              </p>
+              <p className="text-sm font-semibold text-indigo-600">
+                Pro feature - $9/month
+              </p>
+            </div>
+
+            {/* Feature 4 */}
             <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,6 +147,11 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
                 Pro feature - $9/month
               </p>
             </div>
+          </div>
+
+          {/* Financial Disclaimer */}
+          <div className="mt-16 max-w-4xl mx-auto">
+            <FinancialDisclaimer variant="banner" />
           </div>
 
           {/* Social Proof */}
