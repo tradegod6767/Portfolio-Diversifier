@@ -1,0 +1,269 @@
+/* ═══════════════════════════════════════════════════════════
+   REBALANCEKIT SAVE PORTFOLIO MODAL - PROFESSIONAL REDESIGN
+   ═══════════════════════════════════════════════════════════ */
+
+/* Modal Overlay - Dark backdrop with fade-in animation */
+.save-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  animation: fadeIn 200ms ease;
+}
+
+/* Modal Content Container - Slide-up entrance animation */
+.save-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 250ms ease;
+}
+
+/* Close Button */
+.save-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: #94A3B8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 150ms ease;
+  z-index: 10;
+}
+
+.save-modal-close:hover {
+  color: #475569;
+}
+
+.save-modal-close svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Modal Body */
+.save-modal-body {
+  padding: 32px;
+}
+
+/* Header Section */
+.save-modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.save-modal-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0A2540;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.save-modal-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Form Field */
+.save-form-field {
+  margin-bottom: 24px;
+}
+
+/* Form Label - Uppercase, small, professional */
+.save-form-label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+}
+
+/* Form Input - Professional styling matching the design system */
+.save-form-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #0F172A;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  transition: all 150ms ease;
+  outline: none;
+}
+
+.save-form-input::placeholder {
+  color: #94A3B8;
+}
+
+.save-form-input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Warning Message */
+.save-warning-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #92400E;
+  line-height: 1.5;
+}
+
+.save-warning-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #F59E0B;
+  margin-top: 1px;
+}
+
+/* Error Message */
+.save-error-message {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background-color: #FEF2F2;
+  border: 1px solid #FEE2E2;
+  border-radius: 6px;
+}
+
+.save-error-message p {
+  margin: 0;
+  font-size: 14px;
+  color: #991B1B;
+  font-weight: 500;
+}
+
+/* Button Group */
+.save-button-group {
+  display: flex;
+  gap: 12px;
+}
+
+/* Cancel Button - Secondary style */
+.save-cancel-btn {
+  flex: 1;
+  height: 48px;
+  padding: 0 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #475569;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.save-cancel-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.save-cancel-btn:active {
+  transform: scale(0.98);
+}
+
+/* Submit Button - Deep Navy with professional animations */
+.save-submit-btn {
+  flex: 1;
+  height: 48px;
+  padding: 0 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #0A2540;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+/* Button Hover - Lift effect with shadow */
+.save-submit-btn:hover {
+  background: #0d3558;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.15);
+}
+
+/* Button Active - Press down effect */
+.save-submit-btn:active {
+  transform: scale(0.98);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Fade In - For overlay */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide Up - For modal content */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .save-modal-body {
+    padding: 24px;
+  }
+
+  .save-modal-title {
+    font-size: 24px;
+  }
+
+  .save-modal-subtitle {
+    font-size: 14px;
+  }
+
+  .save-submit-btn,
+  .save-cancel-btn {
+    height: 44px;
+    font-size: 15px;
+  }
+}

@@ -1,0 +1,335 @@
+/* ═══════════════════════════════════════════════════════════
+   REBALANCEKIT AUTH MODAL - PROFESSIONAL REDESIGN
+   ═══════════════════════════════════════════════════════════ */
+
+/* Modal Overlay - Dark backdrop with fade-in animation */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  animation: fadeIn 200ms ease;
+}
+
+/* Modal Content Container - Slide-up entrance animation */
+.auth-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 250ms ease;
+}
+
+/* Close Button */
+.auth-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: #94A3B8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 150ms ease;
+  z-index: 10;
+}
+
+.auth-modal-close:hover {
+  color: #475569;
+}
+
+.auth-modal-close svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Modal Body */
+.auth-modal-body {
+  padding: 32px;
+}
+
+/* Header Section */
+.auth-modal-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-modal-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0A2540;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.auth-modal-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Error Message */
+.auth-error-message {
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background-color: #FEF2F2;
+  border: 1px solid #FEE2E2;
+  border-radius: 6px;
+}
+
+.auth-error-message p {
+  margin: 0;
+  font-size: 14px;
+  color: #991B1B;
+  font-weight: 500;
+}
+
+/* Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Form Field */
+.auth-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Form Label - Uppercase, small, professional */
+.auth-form-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+/* Form Input - Professional styling matching the design system */
+.auth-form-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #0F172A;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  transition: all 150ms ease;
+  outline: none;
+}
+
+.auth-form-input::placeholder {
+  color: #94A3B8;
+}
+
+.auth-form-input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.auth-form-input:disabled {
+  background-color: #F8FAFC;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Form Hint */
+.auth-form-hint {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+/* Forgot Password Container */
+.auth-forgot-password-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+/* Forgot Password Link - Professional blue */
+.auth-forgot-password-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2563EB;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 150ms ease;
+  text-decoration: none;
+}
+
+.auth-forgot-password-link:hover {
+  text-decoration: underline;
+  color: #1D4ED8;
+}
+
+/* Submit Button - Deep Navy with professional animations */
+.auth-submit-btn {
+  width: 100%;
+  height: 48px;
+  margin-top: 8px;
+  padding: 0 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #0A2540;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Button Hover - Lift effect with shadow */
+.auth-submit-btn:hover:not(:disabled) {
+  background: #0d3558;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.15);
+}
+
+/* Button Active - Press down effect */
+.auth-submit-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Button Loading State */
+.auth-submit-btn.loading {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.auth-submit-btn:disabled {
+  background: #94A3B8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Submit Button Content */
+.auth-submit-btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Spinner Animation */
+.auth-spinner {
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+/* Toggle Mode Section */
+.auth-toggle-mode {
+  margin-top: 24px;
+  text-align: center;
+}
+
+/* Toggle Link */
+.auth-toggle-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #64748B;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 150ms ease;
+}
+
+.auth-toggle-link:hover {
+  color: #0F172A;
+}
+
+/* Toggle Link Emphasis */
+.auth-toggle-link-emphasis {
+  color: #2563EB;
+  font-weight: 600;
+}
+
+.auth-toggle-link:hover .auth-toggle-link-emphasis {
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Fade In - For overlay */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide Up - For modal content */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Spin - For loading spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .auth-modal-body {
+    padding: 24px;
+  }
+
+  .auth-modal-title {
+    font-size: 24px;
+  }
+
+  .auth-modal-subtitle {
+    font-size: 14px;
+  }
+
+  .auth-submit-btn {
+    height: 44px;
+    font-size: 15px;
+  }
+}

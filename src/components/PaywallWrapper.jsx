@@ -113,6 +113,12 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
                   <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
+                  100 AI analyses per hour (vs 5 free)
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                   Tax impact estimates
                 </li>
                 <li className="flex items-center gap-2">

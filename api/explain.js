@@ -1,24 +1,21 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { handleCors } from './_cors.js';
+import { applyRateLimit } from './_ratelimit.js';
+import { authenticateRequest } from './_auth.js';
 
 export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
-
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+  // SECURITY: Apply CORS with origin whitelist (no wildcards)
+  if (handleCors(req, res, {
+    methods: ['POST', 'OPTIONS']
+  })) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // SECURITY: Authenticate request (optional for free tier, but track usage)
+  const { user, error: authError } = await authenticateRequest(req);
+  const isAuthenticated = !authError && user;
 
   try {
     const { rebalancingData, isPro } = req.body;
@@ -29,6 +26,15 @@ export default async function handler(req, res) {
 
     // Default to free tier if not specified
     const isProUser = isPro === true;
+
+    // SECURITY: Apply rate limiting for AI endpoints (5/20/100 requests per hour)
+    if (!await applyRateLimit(req, res, {
+      endpointType: 'AI',
+      user: user,
+      isPro: isProUser
+    })) {
+      return; // Rate limit exceeded, response already sent
+    }
 
     // Initialize Anthropic client
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -99,10 +105,18 @@ Write in clear, professional language that a non-expert investor can understand.
 
     return res.status(200).json({ explanation });
   } catch (error) {
-    console.error('Error calling Claude API:', error);
+    // SECURITY FIX: Log detailed error internally but return sanitized error to client
+    console.error('[AI Explain] Error calling Claude API:', {
+      message: error.message,
+      type: error.type,
+      code: error.code
+    });
+
     return res.status(500).json({
-      error: 'Failed to generate explanation',
-      explanation: 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.'
+      error: 'Failed to generate AI analysis',
+      explanation: 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.',
+      // Only in development: include sanitized hint (no stack traces)
+      ...(process.env.NODE_ENV === 'development' && { hint: error.message?.substring(0, 100) })
     });
   }
 }

@@ -39,6 +39,9 @@ import { calculateRebalancing } from "./utils/calculations";
 import ProfessionalTopbar from "./components/ProfessionalTopbar";
 import ProfessionalSidebar from "./components/ProfessionalSidebar";
 import ProfessionalHero from "./components/ProfessionalHero";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import FinancialDisclaimer from "./components/FinancialDisclaimer";
 
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
@@ -87,8 +90,27 @@ function Tooltip({children, text}){
 function Footer(){
   return (
     <footer className="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 w-full">
-      <div className="flex justify-center items-center">
-        <p className="text-sm font-medium">#1 Portfolio Rebalancer for Beginners</p>
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Financial Disclaimer */}
+        <div className="mb-6">
+          <FinancialDisclaimer variant="footer" />
+        </div>
+
+        {/* Links */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
+          <a href="/terms" className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
+            Terms of Service
+          </a>
+          <span className="hidden sm:inline text-slate-600">|</span>
+          <a href="/privacy" className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
+            Privacy Policy
+          </a>
+        </div>
+
+        {/* Copyright */}
+        <div className="flex justify-center items-center">
+          <p className="text-sm font-medium">#1 Portfolio Rebalancer for Beginners</p>
+        </div>
       </div>
     </footer>
   );
@@ -514,6 +536,8 @@ export default function App(){
           <Route path="/success" element={<SuccessPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/" element={<MainApp />} />
         </Routes>
         <Toast />

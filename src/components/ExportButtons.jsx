@@ -275,7 +275,7 @@ function ExportButtons({ results }) {
 
         pdf.setFontSize(16);
         pdf.setTextColor(30, 58, 138);
-        pdf.text('Professional Analysis', 15, yPosition);
+        pdf.text('AI Analysis', 15, yPosition);
         yPosition += 8;
 
         pdf.setFontSize(10);
