@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import './SavePortfolioModal.css';
+import { LoadingSpinner, SuccessCheckmark } from './ui';
 
 function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -19,18 +22,29 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
       return;
     }
 
+    setSaving(true);
     try {
-      onSave(name.trim());
-      setName('');
-      onClose();
+      await onSave(name.trim());
+      setSaveSuccess(true);
+      // Show success state briefly before closing
+      setTimeout(() => {
+        setName('');
+        setSaveSuccess(false);
+        setSaving(false);
+        onClose();
+      }, 800);
     } catch (err) {
       setError(err.message);
+      setSaving(false);
     }
   };
 
   const handleClose = () => {
+    if (saving) return; // Don't close while saving
     setName('');
     setError('');
+    setSaving(false);
+    setSaveSuccess(false);
     onClose();
   };
 
@@ -94,15 +108,29 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
               <button
                 type="button"
                 onClick={handleClose}
+                disabled={saving}
                 className="save-cancel-btn"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="save-submit-btn"
+                disabled={saving || saveSuccess}
+                className={`save-submit-btn ${saveSuccess ? 'save-submit-btn-success' : ''}`}
               >
-                Save Portfolio
+                {saveSuccess ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <SuccessCheckmark size="sm" />
+                    Saved!
+                  </span>
+                ) : saving ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <LoadingSpinner size="sm" color="white" />
+                    Saving...
+                  </span>
+                ) : (
+                  'Save Portfolio'
+                )}
               </button>
             </div>
           </form>

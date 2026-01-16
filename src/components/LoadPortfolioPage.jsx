@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSavedPortfolios, deletePortfolio, getPortfolio } from '../utils/portfolioStorage';
+import { EmptyState } from './ui';
 
 function LoadPortfolioPage({ onBack, user, isPro }) {
   const [savedPortfolios, setSavedPortfolios] = useState([]);
@@ -110,15 +111,31 @@ function LoadPortfolioPage({ onBack, user, isPro }) {
           <p className="text-gray-600 mt-4">Loading portfolios...</p>
         </div>
       ) : savedPortfolios.length === 0 ? (
-        <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-          </svg>
-          <p className="text-gray-600 text-lg font-medium mb-2">No saved portfolios</p>
-          <p className="text-gray-500 text-sm">
-            Save your portfolio configurations to quickly load them later.
-          </p>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="w-10 h-10" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          }
+          title="No portfolios yet"
+          description="Create your first portfolio or try a sample to see how RebalanceKit works."
+          primaryAction={{
+            label: "Create Portfolio",
+            onClick: () => onBack()
+          }}
+          secondaryAction={{
+            label: "Load Sample",
+            onClick: () => {
+              const samplePositions = [
+                { id: Date.now(), ticker: 'VTI', amount: '30000', targetPercent: '60' },
+                { id: Date.now() + 1, ticker: 'VXUS', amount: '12000', targetPercent: '25' },
+                { id: Date.now() + 2, ticker: 'BND', amount: '6000', targetPercent: '12' },
+                { id: Date.now() + 3, ticker: 'CASH', amount: '2000', targetPercent: '3' }
+              ];
+              onBack(samplePositions);
+            }
+          }}
+        />
       ) : (
         <div className="space-y-3">
           {savedPortfolios.map((portfolio) => (

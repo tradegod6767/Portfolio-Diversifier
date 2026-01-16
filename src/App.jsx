@@ -12,7 +12,7 @@ Notes:
 - The layout is responsive: collapsible sidebar on small screens.
 */
 
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ImportPortfolioPage from "./components/ImportPortfolioPage";
 import LoadPortfolioPage from "./components/LoadPortfolioPage";
@@ -28,7 +28,7 @@ import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
 import SuccessPage from "./pages/SuccessPage";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
 import Toast from "./components/Toast";
-import { ToastProvider } from "./context/ToastContext";
+import { ToastProvider, useToast } from "./context/ToastContext";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthModal from "./components/AuthModal";
 import ForgotPasswordModal from "./components/ForgotPasswordModal";
@@ -42,6 +42,18 @@ import ProfessionalHero from "./components/ProfessionalHero";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import FinancialDisclaimer from "./components/FinancialDisclaimer";
+import OnboardingWizard from "./components/OnboardingWizard";
+import KeyboardShortcutsModal from "./components/KeyboardShortcutsModal";
+import { hasCompletedOnboarding, resetOnboarding } from "./utils/onboardingStorage";
+import { getSavedPortfolios } from "./utils/portfolioStorage";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import WhatsNewModal from "./components/WhatsNewModal";
+import { hasUnseenUpdates } from "./data/changelog";
+import { ResultsSkeleton } from "./components/AppLoadingSkeleton";
+import MobileBottomNav from "./components/MobileBottomNav";
+import MobileHeader from "./components/MobileHeader";
+import FloatingActionButton from "./components/FloatingActionButton";
 
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
@@ -87,7 +99,7 @@ function Tooltip({children, text}){
 }
 
 /* ---------- Footer component ---------- */
-function Footer(){
+function Footer({ onShowShortcuts, onShowWhatsNew, showUpdateDot }){
   return (
     <footer className="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 w-full">
       <div className="max-w-7xl mx-auto px-4">
@@ -105,6 +117,30 @@ function Footer(){
           <a href="/privacy" className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
             Privacy Policy
           </a>
+          <span className="hidden sm:inline text-slate-600">|</span>
+          <button
+            onClick={onShowShortcuts}
+            className="text-sm text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1.5"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Keyboard Shortcuts
+            <kbd className="ml-1 px-1 py-0.5 text-xs font-mono bg-slate-800 border border-slate-700 rounded">?</kbd>
+          </button>
+          <span className="hidden sm:inline text-slate-600">|</span>
+          <button
+            onClick={onShowWhatsNew}
+            className="text-sm text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1.5 relative"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+            </svg>
+            What's New
+            {showUpdateDot && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            )}
+          </button>
         </div>
 
         {/* Copyright */}
@@ -361,14 +397,15 @@ function HeroView({onNavigate, onLoadExample}){
 }
 
 /* Calculator View - Main Portfolio Calculator */
-function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadClick, user, isPro, loading}){
+function CalculatorView({onCalculate, onCalculateStart, rebalanceResults, loadedPositions, onLoadClick, onImportClick, user, isPro, loading, calculating}){
   return (
     <div className="space-y-6">
       {/* Portfolio Form */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <PortfolioForm
           onCalculate={onCalculate}
-          onImportClick={() => {}} // Removed import functionality from nav
+          onCalculateStart={onCalculateStart}
+          onImportClick={onImportClick}
           onLoadClick={onLoadClick}
           loadedPositions={loadedPositions}
           user={user}
@@ -377,7 +414,10 @@ function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadC
       </div>
 
       {/* Results Section */}
-      {rebalanceResults && (
+      {calculating ? (
+        /* Loading skeleton while calculating */
+        <ResultsSkeleton />
+      ) : rebalanceResults ? (
         <div className="space-y-6">
           <RebalancingResults
             results={rebalanceResults}
@@ -385,6 +425,79 @@ function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadC
             isPro={isPro}
             loading={loading}
           />
+        </div>
+      ) : (
+        /* Pre-calculation empty state */
+        <div className="rounded-xl shadow-sm border p-8" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+          <div className="text-center py-6">
+            <div className="mb-6 flex justify-center">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <svg className="w-10 h-10" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+              Ready to rebalance
+            </h3>
+            <p className="text-base mb-6 max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
+              Enter your holdings above and click "Calculate Rebalancing" to see your recommended trades.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Add your ticker symbols</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Enter current values</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Set target allocations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Collapsible Section Component */
+function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <div className="border rounded-lg overflow-hidden" style={{ borderColor: 'var(--border-color)' }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-5 py-4 flex items-center justify-between transition-colors"
+        style={{ backgroundColor: isOpen ? 'var(--bg-secondary)' : 'var(--bg-card)' }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-xl">{icon}</span>
+          <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</span>
+        </div>
+        <svg
+          className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          style={{ color: 'var(--text-muted)' }}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="px-5 py-4" style={{ backgroundColor: 'var(--bg-card)', borderTop: '1px solid var(--border-color)' }}>
+          {children}
         </div>
       )}
     </div>
@@ -395,15 +508,15 @@ function CalculatorView({onCalculate, rebalanceResults, loadedPositions, onLoadC
 function AboutView(){
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-        <h2 className="text-4xl font-bold text-[#0A2540] mb-8">About RebalanceKit</h2>
+      <div className="rounded-xl shadow-sm border p-8" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+        <h2 className="text-4xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>About RebalanceKit</h2>
 
-        <div className="space-y-4 text-slate-700 leading-relaxed">
+        <div className="space-y-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           <p>
             RebalanceKit helps investors calculate exact rebalancing trades to maintain their target portfolio allocations.
           </p>
 
-          <h3 className="text-2xl font-semibold text-slate-900 mt-8 mb-4">Key Features</h3>
+          <h3 className="text-2xl font-semibold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>Key Features</h3>
           <ul className="list-disc list-inside space-y-2 ml-4">
             <li><strong>Add-Only Mode:</strong> Only buy positions, never sell. Useful for avoiding capital gains taxes.</li>
             <li><strong>Health Score:</strong> Measures portfolio concentration and drift risk (0-100).</li>
@@ -413,7 +526,7 @@ function AboutView(){
             <li><strong>Multiple Modes:</strong> Standard rebalancing, contributions, withdrawals, add-only, or sell-only.</li>
           </ul>
 
-          <h3 className="text-2xl font-semibold text-slate-900 mt-8 mb-4">Example Portfolio</h3>
+          <h3 className="text-2xl font-semibold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>Example Portfolio</h3>
           <p>
             Try the calculator with our example portfolio to see how it works:
           </p>
@@ -423,10 +536,100 @@ function AboutView(){
             <li>CASH - $5,000 / 10% target</li>
           </ul>
 
-          <h3 className="text-2xl font-semibold text-slate-900 mt-8 mb-4">Privacy & Security</h3>
+          <h3 className="text-2xl font-semibold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>Privacy & Security</h3>
           <p>
             Your portfolio data is stored locally in your browser. We don't collect or store your financial information on our servers.
           </p>
+        </div>
+      </div>
+
+      {/* How It Works Section */}
+      <div className="rounded-xl shadow-sm border p-8" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+        <h2 className="text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>How It Works</h2>
+        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
+          Learn about the methodology behind RebalanceKit's calculations and features.
+        </p>
+
+        <div className="space-y-4">
+          {/* How We Calculate Rebalancing */}
+          <CollapsibleSection title="How We Calculate Rebalancing" icon="🧮" defaultOpen={true}>
+            <div className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+              <p>
+                Our rebalancing algorithm follows a straightforward process to help you reach your target allocation:
+              </p>
+              <ol className="list-decimal list-inside space-y-2 ml-2">
+                <li><strong>Compare allocations:</strong> We calculate your current percentage in each holding and compare it to your targets.</li>
+                <li><strong>Identify drift:</strong> Holdings that are over-weight (above target) or under-weight (below target) are flagged.</li>
+                <li><strong>Calculate trades:</strong> We determine the minimum dollar amounts to buy or sell for each position to reach your targets.</li>
+                <li><strong>Apply your mode:</strong> Depending on your choice (standard, add-only, contribution, or withdrawal), we adjust recommendations accordingly.</li>
+              </ol>
+              <p className="text-sm pt-2" style={{ color: 'var(--text-muted)' }}>
+                Add-only mode only suggests purchases, helping you avoid selling and triggering capital gains taxes.
+              </p>
+            </div>
+          </CollapsibleSection>
+
+          {/* Understanding Your Health Score */}
+          <CollapsibleSection title="Understanding Your Health Score" icon="💯">
+            <div className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+              <p>
+                Your portfolio health score (0-100) measures how well-balanced and diversified your portfolio is:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--success-bg)', border: '1px solid var(--success-border)' }}>
+                  <div className="font-semibold" style={{ color: 'var(--success)' }}>80-100: Excellent</div>
+                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Well-diversified, close to targets</div>
+                </div>
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--info-bg)', border: '1px solid var(--info-border)' }}>
+                  <div className="font-semibold" style={{ color: 'var(--info)' }}>60-79: Good</div>
+                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Minor drift, consider rebalancing</div>
+                </div>
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--warning-bg)', border: '1px solid var(--warning-border)' }}>
+                  <div className="font-semibold" style={{ color: 'var(--warning)' }}>40-59: Fair</div>
+                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Noticeable drift, rebalancing recommended</div>
+                </div>
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--error-bg)', border: '1px solid var(--error-border)' }}>
+                  <div className="font-semibold" style={{ color: 'var(--error)' }}>0-39: Needs Attention</div>
+                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Significant drift or concentration risk</div>
+                </div>
+              </div>
+              <p><strong>Factors that affect your score:</strong></p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li><strong>Allocation drift:</strong> How far each holding is from its target percentage</li>
+                <li><strong>Concentration risk:</strong> Penalty if any single holding exceeds 40% of portfolio</li>
+                <li><strong>Diversification:</strong> More holdings generally improve your score</li>
+              </ul>
+              <p className="text-sm pt-2" style={{ color: 'var(--text-muted)' }}>
+                Improve your score by rebalancing to reduce drift and avoiding over-concentration in any single position.
+              </p>
+            </div>
+          </CollapsibleSection>
+
+          {/* AI Analysis */}
+          <CollapsibleSection title="AI Analysis" icon="🤖">
+            <div className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+              <p>
+                RebalanceKit uses Claude, Anthropic's AI assistant, to provide personalized insights about your portfolio:
+              </p>
+              <ul className="list-disc list-inside space-y-2 ml-2">
+                <li><strong>Portfolio assessment:</strong> Overall evaluation of your current allocation and diversification</li>
+                <li><strong>Risk analysis:</strong> Identification of concentration risks or imbalances</li>
+                <li><strong>Actionable suggestions:</strong> Clear recommendations based on your specific situation</li>
+                <li><strong>Educational context:</strong> Explanations to help you understand the reasoning</li>
+              </ul>
+              <div className="mt-4 p-3 rounded-lg flex items-start gap-3" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--success)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <div>
+                  <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>Privacy Note</div>
+                  <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                    Your portfolio data is only used for this analysis and is not stored. Each analysis is independent and your financial information is never retained.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CollapsibleSection>
         </div>
       </div>
     </div>
@@ -442,15 +645,131 @@ function MainApp(){
   // Auth state
   const { user, isPro, loading } = useAuth();
 
+  // Toast notifications
+  const { addToast } = useToast();
+
   // Portfolio state management
   const [portfolio, setPortfolio] = useState({ holdings: [], targetAllocations: {} });
   const [rebalanceResults, setRebalanceResults] = useState(null);
   const [loadedPositions, setLoadedPositions] = useState([]);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [calculating, setCalculating] = useState(false);
+
+  // Onboarding wizard state
+  const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
+
+  // Keyboard shortcuts modal state
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+
+  // What's New modal state
+  const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
+  const [hasUpdates, setHasUpdates] = useState(() => hasUnseenUpdates());
+
+  // Theme context
+  const { toggleTheme, isDark } = useTheme();
+
+  // Refs for keyboard shortcut actions
+  const portfolioFormRef = useRef(null);
+
+  // Keyboard shortcut handlers
+  const shortcutHandlers = {
+    onAddHolding: useCallback(() => {
+      if (active !== 'calculator') {
+        setActive('calculator');
+        addToast('Navigated to calculator', 'info', 2000);
+      }
+      // Focus the first empty ticker input after a short delay
+      setTimeout(() => {
+        const tickerInputs = document.querySelectorAll('input[placeholder="AAPL"]');
+        const emptyInput = Array.from(tickerInputs).find(input => !input.value);
+        if (emptyInput) {
+          emptyInput.focus();
+        } else if (tickerInputs.length > 0) {
+          // If all inputs have values, focus the last one
+          tickerInputs[tickerInputs.length - 1].focus();
+        }
+      }, 100);
+    }, [active, addToast]),
+
+    onRunRebalance: useCallback(() => {
+      if (active !== 'calculator') {
+        addToast('Navigate to calculator first (press N)', 'info', 2000);
+        return;
+      }
+      // Find and click the submit button
+      const submitBtn = document.querySelector('button[type="submit"]');
+      if (submitBtn && !submitBtn.disabled) {
+        submitBtn.click();
+      }
+    }, [active, addToast]),
+
+    onSavePortfolio: useCallback(() => {
+      if (active !== 'calculator') {
+        addToast('Navigate to calculator first (press N)', 'info', 2000);
+        return;
+      }
+      // Find and click the save button
+      const saveBtn = document.querySelector('.portfolio-save-btn');
+      if (saveBtn) {
+        saveBtn.click();
+      }
+    }, [active, addToast]),
+
+    onToggleDarkMode: useCallback(() => {
+      toggleTheme();
+      addToast(isDark ? 'Light mode enabled' : 'Dark mode enabled', 'info', 2000);
+    }, [isDark, toggleTheme, addToast]),
+
+    onShowShortcuts: useCallback(() => {
+      setShowShortcutsModal(true);
+    }, []),
+
+    onEscape: useCallback(() => {
+      // Close any open modal
+      if (showShortcutsModal) {
+        setShowShortcutsModal(false);
+      } else if (showOnboardingWizard) {
+        setShowOnboardingWizard(false);
+      }
+    }, [showShortcutsModal, showOnboardingWizard]),
+  };
+
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts(shortcutHandlers, true);
+
+  // Check if we should show onboarding wizard
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      // Skip if already completed
+      if (hasCompletedOnboarding()) return;
+
+      // Check local portfolios
+      const localPortfolios = getSavedPortfolios(null, false);
+      if (localPortfolios.length > 0) return;
+
+      // Check Supabase portfolios if logged in
+      if (user && isPro) {
+        const dbPortfolios = await getSavedPortfolios(user, isPro);
+        if (dbPortfolios.length > 0) return;
+      }
+
+      // Show wizard if no portfolios found
+      setShowOnboardingWizard(true);
+    };
+
+    if (!loading) {
+      checkOnboarding();
+    }
+  }, [loading, user, isPro]);
 
   // Handler functions
   function handleCalculate(results) {
     setRebalanceResults(results);
+    setCalculating(false);
+  }
+
+  function handleCalculateStart() {
+    setCalculating(true);
   }
 
   function handleLoadExample() {
@@ -471,8 +790,13 @@ function MainApp(){
   }
 
   function handleLoadClick() {
-    // Open load portfolio modal - for now, just navigate
-    setActive('calculator');
+    // Navigate to Load Portfolio page
+    setActive('load');
+  }
+
+  function handleImportClick() {
+    // Navigate to Import Portfolio page
+    setActive('import');
   }
 
   function handleBack(loadedPositions) {
@@ -485,25 +809,66 @@ function MainApp(){
     setActive('calculator');
   }
 
+  function handleOnboardingComplete(positions, mode, modeAmount, results) {
+    setLoadedPositions(positions);
+    setRebalanceResults(results);
+    setShowOnboardingWizard(false);
+    setActive('calculator');
+  }
+
+  function handleRestartTutorial() {
+    resetOnboarding();
+    setShowOnboardingWizard(true);
+  }
+
   function renderActive(){
     switch(active){
       case 'home': return <ProfessionalHero onNavigate={setActive} onLoadExample={handleLoadExample} />;
       case 'calculator': return <CalculatorView
         onCalculate={handleCalculate}
+        onCalculateStart={handleCalculateStart}
         rebalanceResults={rebalanceResults}
         loadedPositions={loadedPositions}
         onLoadClick={handleLoadClick}
+        onImportClick={handleImportClick}
         user={user}
         isPro={isPro}
         loading={loading}
+        calculating={calculating}
       />;
+      case 'load': return <LoadPortfolioPage onBack={handleBack} user={user} isPro={isPro} />;
+      case 'import': return <ImportPortfolioPage onBack={handleBack} />;
       case 'about': return <AboutView />;
       default: return <ProfessionalHero onNavigate={setActive} onLoadExample={handleLoadExample} />;
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex">
+    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      {showOnboardingWizard && (
+        <OnboardingWizard
+          isOpen={showOnboardingWizard}
+          onClose={() => setShowOnboardingWizard(false)}
+          onComplete={handleOnboardingComplete}
+        />
+      )}
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal
+        isOpen={showShortcutsModal}
+        onClose={() => setShowShortcutsModal(false)}
+      />
+
+      {/* What's New Modal */}
+      <WhatsNewModal
+        isOpen={showWhatsNewModal}
+        onClose={() => {
+          setShowWhatsNewModal(false);
+          setHasUpdates(false); // Clear the notification dot
+        }}
+      />
+
+      {/* Desktop Sidebar - hidden on mobile */}
       <ProfessionalSidebar
         activeKey={active}
         onNavigate={setActive}
@@ -514,17 +879,63 @@ function MainApp(){
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <ProfessionalTopbar
-          onToggleSidebar={() => setMobileMenuOpen(true)}
-          title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
+        {/* Mobile Header - only visible on mobile */}
+        <MobileHeader
+          title={NAV_ITEMS.find(n => n.key === active)?.label || 'RebalanceKit'}
+          onShowWhatsNew={() => setShowWhatsNewModal(true)}
+          onRestartTutorial={hasCompletedOnboarding() ? handleRestartTutorial : null}
+          showUpdateDot={hasUpdates}
         />
 
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        {/* Desktop Topbar - hidden on mobile */}
+        <div className="hidden md:block">
+          <ProfessionalTopbar
+            onToggleSidebar={() => setMobileMenuOpen(true)}
+            title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
+            onRestartTutorial={hasCompletedOnboarding() ? handleRestartTutorial : null}
+          />
+        </div>
+
+        {/* Main content area - add padding bottom for mobile nav */}
+        <main className="flex-1 p-4 md:p-6 overflow-auto pb-24 md:pb-6">
           {renderActive()}
         </main>
 
-        <Footer />
+        {/* Desktop Footer - hidden on mobile */}
+        <div className="hidden md:block">
+          <Footer
+            onShowShortcuts={() => setShowShortcutsModal(true)}
+            onShowWhatsNew={() => setShowWhatsNewModal(true)}
+            showUpdateDot={hasUpdates}
+          />
+        </div>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav
+        activeKey={active}
+        onNavigate={setActive}
+        onOpenSettings={() => setShowShortcutsModal(true)}
+      />
+
+      {/* Floating Action Button - only on calculator screen */}
+      <FloatingActionButton
+        show={active === 'calculator'}
+        onClick={() => {
+          // Focus on first empty ticker input or add new position
+          const tickerInputs = document.querySelectorAll('input[placeholder="AAPL"]');
+          const emptyInput = Array.from(tickerInputs).find(input => !input.value);
+          if (emptyInput) {
+            emptyInput.focus();
+            emptyInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            // Click the add position button
+            const addBtn = document.querySelector('button[title*="Add"]');
+            if (addBtn) addBtn.click();
+          }
+        }}
+        bottomOffset={80}
+      />
     </div>
   );
 }
@@ -532,17 +943,19 @@ function MainApp(){
 export default function App(){
   return (
     <BrowserRouter>
-      <ToastProvider>
-        <Routes>
-          <Route path="/success" element={<SuccessPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/auth/callback" element={<AuthCallbackPage />} />
-          <Route path="/terms" element={<TermsOfServicePage />} />
-          <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="/" element={<MainApp />} />
-        </Routes>
-        <Toast />
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <Routes>
+            <Route path="/success" element={<SuccessPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/terms" element={<TermsOfServicePage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/" element={<MainApp />} />
+          </Routes>
+          <Toast />
+        </ToastProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

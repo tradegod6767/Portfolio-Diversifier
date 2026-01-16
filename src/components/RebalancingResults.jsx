@@ -7,21 +7,87 @@ import RebalancingCostEstimate from './RebalancingCostEstimate';
 import PortfolioComparison from './PortfolioComparison';
 import PaywallWrapper from './PaywallWrapper';
 import { groupByAssetClass } from '../utils/assetClasses';
+import Tooltip from './Tooltip';
 
 function RebalancingResults({ results, user, isPro, loading }) {
-  const { totalValue, positions, aiExplanation, mode, modeData } = results;
+  const { totalValue, positions, aiExplanation, mode, modeData, isSimulation, scenarioDescription, onApplyScenario } = results;
   const [viewMode, setViewMode] = useState('tickers'); // 'tickers' or 'asset-classes'
 
   // Get grouped positions
   const groupedPositions = groupByAssetClass(positions);
   const displayPositions = viewMode === 'asset-classes' ? groupedPositions : positions;
 
+  // Calculate Impact Summary values from existing positions data
+  const impactSummary = (() => {
+    // Total deviation = sum of absolute differences (but divide by 2 since each dollar moved is counted twice)
+    const totalDeviation = positions.reduce((sum, p) => sum + Math.abs(p.difference), 0) / 2;
+
+    // Find largest overweight (most negative difference = needs to sell most)
+    const overweightPositions = positions.filter(p => p.difference < 0);
+    const largestOverweight = overweightPositions.length > 0
+      ? overweightPositions.reduce((max, p) => Math.abs(p.difference) > Math.abs(max.difference) ? p : max)
+      : null;
+
+    // Find largest underweight (most positive difference = needs to buy most)
+    const underweightPositions = positions.filter(p => p.difference > 0);
+    const largestUnderweight = underweightPositions.length > 0
+      ? underweightPositions.reduce((max, p) => p.difference > max.difference ? p : max)
+      : null;
+
+    // Count trades needed (positions with non-zero difference)
+    const tradesNeeded = positions.filter(p => Math.abs(p.difference) >= 0.01).length;
+
+    return {
+      totalDeviation,
+      largestOverweight,
+      largestUnderweight,
+      tradesNeeded
+    };
+  })();
+
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
+      {/* Simulation Banner */}
+      {isSimulation && (
+        <div className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-xl p-5 shadow-lg animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-white/20 rounded-lg p-2 animate-pulse">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  Simulation Mode
+                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium animate-pulse">
+                    Not your actual portfolio
+                  </span>
+                </h3>
+                <p className="text-teal-100 text-sm mt-1">
+                  Scenario: <span className="font-semibold text-white">{scenarioDescription}</span>
+                </p>
+              </div>
+            </div>
+            {onApplyScenario && (
+              <button
+                onClick={onApplyScenario}
+                className="flex items-center gap-2 bg-white text-teal-700 hover:bg-teal-50 font-bold px-5 py-2.5 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Apply This Scenario
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Rebalancing Results
+            {isSimulation ? 'Simulated Results' : 'Rebalancing Results'}
           </h2>
 
           {/* View By Toggle */}
@@ -54,6 +120,62 @@ function RebalancingResults({ results, user, isPro, loading }) {
             Total Portfolio Value: {formatCurrency(totalValue)}
           </p>
         </div>
+
+        {/* Impact Summary */}
+        {impactSummary.tradesNeeded > 0 && (
+          <div className="bg-gradient-to-r from-slate-50 to-blue-50 border-2 border-blue-200 rounded-xl p-5 md:p-6 mb-6 shadow-md">
+            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Impact Summary
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Total Deviation */}
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-sm text-slate-600 mb-1">Total drift being corrected</p>
+                <p className="text-xl font-bold text-slate-900">
+                  {formatCurrency(impactSummary.totalDeviation)}
+                </p>
+              </div>
+
+              {/* Number of Trades */}
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-sm text-slate-600 mb-1">Trades to rebalance</p>
+                <p className="text-xl font-bold text-slate-900">
+                  {impactSummary.tradesNeeded} {impactSummary.tradesNeeded === 1 ? 'trade' : 'trades'}
+                </p>
+              </div>
+
+              {/* Largest Overweight */}
+              {impactSummary.largestOverweight && (
+                <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                  <p className="text-sm text-red-700 mb-1">Largest overweight position</p>
+                  <p className="text-lg font-bold text-red-900">
+                    {formatCurrency(Math.abs(impactSummary.largestOverweight.difference))} in {impactSummary.largestOverweight.ticker}
+                  </p>
+                  <p className="text-sm text-red-600">
+                    {formatPercent(impactSummary.largestOverweight.currentPercent - impactSummary.largestOverweight.targetPercent)} over target
+                  </p>
+                </div>
+              )}
+
+              {/* Largest Underweight */}
+              {impactSummary.largestUnderweight && (
+                <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+                  <p className="text-sm text-emerald-700 mb-1">Largest underweight position</p>
+                  <p className="text-lg font-bold text-emerald-900">
+                    {formatCurrency(impactSummary.largestUnderweight.difference)} in {impactSummary.largestUnderweight.ticker}
+                  </p>
+                  <p className="text-sm text-emerald-600">
+                    {formatPercent(impactSummary.largestUnderweight.targetPercent - impactSummary.largestUnderweight.currentPercent)} under target
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Rebalancing Mode Info */}
         {mode === 'add-only' && modeData?.totalToAdd > 0 && (
@@ -308,8 +430,9 @@ function RebalancingResults({ results, user, isPro, loading }) {
 
       {aiExplanation && (
         <div className="bg-gradient-to-br from-slate-50 to-slate-50 border border-slate-200 rounded-lg p-5 md:p-6 shadow-sm">
-          <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 md:mb-6">
+          <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 md:mb-6 flex items-center">
             AI Analysis
+            <Tooltip text="Get personalized insights about your portfolio's diversification and risk" />
           </h3>
           <div className="text-gray-800 leading-relaxed space-y-6 text-base md:text-sm max-w-3xl">
             {aiExplanation.split('\n\n').map((paragraph, index) => {

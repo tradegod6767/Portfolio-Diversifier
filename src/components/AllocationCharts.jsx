@@ -25,9 +25,9 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-semibold text-gray-900">{payload[0].name}</p>
-          <p className="text-sm text-gray-600">
+        <div className="p-3 rounded-lg shadow-lg" style={{ backgroundColor: 'var(--chart-tooltip-bg)', border: '1px solid var(--chart-tooltip-border)' }}>
+          <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{payload[0].name}</p>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {payload[0].value}% (${payload[0].payload.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
           </p>
         </div>
@@ -62,8 +62,8 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
     { title: 'Current Allocation', data: currentData },
     { title: 'Target Allocation', data: targetData }
   ].map(({ title, data }) => (
-    <div key={title} className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-4 md:p-6 shadow-lg border-2 border-gray-200">
-      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 text-center">
+    <div key={title} className="rounded-xl p-4 md:p-6 shadow-lg" style={{ backgroundColor: 'var(--bg-card)', border: '2px solid var(--border-color)' }}>
+      <h3 className="text-lg md:text-xl font-bold mb-4 text-center" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h3>
       {/* Chart container with explicit min-height */}
@@ -89,7 +89,7 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
               verticalAlign="bottom"
               height={36}
               formatter={(value, entry) => (
-                <span className="text-sm text-gray-700 font-medium">
+                <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                   {value} ({entry.payload.value}%)
                 </span>
               )}

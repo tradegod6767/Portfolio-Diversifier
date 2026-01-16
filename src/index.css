@@ -23,25 +23,9 @@
   --color-error-red: #EF4444;
   --color-success-green: #10B981;
 
-  /* Background Hierarchy */
-  --color-page-bg: #F8FAFC;
-  --color-card-bg: #FFFFFF;
-  --color-border-subtle: #E2E8F0;
-  --color-hover-bg: #F1F5F9;
-
-  /* Text Hierarchy */
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-tertiary: #94A3B8;
-
   /* Typography - Professional Font System */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
-
-  /* Professional Shadows */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-dropdown: 0 10px 25px rgba(0, 0, 0, 0.1);
 
   /* Border Radius */
   --radius-sm: 4px;
@@ -55,8 +39,142 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   THEME CSS CUSTOM PROPERTIES
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Background Colors */
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-card-elevated: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-input: #FFFFFF;
+  --bg-hover: #F1F5F9;
+
+  /* Text Colors */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --border-color: #E2E8F0;
+  --border-color-strong: #CBD5E1;
+
+  /* Accent Color (brand - same in both modes) */
+  --accent-color: #0A2540;
+  --accent-color-hover: #0D2F52;
+  --accent-color-light: #E0E7FF;
+
+  /* Status Colors */
+  --success: #10B981;
+  --success-bg: #ECFDF5;
+  --success-border: #A7F3D0;
+  --warning: #F59E0B;
+  --warning-bg: #FFFBEB;
+  --warning-border: #FDE68A;
+  --error: #EF4444;
+  --error-bg: #FEF2F2;
+  --error-border: #FECACA;
+  --info: #3B82F6;
+  --info-bg: #EFF6FF;
+  --info-border: #BFDBFE;
+
+  /* Chart Colors */
+  --chart-grid: #E2E8F0;
+  --chart-text: #64748B;
+  --chart-tooltip-bg: #FFFFFF;
+  --chart-tooltip-border: #E2E8F0;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* Legacy variables for compatibility */
+  --color-page-bg: var(--bg-primary);
+  --color-card-bg: var(--bg-card);
+  --color-border-subtle: var(--border-color);
+  --color-hover-bg: var(--bg-hover);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-muted);
+  --shadow-card: var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-dropdown: var(--shadow-xl);
+}
+
+/* Dark Theme */
+.dark {
+  /* Background Colors - Layered for clear visual hierarchy */
+  --bg-primary: #0f172a;       /* Page background - darkest */
+  --bg-secondary: #1e293b;     /* Secondary areas */
+  --bg-card: #1e293b;          /* Card backgrounds - distinct from page */
+  --bg-card-elevated: #293548; /* Elevated cards within cards - more contrast */
+  --bg-elevated: #334155;      /* Elevated elements like dropdowns */
+  --bg-input: #0f172a;         /* Input fields - darker than card for inset look */
+  --bg-hover: #334155;         /* Hover states */
+
+  /* Text Colors - Higher contrast for readability */
+  --text-primary: #F8FAFC;
+  --text-secondary: #E2E8F0;   /* Lighter for better readability */
+  --text-muted: #94A3B8;       /* Slightly lighter muted text */
+  --text-inverse: #0F172A;
+
+  /* Border Colors - More visible */
+  --border-color: #3d4f66;     /* Lighter border for visibility */
+  --border-color-strong: #5a6f8a; /* Even more visible strong borders */
+
+  /* Accent Color (brand - same in both modes) */
+  --accent-color: #3B82F6;
+  --accent-color-hover: #60A5FA;
+  --accent-color-light: #1e3a5f;
+
+  /* Status Colors */
+  --success: #34D399;
+  --success-bg: #064E3B;
+  --success-border: #047857;
+  --warning: #FBBF24;
+  --warning-bg: #78350F;
+  --warning-border: #B45309;
+  --error: #F87171;
+  --error-bg: #7F1D1D;
+  --error-border: #B91C1C;
+  --info: #60A5FA;
+  --info-bg: #1E3A5F;
+  --info-border: #1D4ED8;
+
+  /* Chart Colors */
+  --chart-grid: #334155;
+  --chart-text: #94A3B8;
+  --chart-tooltip-bg: #1e293b;
+  --chart-tooltip-border: #475569;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
    BASE STYLES - PROFESSIONAL FOUNDATION
    ═══════════════════════════════════════════════════════════ */
+
+/* Smooth theme transition */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Disable transition for elements that shouldn't animate (charts, animations) */
+.no-transition,
+.recharts-wrapper *,
+.animate-spin,
+[class*="animate-"] {
+  transition: none !important;
+}
 
 /* Prevent horizontal scrolling - but exclude SVG and chart elements */
 *:not(svg):not(svg *):not(.recharts-wrapper):not(.recharts-wrapper *) {
@@ -68,11 +186,15 @@ html, body {
   width: 100%;
 }
 
+html {
+  background-color: var(--bg-primary);
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);
-  color: var(--color-text-primary);
-  background-color: var(--color-page-bg);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
@@ -147,22 +269,22 @@ html {
 .input-pro {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid var(--color-border-subtle);
+  border: 2px solid var(--border-color-strong);
   border-radius: var(--radius-md);
   font-size: 16px;
   transition: all var(--transition-fast);
-  background: white;
-  color: var(--color-text-primary);
+  background: var(--bg-input);
+  color: var(--text-primary);
 }
 
 .input-pro:focus {
   outline: none;
-  border-color: var(--color-navy-600);
-  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .input-pro:disabled {
-  background: var(--color-hover-bg);
+  background: var(--bg-secondary);
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -198,9 +320,9 @@ html {
 
 .btn-secondary {
   padding: 12px 24px;
-  background: white;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-subtle);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color-strong);
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 16px;
@@ -210,8 +332,8 @@ html {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--color-hover-bg);
-  border-color: var(--color-text-tertiary);
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
 }
 
 /* Professional Table Styles */
@@ -309,6 +431,74 @@ html {
   }
 }
 
+/* Success checkmark animation */
+@keyframes checkmark-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes checkmark-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Typing indicator bounce */
+@keyframes typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Progress bar indeterminate */
+@keyframes progress-indeterminate {
+  0% {
+    width: 0%;
+    margin-left: 0;
+  }
+  50% {
+    width: 70%;
+    margin-left: 15%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
+.animate-progress-indeterminate {
+  animation: progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
 /* Fade in animation */
 @keyframes fadeIn {
   from {
@@ -372,3 +562,390 @@ html {
 .stagger-fade-in > *:nth-child(6) { animation-delay: 0.3s; }
 .stagger-fade-in > *:nth-child(7) { animation-delay: 0.35s; }
 .stagger-fade-in > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* Slide in from top animation */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale in animation */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Bounce subtle animation */
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Animate-in utility classes (like Tailwind CSS animations plugin) */
+.animate-in {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slideInFromTop;
+  --tw-enter-translate-y: -8px;
+}
+
+.slide-in-from-top-4 {
+  animation-name: slideInFromTop;
+  --tw-enter-translate-y: -16px;
+}
+
+.scale-in {
+  animation-name: scaleIn;
+}
+
+.duration-300 {
+  animation-duration: 300ms;
+}
+
+.duration-500 {
+  animation-duration: 500ms;
+}
+
+.duration-700 {
+  animation-duration: 700ms;
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Glow effect for simulator */
+.glow-teal {
+  box-shadow: 0 0 20px rgba(13, 148, 136, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE-SPECIFIC STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Range slider styling for mobile */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Track styling */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+
+/* Thumb styling - Large touch target */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0A2540;
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: -8px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0A2540;
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Active state - larger thumb */
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Focus state for accessibility */
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(10, 37, 64, 0.2), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(10, 37, 64, 0.2), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  /* Prevent horizontal scroll */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Ensure minimum touch target sizes */
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  a.btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Larger tap targets for interactive elements */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    min-height: 48px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  /* Stack form fields vertically */
+  .mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Full-width inputs on mobile */
+  .mobile-full-width {
+    width: 100%;
+  }
+
+  /* Better touch feedback */
+  button:active,
+  [role="button"]:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  /* Improve scrolling */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Safe area padding for notched devices */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 375px) {
+  /* Even smaller text adjustments */
+  .text-responsive {
+    font-size: 14px;
+  }
+
+  /* Tighter spacing */
+  .mobile-compact {
+    padding: 0.75rem;
+  }
+}
+
+/* Error message improvements for mobile */
+.error-message-mobile {
+  position: fixed;
+  bottom: 80px; /* Above sticky button */
+  left: 1rem;
+  right: 1rem;
+  z-index: 50;
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support for range slider */
+.dark input[type="range"]::-webkit-slider-runnable-track {
+  background: #3d4f66;
+}
+
+.dark input[type="range"]::-moz-range-track {
+  background: #3d4f66;
+}
+
+.dark input[type="range"]::-webkit-slider-thumb {
+  background: #3B82F6;
+  border-color: #1e293b;
+}
+
+.dark input[type="range"]::-moz-range-thumb {
+  background: #3B82F6;
+  border-color: #1e293b;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE NAVIGATION STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Slide in from right animation */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-from-right {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+/* Bottom navigation styles */
+.mobile-bottom-nav {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* FAB ripple effect */
+@keyframes fab-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.fab-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  animation: fab-ripple 0.6s ease-out;
+}
+
+/* Swipe indicator */
+@keyframes swipe-hint {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-10px);
+  }
+}
+
+.swipe-hint {
+  animation: swipe-hint 1.5s ease-in-out infinite;
+}
+
+/* Mobile menu slide-in */
+@keyframes menuSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Backdrop fade */
+@keyframes backdropFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hide scrollbar on mobile nav during swipe */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch highlight removal */
+@media (max-width: 768px) {
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Dark mode support for mobile nav */
+.dark .mobile-bottom-nav {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #3d4f66;
+}
+
+.dark .mobile-header {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #3d4f66;
+}

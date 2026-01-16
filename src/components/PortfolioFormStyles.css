@@ -1,9 +1,25 @@
 /* Professional Styling for PortfolioForm */
 
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
 /* Position Input Containers */
 .portfolio-position-row {
-  background: white;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 16px;
@@ -11,59 +27,62 @@
 }
 
 .portfolio-position-row:hover {
-  border-color: #0A2540;
-  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.08);
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-md);
 }
 
 /* Professional Input Fields */
 .portfolio-input {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #E2E8F0;
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   font-size: 16px;
   transition: all 150ms ease-in-out;
   font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-input);
+  color: var(--text-primary);
 }
 
 .portfolio-input:focus {
   outline: none;
-  border-color: #0A2540;
-  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .portfolio-input::placeholder {
-  color: #94A3B8;
+  color: var(--text-muted);
 }
 
 /* Mode Selector Buttons */
 .mode-btn {
   padding: 16px;
   border-radius: 8px;
-  border: 2px solid #E2E8F0;
-  background: white;
+  border: 2px solid var(--border-color);
+  background: var(--bg-card);
   transition: all 150ms ease-in-out;
   cursor: pointer;
+  color: var(--text-primary);
 }
 
 .mode-btn:hover {
-  border-color: #0A2540;
-  background: #F8FAFC;
+  border-color: var(--accent-color);
+  background: var(--bg-hover);
 }
 
 .mode-btn.active {
-  background: #0A2540;
-  border-color: #0A2540;
-  color: white;
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--text-inverse);
 }
 
 /* Error Messages */
 .portfolio-error {
-  background: #FEF2F2;
-  border: 1px solid #FCA5A5;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: 8px;
   padding: 16px;
-  color: #991B1B;
+  color: var(--error);
   font-size: 14px;
 }
 
@@ -135,13 +154,73 @@
   transform: scale(0.98);
 }
 
+/* Undo Button - Slate Gray */
+.portfolio-undo-btn {
+  background: #64748B;
+  color: #FFFFFF;
+}
+
+.portfolio-undo-btn:hover:not(:disabled) {
+  background: #475569;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.15);
+}
+
+.portfolio-undo-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Redo Button - Slate Gray */
+.portfolio-redo-btn {
+  background: #64748B;
+  color: #FFFFFF;
+}
+
+.portfolio-redo-btn:hover:not(:disabled) {
+  background: #475569;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.15);
+}
+
+.portfolio-redo-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Disabled State for Undo/Redo */
+.portfolio-action-btn:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid var(--border-color);
+  opacity: 0.6;
+}
+
+/* Dark mode specific disabled styling */
+.dark .portfolio-action-btn:disabled {
+  background: #1e293b;
+  color: #64748b;
+  border: 1px solid #3d4f66;
+  opacity: 0.5;
+}
+
+.portfolio-action-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.portfolio-action-btn:disabled svg {
+  opacity: 0.5;
+}
+
 /* Icon Inside Button */
 .portfolio-action-btn svg {
   flex-shrink: 0;
   transition: transform 150ms ease;
 }
 
-.portfolio-action-btn:hover svg {
+.portfolio-action-btn:hover:not(:disabled) svg {
   transform: scale(1.1);
 }
 

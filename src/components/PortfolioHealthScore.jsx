@@ -35,7 +35,7 @@ function PortfolioHealthScore({ positions }) {
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-bold text-gray-900 flex items-center">
             Portfolio Health Score
-            <Tooltip text="Measures portfolio concentration and drift risk (0-100). Higher scores indicate better diversification and alignment with target allocations." />
+            <Tooltip text="Based on how far your current allocation is from your targets" />
           </h3>
           <div className={`px-4 py-2 rounded-lg border-2 ${healthColorClasses[health.color]}`}>
             <div className="flex items-center gap-2">

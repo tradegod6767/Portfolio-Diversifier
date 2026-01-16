@@ -20,10 +20,9 @@
   position: relative;
   width: 100%;
   max-width: 440px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-radius: 8px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-xl);
   animation: slideUp 250ms ease;
 }
 
@@ -32,7 +31,7 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  color: #94A3B8;
+  color: var(--text-muted);
   background: none;
   border: none;
   cursor: pointer;
@@ -42,7 +41,7 @@
 }
 
 .save-modal-close:hover {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .save-modal-close svg {
@@ -65,7 +64,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 700;
-  color: #0A2540;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
   letter-spacing: -0.01em;
 }
@@ -73,7 +72,7 @@
 .save-modal-subtitle {
   font-family: 'Inter', sans-serif;
   font-size: 15px;
-  color: #64748B;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
 }
@@ -89,7 +88,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
-  color: #64748B;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 8px 0;
@@ -102,21 +101,21 @@
   padding: 0 16px;
   font-family: 'Inter', sans-serif;
   font-size: 15px;
-  color: #0F172A;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   transition: all 150ms ease;
   outline: none;
 }
 
 .save-form-input::placeholder {
-  color: #94A3B8;
+  color: var(--text-muted);
 }
 
 .save-form-input:focus {
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 /* Warning Message */
@@ -126,12 +125,12 @@
   gap: 8px;
   margin-top: 8px;
   padding: 10px 12px;
-  background-color: #FFFBEB;
-  border: 1px solid #FDE68A;
+  background-color: var(--warning-bg);
+  border: 1px solid var(--warning-border);
   border-radius: 6px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  color: #92400E;
+  color: var(--warning);
   line-height: 1.5;
 }
 
@@ -139,7 +138,7 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  color: #F59E0B;
+  color: var(--warning);
   margin-top: 1px;
 }
 
@@ -147,15 +146,15 @@
 .save-error-message {
   margin-bottom: 20px;
   padding: 12px 16px;
-  background-color: #FEF2F2;
-  border: 1px solid #FEE2E2;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: 6px;
 }
 
 .save-error-message p {
   margin: 0;
   font-size: 14px;
-  color: #991B1B;
+  color: var(--error);
   font-weight: 500;
 }
 
@@ -173,17 +172,17 @@
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 600;
-  color: #475569;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   cursor: pointer;
   transition: all 150ms ease;
 }
 
 .save-cancel-btn:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
+  background: var(--bg-hover);
+  border-color: var(--border-color-strong);
 }
 
 .save-cancel-btn:active {
@@ -218,6 +217,37 @@
   transform: scale(0.98);
 }
 
+/* Button Disabled - During loading */
+.save-submit-btn:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
+.save-submit-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Success State - Green background */
+.save-submit-btn-success {
+  background: #10B981 !important;
+}
+
+.save-submit-btn-success:hover {
+  background: #059669 !important;
+}
+
+/* Cancel button disabled state */
+.save-cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.save-cancel-btn:disabled:hover {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
 /* ═══════════════════════════════════════════════════════════
    ANIMATIONS
    ═══════════════════════════════════════════════════════════ */
@@ -248,9 +278,37 @@
    RESPONSIVE DESIGN
    ═══════════════════════════════════════════════════════════ */
 
-@media (max-width: 480px) {
+/* Tablet and smaller */
+@media (max-width: 768px) {
+  .save-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .save-modal-content {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    animation: slideUpMobile 300ms ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
   .save-modal-body {
     padding: 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+  }
+
+  .save-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-hover);
   }
 
   .save-modal-title {
@@ -261,9 +319,76 @@
     font-size: 14px;
   }
 
+  .save-form-input {
+    min-height: 52px;
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+
+  .save-button-group {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+
   .save-submit-btn,
   .save-cancel-btn {
-    height: 44px;
-    font-size: 15px;
+    height: 52px;
+    min-height: 52px;
+    font-size: 16px;
+    flex: none;
+  }
+}
+
+/* Mobile phones - Full screen */
+@media (max-width: 480px) {
+  .save-modal-overlay {
+    align-items: stretch;
+  }
+
+  .save-modal-content {
+    border-radius: 0;
+    max-height: 100vh;
+    min-height: 100vh;
+    animation: fadeIn 200ms ease;
+  }
+
+  .save-modal-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
+    padding-top: 60px; /* Space for close button */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+  }
+
+  .save-modal-header {
+    flex: none;
+    margin-bottom: 32px;
+  }
+
+  .save-modal-content form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .save-form-field {
+    flex: none;
+  }
+
+  .save-button-group {
+    margin-top: auto;
+    padding-top: 24px;
+  }
+}
+
+/* Animation for mobile slide-up */
+@keyframes slideUpMobile {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

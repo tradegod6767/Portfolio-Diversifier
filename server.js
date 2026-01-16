@@ -19,14 +19,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // Claude API endpoint
 app.post('/api/explain', async (req, res) => {
   try {
-    const { rebalancingData, isPro } = req.body;
+    const { rebalancingData } = req.body;
 
     if (!rebalancingData) {
       return res.status(400).json({ error: 'Missing rebalancing data' });
     }
 
-    // Default to free tier if not specified
-    const isProUser = isPro === true;
+    // For local testing: Check Authorization header for testing Pro features
+    // Add ?testPro=true to URL or send header "X-Test-Pro: true" to test Pro features
+    const testProHeader = req.headers['x-test-pro'] === 'true';
+    const testProQuery = req.query.testPro === 'true';
+    const isProUser = testProHeader || testProQuery;
+
+    console.log(`[Local Test] Processing request as ${isProUser ? 'PRO' : 'FREE'} user`);
 
     // Create conditional tax section based on subscription status
     const taxSection = isProUser

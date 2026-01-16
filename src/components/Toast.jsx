@@ -5,44 +5,46 @@ export default function Toast() {
 
   if (toasts.length === 0) return null;
 
+  const getToastStyle = (type) => {
+    switch (type) {
+      case 'success':
+        return { borderColor: 'var(--success-border)' };
+      case 'error':
+        return { borderColor: 'var(--error-border)' };
+      default:
+        return { borderColor: 'var(--info-border)' };
+    }
+  };
+
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={`
-            max-w-md w-full bg-white rounded-lg shadow-2xl border overflow-hidden
+            max-w-md w-full rounded-lg shadow-2xl border overflow-hidden
             transform transition-all duration-300 ease-out
             ${toast.isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}
-            ${
-              toast.type === 'success'
-                ? 'border-emerald-200'
-                : toast.type === 'error'
-                ? 'border-red-200'
-                : 'border-blue-200'
-            }
           `}
+          style={{ backgroundColor: 'var(--bg-card)', ...getToastStyle(toast.type) }}
         >
           <div className="flex items-start p-4 gap-3">
             {/* Icon */}
             <div
-              className={`
-                flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
-                ${
-                  toast.type === 'success'
-                    ? 'bg-emerald-100'
-                    : toast.type === 'error'
-                    ? 'bg-red-50'
-                    : 'bg-blue-100'
-                }
-              `}
+              className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+              style={{
+                backgroundColor: toast.type === 'success' ? 'var(--success-bg)'
+                  : toast.type === 'error' ? 'var(--error-bg)'
+                  : 'var(--info-bg)'
+              }}
             >
               {toast.type === 'success' ? (
                 <svg
-                  className="w-5 h-5 text-emerald-600"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  style={{ color: 'var(--success)' }}
                 >
                   <path
                     strokeLinecap="round"
@@ -53,10 +55,11 @@ export default function Toast() {
                 </svg>
               ) : toast.type === 'error' ? (
                 <svg
-                  className="w-5 h-5 text-red-600"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  style={{ color: 'var(--error)' }}
                 >
                   <path
                     strokeLinecap="round"
@@ -67,10 +70,11 @@ export default function Toast() {
                 </svg>
               ) : (
                 <svg
-                  className="w-5 h-5 text-blue-600"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  style={{ color: 'var(--info)' }}
                 >
                   <path
                     strokeLinecap="round"
@@ -84,16 +88,8 @@ export default function Toast() {
 
             {/* Message */}
             <p
-              className={`
-                flex-1 text-sm font-medium
-                ${
-                  toast.type === 'success'
-                    ? 'text-slate-900'
-                    : toast.type === 'error'
-                    ? 'text-red-800'
-                    : 'text-slate-900'
-                }
-              `}
+              className="flex-1 text-sm font-medium"
+              style={{ color: 'var(--text-primary)' }}
             >
               {toast.message}
             </p>
@@ -101,7 +97,8 @@ export default function Toast() {
             {/* Close button */}
             <button
               onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 text-slate-400 hover:text-slate-600 transition-colors"
+              className="flex-shrink-0 transition-colors"
+              style={{ color: 'var(--text-muted)' }}
               aria-label="Close notification"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

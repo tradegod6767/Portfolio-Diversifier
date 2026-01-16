@@ -13,18 +13,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // SECURITY: Authenticate request (optional for free tier, but track usage)
-  const { user, error: authError } = await authenticateRequest(req);
+  // SECURITY: Authenticate request and verify Pro status server-side
+  const { user, isPro, error: authError } = await authenticateRequest(req);
   const isAuthenticated = !authError && user;
 
   try {
-    const { rebalancingData, isPro } = req.body;
+    const { rebalancingData } = req.body;
 
     if (!rebalancingData) {
       return res.status(400).json({ error: 'Missing rebalancing data' });
     }
 
-    // Default to free tier if not specified
+    // SECURITY FIX: Use server-verified Pro status, not client-sent flag
     const isProUser = isPro === true;
 
     // SECURITY: Apply rate limiting for AI endpoints (5/20/100 requests per hour)
