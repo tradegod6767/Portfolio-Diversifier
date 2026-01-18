@@ -22,7 +22,6 @@ import AllocationCharts from "./components/AllocationCharts";
 import PortfolioComparison from "./components/PortfolioComparison";
 import ExportButtons from "./components/ExportButtons";
 import SavePortfolioModal from "./components/SavePortfolioModal";
-import StripePayment from "./components/StripePayment";
 import RebalancingResults from "./components/RebalancingResults";
 import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
 import SuccessPage from "./pages/SuccessPage";
