@@ -43,7 +43,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import FinancialDisclaimer from "./components/FinancialDisclaimer";
 import OnboardingWizard from "./components/OnboardingWizard";
 import KeyboardShortcutsModal from "./components/KeyboardShortcutsModal";
-import { hasCompletedOnboarding, resetOnboarding } from "./utils/onboardingStorage";
+import { hasCompletedOnboarding, resetOnboarding, setOnboardingCompleted, isNewSignup } from "./utils/onboardingStorage";
 import { getSavedPortfolios } from "./utils/portfolioStorage";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
@@ -737,29 +737,39 @@ function MainApp(){
   useKeyboardShortcuts(shortcutHandlers, true);
 
   // Check if we should show onboarding wizard
+  // Only shows for NEW signups who haven't completed it before
   useEffect(() => {
     const checkOnboarding = async () => {
-      // Skip if already completed
-      if (hasCompletedOnboarding()) return;
+      const userId = user?.id || null;
 
-      // Check local portfolios
-      const localPortfolios = getSavedPortfolios(null, false);
-      if (localPortfolios.length > 0) return;
+      // Skip if this user already completed onboarding
+      if (hasCompletedOnboarding(userId)) return;
 
-      // Check Supabase portfolios if logged in
-      if (user && isPro) {
-        const dbPortfolios = await getSavedPortfolios(user, isPro);
-        if (dbPortfolios.length > 0) return;
+      // For logged-in users: only show if they just signed up (new account)
+      if (user) {
+        // Check if this is a new signup (created in last 5 minutes)
+        if (!isNewSignup(user)) {
+          // Not a new signup - mark as completed so we don't check again
+          setOnboardingCompleted(userId);
+          return;
+        }
+      } else {
+        // For anonymous users: check if they have any portfolios
+        const localPortfolios = getSavedPortfolios(null, false);
+        if (localPortfolios.length > 0) {
+          setOnboardingCompleted(userId);
+          return;
+        }
       }
 
-      // Show wizard if no portfolios found
+      // Show wizard for new signups or first-time anonymous users
       setShowOnboardingWizard(true);
     };
 
     if (!loading) {
       checkOnboarding();
     }
-  }, [loading, user, isPro]);
+  }, [loading, user]);
 
   // Handler functions
   function handleCalculate(results) {

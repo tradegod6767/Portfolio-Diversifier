@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
-   REBALANCEKIT ONBOARDING WIZARD - PROFESSIONAL STYLING
+   REBALANCEKIT ONBOARDING WIZARD - NAVY BLUE PROFESSIONAL THEME
+   Primary Navy: #0A2540 | Accent: #0066FF | Emerald: #10B981
    ═══════════════════════════════════════════════════════════ */
 
 /* Modal Overlay */
@@ -11,8 +12,8 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background-color: rgba(10, 37, 64, 0.85);
+  backdrop-filter: blur(8px);
   animation: fadeIn 300ms ease;
 }
 
@@ -22,9 +23,9 @@
   width: 100%;
   max-width: 800px;
   background: #FFFFFF;
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
-              0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(10, 37, 64, 0.4),
+              0 0 0 1px rgba(10, 37, 64, 0.1);
   animation: slideUp 350ms ease;
   overflow: hidden;
 }
@@ -34,25 +35,25 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  color: #94A3B8;
+  color: #64748B;
   background: none;
   border: none;
   cursor: pointer;
   padding: 8px;
   transition: all 150ms ease;
   z-index: 10;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .onboarding-close:hover {
-  color: #475569;
-  background: #F1F5F9;
+  color: #0A2540;
+  background: rgba(10, 37, 64, 0.08);
 }
 
 /* Progress Indicator */
 .progress-indicator {
-  padding: 24px 32px;
-  border-bottom: 1px solid #E2E8F0;
+  padding: 28px 32px;
+  border-bottom: 1px solid rgba(10, 37, 64, 0.1);
   background: linear-gradient(to bottom, #F8FAFC 0%, #FFFFFF 100%);
 }
 
@@ -87,9 +88,9 @@
 }
 
 .progress-step.current {
-  background: #3B82F6;
+  background: #0A2540;
   color: white;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 4px rgba(10, 37, 64, 0.15);
 }
 
 .progress-step.upcoming {
@@ -99,16 +100,17 @@
 
 .progress-line {
   width: 60px;
-  height: 2px;
+  height: 3px;
   background: #E2E8F0;
   margin: 0 8px;
+  border-radius: 2px;
 }
 
 .progress-label {
   text-align: center;
   font-size: 14px;
-  color: #64748B;
-  font-weight: 500;
+  color: #0A2540;
+  font-weight: 600;
 }
 
 /* Error Message */
@@ -169,7 +171,7 @@
 }
 
 .wizard-step-icon svg {
-  color: #3B82F6;
+  color: #0A2540;
 }
 
 .welcome-actions {
@@ -224,8 +226,8 @@
 
 .holdings-input:focus {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0A2540;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
 }
 
 .holdings-add-btn {
@@ -363,8 +365,8 @@
 
 .target-item-input:focus {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0A2540;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
 }
 
 .target-item-percent {
@@ -440,23 +442,23 @@
 }
 
 .mode-card:hover {
-  border-color: #3B82F6;
+  border-color: #0A2540;
   background: #F8FAFC;
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(10, 37, 64, 0.12);
 }
 
 .mode-card.selected {
-  border-color: #3B82F6;
-  background: linear-gradient(to bottom, #EFF6FF 0%, #FFFFFF 100%);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0A2540;
+  background: linear-gradient(to bottom, rgba(10, 37, 64, 0.04) 0%, #FFFFFF 100%);
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
 }
 
 .mode-card-icon {
   display: flex;
   justify-content: center;
   margin-bottom: 16px;
-  color: #3B82F6;
+  color: #0A2540;
 }
 
 .mode-card-title {
@@ -523,8 +525,8 @@
 
 .mode-amount-field:focus {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0A2540;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
 }
 
 /* Step 5: Results */
@@ -683,17 +685,17 @@
 /* Navigation Buttons */
 .onboarding-nav {
   padding: 24px 32px;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid rgba(10, 37, 64, 0.1);
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  background: #F8FAFC;
+  background: linear-gradient(to bottom, #F8FAFC 0%, #F1F5F9 100%);
 }
 
 /* Buttons */
 .onboarding-btn {
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 600;
@@ -704,26 +706,26 @@
 }
 
 .onboarding-btn-primary {
-  background: linear-gradient(to bottom, #3B82F6 0%, #2563EB 100%);
+  background: linear-gradient(to bottom, #0A2540 0%, #061525 100%);
   color: white;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.35);
 }
 
 .onboarding-btn-primary:hover {
-  background: linear-gradient(to bottom, #2563EB 0%, #1D4ED8 100%);
+  background: linear-gradient(to bottom, #0D2E4D 0%, #0A2540 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(10, 37, 64, 0.45);
 }
 
 .onboarding-btn-secondary {
   background: white;
-  color: #475569;
-  border: 2px solid #E2E8F0;
+  color: #0A2540;
+  border: 2px solid rgba(10, 37, 64, 0.15);
 }
 
 .onboarding-btn-secondary:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
+  background: rgba(10, 37, 64, 0.04);
+  border-color: rgba(10, 37, 64, 0.25);
 }
 
 .onboarding-btn-lg {
