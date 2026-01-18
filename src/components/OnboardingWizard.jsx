@@ -4,7 +4,7 @@ import { setOnboardingCompleted } from '../utils/onboardingStorage';
 import SamplePortfolioSelector from './SamplePortfolioSelector';
 import './OnboardingWizard.css';
 
-export default function OnboardingWizard({ isOpen, onClose, onComplete }) {
+export default function OnboardingWizard({ isOpen, onClose, onComplete, user }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [positions, setPositions] = useState([
     { id: Date.now(), ticker: '', amount: '', targetPercent: '' }
@@ -27,7 +27,7 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete }) {
   };
 
   const handleClose = () => {
-    setOnboardingCompleted(); // Mark as completed even if skipped
+    setOnboardingCompleted(user?.id || null); // Mark as completed even if skipped
     onClose();
   };
 
@@ -89,7 +89,7 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete }) {
   };
 
   const handleFinish = () => {
-    setOnboardingCompleted();
+    setOnboardingCompleted(user?.id || null);
     onComplete(positions, mode, modeAmount, results);
   };
 
