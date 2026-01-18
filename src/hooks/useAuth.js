@@ -19,25 +19,17 @@ export function useAuth() {
         setUser(currentUser)
 
         if (currentUser) {
-          // Check Pro status AND subscription status
           const metadata = currentUser.user_metadata || {}
-          const isPro = metadata.is_pro === true
+          const isProUser = metadata.is_pro === true
           const subscriptionStatus = metadata.subscription_status
-          const hasActiveSubscription = isPro && subscriptionStatus !== 'cancelled'
-
-          console.log('[useAuth initAuth] Pro status check:', {
-            isPro,
-            subscriptionStatus,
-            hasActiveSubscription,
-            metadata: currentUser.user_metadata
-          })
+          const hasActiveSubscription = isProUser && subscriptionStatus !== 'cancelled'
 
           if (mounted) {
             setIsPro(hasActiveSubscription)
           }
         }
-      } catch (error) {
-        console.error('Auth init error:', error)
+      } catch {
+        // Auth initialization failed silently
       } finally {
         if (mounted) {
           setLoading(false)
@@ -49,27 +41,16 @@ export function useAuth() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('[useAuth] Auth state change:', event, 'Session:', session ? 'exists' : 'null')
-
         if (!mounted) return
 
         const newUser = session?.user ?? null
-        console.log('[useAuth] Setting user to:', newUser ? newUser.email : 'null')
         setUser(newUser)
 
         if (newUser) {
-          // Check Pro status AND subscription status
           const metadata = newUser.user_metadata || {}
-          const isPro = metadata.is_pro === true
+          const isProUser = metadata.is_pro === true
           const subscriptionStatus = metadata.subscription_status
-          const hasActiveSubscription = isPro && subscriptionStatus !== 'cancelled'
-
-          console.log('[useAuth] Pro status check:', {
-            isPro,
-            subscriptionStatus,
-            hasActiveSubscription,
-            metadata: newUser.user_metadata
-          })
+          const hasActiveSubscription = isProUser && subscriptionStatus !== 'cancelled'
 
           if (mounted) {
             setIsPro(hasActiveSubscription)

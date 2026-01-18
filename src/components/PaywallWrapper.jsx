@@ -16,18 +16,15 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
   // Use auth state passed as props instead of calling useAuth again
   const [showTimeout, setShowTimeout] = useState(false);
 
-  // Add timeout and logging
+  // Add timeout for slow auth checks
   useEffect(() => {
-    console.log('[PaywallWrapper] isPro:', isPro, 'loading:', loading);
-
     if (loading) {
       const timer = setTimeout(() => {
-        console.warn('[PaywallWrapper] Timeout after 5s - assuming free user');
         setShowTimeout(true);
-      }, 5000); // Increased to 5 seconds
+      }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [loading, isPro]);
+  }, [loading]);
 
   // If timed out, treat as free user
   if (loading && !showTimeout) {

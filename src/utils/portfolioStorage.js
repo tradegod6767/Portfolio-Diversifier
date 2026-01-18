@@ -36,8 +36,7 @@ export const getSavedPortfolios = () => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error('Error loading portfolios:', error);
+  } catch {
     return [];
   }
 };

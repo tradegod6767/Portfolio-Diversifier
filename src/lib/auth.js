@@ -45,9 +45,8 @@ export async function signup(email, password) {
         email: email,
         userName: userName
       })
-    }).catch(err => {
-      // Log but don't fail signup if email fails
-      console.error('[Signup] Failed to send welcome email:', err)
+    }).catch(() => {
+      // Silently fail - don't block signup if welcome email fails
     })
   }
 
@@ -55,23 +54,8 @@ export async function signup(email, password) {
 }
 
 export async function logout() {
-  console.log('[auth.js] Logging out...')
-  console.log('[auth.js] Supabase client exists?', !!supabase)
-
-  try {
-    const { error } = await supabase.auth.signOut()
-    console.log('[auth.js] Supabase signOut result:', { error })
-
-    if (error) {
-      console.error('[auth.js] SignOut error:', error)
-      throw error
-    }
-
-    console.log('[auth.js] Logout complete - no errors')
-  } catch (err) {
-    console.error('[auth.js] Logout exception:', err)
-    throw err
-  }
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
 }
 
 export async function getCurrentUser() {
@@ -80,36 +64,18 @@ export async function getCurrentUser() {
 }
 
 export async function checkIfPro(userId) {
-  console.log('[checkIfPro] Starting check for userId:', userId)
-
   try {
-    console.log('[checkIfPro] Calling supabase.auth.getUser()...')
     const { data: { user }, error } = await supabase.auth.getUser()
-    console.log('[checkIfPro] getUser returned:', { user: user ? 'exists' : 'null', error })
 
-    if (error || !user) {
-      console.log('[checkIfPro] No user or error, returning false')
-      return false
-    }
+    if (error || !user) return false
 
     const metadata = user.user_metadata || {}
     const isPro = metadata.is_pro === true
     const subscriptionStatus = metadata.subscription_status
 
     // User must have is_pro = true AND subscription_status must not be 'cancelled'
-    const hasActiveSubscription = isPro && subscriptionStatus !== 'cancelled'
-
-    console.log('[checkIfPro] Checking Pro status:', {
-      email: user.email,
-      isPro,
-      subscriptionStatus,
-      hasActiveSubscription,
-      metadata: user.user_metadata
-    })
-
-    return hasActiveSubscription
-  } catch (error) {
-    console.error('[checkIfPro] Error checking pro status:', error)
+    return isPro && subscriptionStatus !== 'cancelled'
+  } catch {
     return false
   }
 }

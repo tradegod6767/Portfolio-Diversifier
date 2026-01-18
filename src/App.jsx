@@ -211,14 +211,9 @@ function Topbar({onToggleSidebar, title}){
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleSignOut = () => {
-    console.log('[App] Sign out clicked - clearing storage and reloading')
-
-    // Simply clear storage and reload - this is the most reliable method
-    // Clearing localStorage removes the Supabase session, effectively signing out
+    // Clear storage and reload - this removes the Supabase session
     localStorage.clear()
     sessionStorage.clear()
-
-    // Immediate reload
     window.location.href = '/'
   };
 

@@ -75,10 +75,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
 
   useEffect(() => {
     if (loadedPositions && loadedPositions.length > 0) {
-      console.log('PortfolioForm received loadedPositions:', loadedPositions);
       resetPositions(loadedPositions);
       setError('');
-      // Scroll to top to show the loaded positions
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loadedPositions, resetPositions]);
@@ -402,9 +400,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         originalPositions: isSimulatorMode ? positions : null,
         onApplyScenario: isSimulatorMode ? () => applySimulationToReal(simulatedPositions) : null
       });
-    } catch (err) {
+    } catch {
       setError('Failed to calculate rebalancing. Please try again.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -430,8 +427,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         { headers }
       );
       return response.data.explanation;
-    } catch (err) {
-      console.error('Failed to get AI explanation:', err);
+    } catch {
       return 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.';
     }
   };

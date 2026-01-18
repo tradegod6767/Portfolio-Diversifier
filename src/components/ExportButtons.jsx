@@ -70,7 +70,6 @@ function ExportButtons({ results }) {
   };
 
   const downloadPDF = async () => {
-    console.log('PDF download started');
     setGenerating(true);
     setGeneratingProgress(0);
     setGeneratingMessage('Initializing...');
@@ -79,9 +78,7 @@ function ExportButtons({ results }) {
     try {
       setGeneratingProgress(10);
       setGeneratingMessage('Creating document...');
-      console.log('Creating jsPDF instance...');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      console.log('jsPDF instance created successfully');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       let yPosition = 20;
@@ -111,16 +108,11 @@ function ExportButtons({ results }) {
       setGeneratingMessage('Capturing charts...');
 
       // Capture pie charts
-      console.log('Looking for charts element...');
       const chartsElement = document.querySelector('[data-charts]');
-      console.log('Charts element found:', chartsElement);
       if (chartsElement) {
         try {
-          console.log('Waiting for charts to render...');
           // Wait a moment for charts to fully render
           await new Promise(resolve => setTimeout(resolve, 500));
-
-          console.log('Capturing charts with html2canvas...');
           const canvas = await html2canvas(chartsElement, {
             scale: 2,
             backgroundColor: '#ffffff',
@@ -157,7 +149,6 @@ function ExportButtons({ results }) {
               });
             }
           });
-          console.log('Charts captured successfully');
           const imgData = canvas.toDataURL('image/png');
           const imgWidth = pageWidth - 30;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -169,18 +160,13 @@ function ExportButtons({ results }) {
 
           pdf.addImage(imgData, 'PNG', 15, yPosition, imgWidth, imgHeight);
           yPosition += imgHeight + 10;
-          console.log('Charts added to PDF');
-        } catch (chartError) {
-          console.warn('Could not capture charts due to CSS compatibility issue:', chartError.message);
-          console.log('Continuing PDF generation without charts...');
+        } catch {
           // Add a note in the PDF that charts were skipped
           pdf.setFontSize(10);
           pdf.setTextColor(107, 114, 128);
           pdf.text('Note: Charts could not be included due to browser compatibility. View charts in the web interface.', 15, yPosition);
           yPosition += 15;
         }
-      } else {
-        console.warn('Charts element not found - PDF will not include charts');
       }
 
       setGeneratingProgress(50);
@@ -357,9 +343,7 @@ function ExportButtons({ results }) {
       setGeneratingProgress(90);
       setGeneratingMessage('Saving PDF...');
 
-      console.log('Saving PDF...');
       pdf.save(`portfolio-rebalancing-${new Date().toISOString().split('T')[0]}.pdf`);
-      console.log('PDF saved successfully!');
 
       setGeneratingProgress(100);
       setGeneratingMessage('Complete!');
@@ -373,8 +357,6 @@ function ExportButtons({ results }) {
         setGeneratingMessage('');
       }, 1500);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      console.error('Error stack:', error.stack);
       alert(`Failed to generate PDF: ${error.message}`);
       setGenerating(false);
       setGeneratingProgress(0);

@@ -15,24 +15,20 @@ function LoadPortfolioPage({ onBack, user, isPro }) {
     try {
       const portfolios = await getSavedPortfolios(user, isPro);
       setSavedPortfolios(portfolios);
-    } catch (error) {
-      console.error('Error loading portfolios:', error);
+    } catch {
+      // Failed to load portfolios
     } finally {
       setLoading(false);
     }
   };
 
   const handleLoadPortfolio = (portfolio) => {
-    console.log('Loading portfolio:', portfolio);
     if (portfolio) {
       const positions = portfolio.positions.map((p, index) => ({
         ...p,
         id: Date.now() + index
       }));
-      console.log('Mapped positions:', positions);
       onBack(positions);
-    } else {
-      console.error('Portfolio not found');
     }
   };
 
@@ -42,8 +38,7 @@ function LoadPortfolioPage({ onBack, user, isPro }) {
       try {
         await deletePortfolio(portfolio, user, isPro);
         await loadSavedPortfolios();
-      } catch (error) {
-        console.error('Error deleting portfolio:', error);
+      } catch {
         alert('Failed to delete portfolio. Please try again.');
       }
     }
