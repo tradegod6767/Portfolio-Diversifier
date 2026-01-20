@@ -94,7 +94,13 @@ export default function MobileHeader({
           {/* Hamburger menu button */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="relative w-10 h-10 flex items-center justify-center rounded-lg active:bg-slate-100 transition-colors"
+            className="relative w-10 h-10 flex items-center justify-center rounded-lg transition-colors"
+            style={{ backgroundColor: 'transparent' }}
+            onMouseDown={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+            onMouseUp={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            onTouchStart={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+            onTouchEnd={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             aria-label="Menu"
             aria-expanded={menuOpen}
           >
@@ -145,7 +151,10 @@ export default function MobileHeader({
               <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Menu</span>
               <button
                 onClick={() => setMenuOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full transition-colors"
+                style={{ backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -269,6 +278,8 @@ export default function MobileHeader({
 
 // Menu item component
 function MenuItem({ icon, label, badge, onClick, href }) {
+  const [isHovered, setIsHovered] = useState(false);
+
   const content = (
     <>
       <span style={{ color: 'var(--text-secondary)' }}>{icon}</span>
@@ -279,18 +290,35 @@ function MenuItem({ icon, label, badge, onClick, href }) {
     </>
   );
 
-  const className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-medium";
+  const baseStyle = {
+    backgroundColor: isHovered ? 'var(--bg-hover)' : 'transparent'
+  };
+
+  const className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium";
 
   if (href) {
     return (
-      <a href={href} className={className} onClick={onClick}>
+      <a
+        href={href}
+        className={className}
+        style={baseStyle}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={onClick}
+      >
         {content}
       </a>
     );
   }
 
   return (
-    <button onClick={onClick} className={className}>
+    <button
+      onClick={onClick}
+      className={className}
+      style={baseStyle}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {content}
     </button>
   );

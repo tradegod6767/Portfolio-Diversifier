@@ -156,11 +156,9 @@ export default function MobileBottomNav({ activeKey, onNavigate, onOpenSettings 
             <button
               key={item.key}
               onClick={handleClick}
-              className={`flex flex-col items-center justify-center flex-1 h-full min-w-[64px] transition-all duration-200 active:scale-95 ${
-                isActive ? 'text-[#0A2540]' : 'text-slate-500'
-              }`}
+              className="flex flex-col items-center justify-center flex-1 h-full min-w-[64px] transition-all duration-200 active:scale-95"
               style={{
-                color: isActive ? 'var(--accent-color)' : 'var(--text-muted)'
+                color: isActive ? 'var(--text-primary)' : 'var(--text-muted)'
               }}
             >
               <div className={`relative ${isActive ? 'scale-110' : ''} transition-transform duration-200`}>
@@ -168,12 +166,11 @@ export default function MobileBottomNav({ activeKey, onNavigate, onOpenSettings 
                 {/* Active indicator dot */}
                 {isActive && (
                   <div
-                    className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full"
-                    style={{ backgroundColor: 'var(--accent-color)' }}
+                    className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500"
                   />
                 )}
               </div>
-              <span className={`text-xs mt-1 font-medium ${isActive ? 'font-semibold' : ''}`}>
+              <span className={`text-xs mt-1 ${isActive ? 'font-semibold' : 'font-medium'}`}>
                 {item.label}
               </span>
             </button>

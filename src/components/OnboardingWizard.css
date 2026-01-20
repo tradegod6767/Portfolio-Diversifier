@@ -803,18 +803,35 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  .onboarding-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+
   .onboarding-content {
     max-width: 100%;
     border-radius: 0;
     min-height: 100vh;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   .onboarding-body {
     padding: 24px 20px;
+    flex: 1;
+    max-height: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .wizard-step-title {
-    font-size: 24px;
+    font-size: 22px;
+  }
+
+  .wizard-step-subtitle {
+    font-size: 14px;
+    margin-bottom: 24px;
   }
 
   .holdings-input-group {
@@ -831,10 +848,19 @@
 
   .onboarding-nav {
     flex-direction: column-reverse;
+    padding: 16px 20px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    flex-shrink: 0;
   }
 
   .onboarding-btn {
     width: 100%;
+    padding: 16px 24px;
+  }
+
+  .progress-indicator {
+    padding: 16px 20px;
+    flex-shrink: 0;
   }
 
   .progress-steps {
@@ -848,6 +874,15 @@
   }
 
   .progress-line {
-    width: 30px;
+    width: 24px;
+  }
+
+  .progress-label {
+    font-size: 12px;
+  }
+
+  .onboarding-close {
+    top: 12px;
+    right: 12px;
   }
 }

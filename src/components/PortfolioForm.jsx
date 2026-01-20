@@ -1015,8 +1015,14 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
           </SwipeableItem>
         ))}
 
-        {/* Add Position Button - Sticky on mobile */}
-        <div className="md:relative fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto p-4 md:p-0 md:mt-4 z-40 md:z-auto" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        {/* Add Position Button - Sticky on mobile, positioned above bottom nav */}
+        <div
+          className="md:relative fixed left-0 right-0 md:bottom-auto md:left-auto md:right-auto p-4 md:p-0 md:mt-4 z-40 md:z-auto"
+          style={{
+            bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+            backgroundColor: 'var(--bg-primary)'
+          }}
+        >
           <div className="md:hidden absolute inset-x-0 -top-4 h-4 bg-gradient-to-t from-[var(--bg-primary)] to-transparent pointer-events-none" />
           <button
             type="button"
@@ -1032,8 +1038,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
           </button>
         </div>
 
-        {/* Spacer for sticky button on mobile */}
-        <div className="h-20 md:hidden" />
+        {/* Spacer for sticky button + bottom nav on mobile */}
+        <div className="h-36 md:hidden" />
       </div>
 
       {error && (
