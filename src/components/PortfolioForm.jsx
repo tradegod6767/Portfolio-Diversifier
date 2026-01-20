@@ -1039,7 +1039,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         </div>
 
         {/* Spacer for sticky button + bottom nav on mobile */}
-        <div className="h-36 md:hidden" />
+        <div className="h-44 md:hidden" />
       </div>
 
       {error && (
