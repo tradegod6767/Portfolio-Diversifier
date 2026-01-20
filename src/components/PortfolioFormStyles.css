@@ -197,14 +197,6 @@
   opacity: 0.6;
 }
 
-/* Dark mode specific disabled styling */
-.dark .portfolio-action-btn:disabled {
-  background: #1e293b;
-  color: #64748b;
-  border: 1px solid #3d4f66;
-  opacity: 0.5;
-}
-
 .portfolio-action-btn:disabled:hover {
   transform: none;
   box-shadow: none;

@@ -26,13 +26,13 @@ export default function SamplePortfolioSelector({ onSelectSample }) {
   const getRiskLevelColor = (riskLevel) => {
     switch (riskLevel) {
       case 'Conservative':
-        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700';
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'Moderate':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-700';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Aggressive':
-        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700';
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -111,12 +111,12 @@ function SamplePortfolioCard({ sample, formatCurrency, getRiskLevelColor, onSele
     <button
       type="button"
       onClick={onSelect}
-      className="w-full p-5 text-left transition-all last:border-b-0 group hover:bg-slate-100 dark:hover:bg-slate-700"
+      className="w-full p-5 text-left transition-all last:border-b-0 group hover:bg-slate-100"
       style={{ borderBottom: '1px solid var(--border-color)' }}
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <h3 className="text-lg font-bold group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors mb-1" style={{ color: 'var(--text-primary)' }}>
+          <h3 className="text-lg font-bold group-hover:text-blue-500 transition-colors mb-1" style={{ color: 'var(--text-primary)' }}>
             {sample.name}
           </h3>
           <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
@@ -146,10 +146,10 @@ function SamplePortfolioCard({ sample, formatCurrency, getRiskLevelColor, onSele
 
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
-          Total Value: <span className="text-blue-500 dark:text-blue-400">{formatCurrency(sample.totalValue)}</span>
+          Total Value: <span className="text-blue-500">{formatCurrency(sample.totalValue)}</span>
         </span>
         <svg
-          className="w-5 h-5 group-hover:text-blue-500 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all"
+          className="w-5 h-5 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"
           style={{ color: 'var(--text-muted)' }}
           fill="none"
           stroke="currentColor"

@@ -459,7 +459,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             }}
             className={`flex-1 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ease-out flex items-center justify-center gap-2 ${
               !isSimulatorMode
-                ? 'bg-[#0A2540] dark:bg-blue-600 text-white shadow-md scale-[1.02]'
+                ? 'bg-[#0A2540] text-white shadow-md scale-[1.02]'
                 : 'hover:scale-[1.01]'
             }`}
             style={isSimulatorMode ? { color: 'var(--text-secondary)', backgroundColor: 'transparent' } : {}}
@@ -488,23 +488,23 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
 
         {/* Simulator Mode Inputs */}
         {isSimulatorMode && (
-          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/30 dark:to-cyan-900/30 border-2 border-teal-200 dark:border-teal-700 rounded-xl p-5 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-200 rounded-xl p-5 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 bg-teal-100 dark:bg-teal-800 rounded-lg animate-pulse">
-                <svg className="w-5 h-5 text-teal-600 dark:text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 bg-teal-100 rounded-lg animate-pulse">
+                <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-teal-900 dark:text-teal-200">Scenario Simulator</h3>
+              <h3 className="text-lg font-bold text-teal-900">Scenario Simulator</h3>
             </div>
-            <p className="text-sm text-teal-700 dark:text-teal-300 mb-4">
+            <p className="text-sm text-teal-700 mb-4">
               Test how different scenarios would affect your portfolio rebalancing. Your actual portfolio data remains unchanged.
             </p>
 
             <div>
               {/* Market Scenario - Custom Dropdown */}
-              <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-teal-200 dark:border-teal-700 transition-all duration-300 hover:shadow-md hover:border-teal-300 dark:hover:border-teal-600">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
+              <div className="bg-white rounded-lg p-4 border border-teal-200 transition-all duration-300 hover:shadow-md hover:border-teal-300">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   Market Change
                 </label>
                 <div className="relative">
@@ -514,8 +514,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                     onClick={() => setIsScenarioDropdownOpen(!isScenarioDropdownOpen)}
                     className={`w-full px-4 py-3 border-2 rounded-lg transition-all duration-200 flex items-center justify-between cursor-pointer ${
                       isScenarioDropdownOpen
-                        ? 'border-teal-500 ring-2 ring-teal-500/20 dark:border-teal-400 dark:ring-teal-400/20'
-                        : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
+                        ? 'border-teal-500 ring-2 ring-teal-500/20'
+                        : 'border-slate-200 hover:border-slate-300'
                     }`}
                     style={{ backgroundColor: 'var(--bg-input)' }}
                   >
@@ -566,23 +566,23 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                             }}
                             className={`w-full px-4 py-3 flex items-center gap-3 transition-all duration-150 ${
                               simMarketScenario === scenario.id
-                                ? 'bg-teal-50 dark:bg-teal-900/50 border-l-4 border-teal-500'
-                                : 'hover:bg-slate-50 dark:hover:bg-slate-700 border-l-4 border-transparent'
+                                ? 'bg-teal-50 border-l-4 border-teal-500'
+                                : 'hover:bg-slate-50 border-l-4 border-transparent'
                             }`}
                             style={{ borderBottom: index !== MARKET_SCENARIOS.length - 1 ? '1px solid var(--border-color)' : 'none' }}
                           >
                             <span className={`text-xl w-8 h-8 flex items-center justify-center rounded-lg ${
-                              scenario.color === 'emerald' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400' :
-                              scenario.color === 'red' ? 'bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400' :
-                              scenario.color === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400' :
-                              scenario.color === 'orange' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/50 dark:text-orange-400' :
-                              'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+                              scenario.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' :
+                              scenario.color === 'red' ? 'bg-red-100 text-red-600' :
+                              scenario.color === 'blue' ? 'bg-blue-100 text-blue-600' :
+                              scenario.color === 'orange' ? 'bg-orange-100 text-orange-600' :
+                              'bg-slate-100 text-slate-500'
                             }`}>
                               {scenario.icon}
                             </span>
                             <div className="flex-1 text-left">
                               <div className={`font-semibold text-sm ${
-                                simMarketScenario === scenario.id ? 'text-teal-700 dark:text-teal-300' : ''
+                                simMarketScenario === scenario.id ? 'text-teal-700' : ''
                               }`} style={simMarketScenario !== scenario.id ? { color: 'var(--text-primary)' } : {}}>
                                 {scenario.label}
                               </div>
@@ -591,7 +591,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                               </div>
                             </div>
                             {simMarketScenario === scenario.id && (
-                              <svg className="w-5 h-5 text-teal-500 dark:text-teal-400" fill="currentColor" viewBox="0 0 20 20">
+                              <svg className="w-5 h-5 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
                             )}
@@ -613,8 +613,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
               </div>
             </div>
 
-            <div className="mt-4 p-3 bg-teal-100/50 dark:bg-teal-800/30 rounded-lg border border-teal-200/50 dark:border-teal-700/50 transition-all duration-300 hover:bg-teal-100 dark:hover:bg-teal-800/50">
-              <p className="text-xs text-teal-800 dark:text-teal-200">
+            <div className="mt-4 p-3 bg-teal-100/50 rounded-lg border border-teal-200/50 transition-all duration-300 hover:bg-teal-100">
+              <p className="text-xs text-teal-800">
                 <strong>Tip:</strong> See how market changes affect your rebalancing. For example: "What trades would I need if the market drops 20%?"
               </p>
             </div>
@@ -644,8 +644,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                 }}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                   rebalancingMode === 'standard'
-                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md dark:bg-blue-600 dark:border-blue-600'
-                    : 'hover:border-blue-400 dark:hover:border-blue-400'
+                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md'
+                    : 'hover:border-blue-400'
                 }`}
                 style={rebalancingMode !== 'standard' ? { backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' } : {}}
               >
@@ -668,8 +668,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                 onClick={() => setRebalancingMode('contribution')}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                   rebalancingMode === 'contribution'
-                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md dark:bg-blue-600 dark:border-blue-600'
-                    : 'hover:border-blue-400 dark:hover:border-blue-400'
+                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md'
+                    : 'hover:border-blue-400'
                 }`}
                 style={rebalancingMode !== 'contribution' ? { backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' } : {}}
               >
@@ -692,8 +692,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                 onClick={() => setRebalancingMode('withdrawal')}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                   rebalancingMode === 'withdrawal'
-                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md dark:bg-blue-600 dark:border-blue-600'
-                    : 'hover:border-blue-400 dark:hover:border-blue-400'
+                    ? 'bg-[#0A2540] border-[#0A2540] text-white shadow-md'
+                    : 'hover:border-blue-400'
                 }`}
                 style={rebalancingMode !== 'withdrawal' ? { backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' } : {}}
               >
@@ -724,7 +724,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   placeholder={rebalancingMode === 'contribution' ? '5000' : '3000'}
                   value={modeAmount}
                   onChange={(e) => setModeAmount(e.target.value)}
-                  className="w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:ring-blue-400/30 dark:focus:border-blue-400 text-lg font-semibold"
+                  className="w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-lg font-semibold"
                   style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                   required={rebalancingMode === 'contribution' || rebalancingMode === 'withdrawal'}
                 />
@@ -849,37 +849,37 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
           return (
             <div className={`mb-4 p-4 rounded-lg border-2 transition-all duration-300 ${
               isValid
-                ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/30'
-                : 'border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-900/30'
+                ? 'border-emerald-200 bg-emerald-50 '
+                : 'border-amber-300 bg-amber-50 '
             }`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {isValid ? (
-                    <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                   )}
-                  <span className={`font-semibold ${isValid ? 'text-emerald-800 dark:text-emerald-300' : 'text-amber-800 dark:text-amber-300'}`}>
+                  <span className={`font-semibold ${isValid ? 'text-emerald-800' : 'text-amber-800'}`}>
                     Total Allocation
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-2xl font-bold font-mono ${isValid ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                  <span className={`text-2xl font-bold font-mono ${isValid ? 'text-emerald-700' : 'text-amber-700'}`}>
                     {totalTarget.toFixed(1)}%
                   </span>
                   {!isValid && (
-                    <span className="text-sm text-amber-600 dark:text-amber-400 font-medium">
+                    <span className="text-sm text-amber-600 font-medium">
                       {totalTarget > 100 ? `${(totalTarget - 100).toFixed(1)}% over` : `${(100 - totalTarget).toFixed(1)}% under`}
                     </span>
                   )}
                 </div>
               </div>
               {/* Progress bar visualization */}
-              <div className="mt-3 h-2 bg-white dark:bg-slate-700 rounded-full overflow-hidden">
+              <div className="mt-3 h-2 bg-white rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 rounded-full ${isValid ? 'bg-emerald-500' : totalTarget > 100 ? 'bg-red-500' : 'bg-amber-500'}`}
                   style={{ width: `${Math.min(100, totalTarget)}%` }}
@@ -916,7 +916,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   autoCapitalize="characters"
                   autoCorrect="off"
                   spellCheck="false"
-                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:ring-blue-400/30 dark:focus:border-blue-400 font-semibold uppercase text-base"
+                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold uppercase text-base"
                   style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                   required
                 />
@@ -940,7 +940,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   }}
                   onFocus={handleFieldFocus}
                   onBlur={() => handleFieldBlur('amount')}
-                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:ring-blue-400/30 dark:focus:border-blue-400 text-base font-mono"
+                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
                   style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                   required
                 />
@@ -965,7 +965,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                     }}
                     onFocus={handleFieldFocus}
                     onBlur={() => handleFieldBlur('targetPercent')}
-                    className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:ring-blue-400/30 dark:focus:border-blue-400 text-base font-mono"
+                    className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
                     style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                     required
                   />
@@ -995,7 +995,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   type="button"
                   onClick={() => removePosition(position.id)}
                   disabled={livePositions.length === 1}
-                  className="w-full px-4 py-3 min-h-[48px] bg-red-500 hover:bg-red-600 active:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 dark:active:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2"
+                  className="w-full px-4 py-3 min-h-[48px] bg-red-500 hover:bg-red-600 active:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2"
                 >
                   <span>Remove</span>
                 </button>
@@ -1028,7 +1028,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             type="button"
             onClick={addPosition}
             title="Add new holding (N)"
-            className="w-full md:w-auto px-6 py-4 md:py-3 min-h-[52px] md:min-h-0 border-2 font-semibold rounded-lg transition duration-200 shadow-md md:shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] hover:border-blue-400 dark:hover:border-blue-400"
+            className="w-full md:w-auto px-6 py-4 md:py-3 min-h-[52px] md:min-h-0 border-2 font-semibold rounded-lg transition duration-200 shadow-md md:shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] hover:border-blue-400"
             style={{ backgroundColor: 'var(--bg-card-elevated)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

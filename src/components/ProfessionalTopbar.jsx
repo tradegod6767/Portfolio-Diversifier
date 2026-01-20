@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
-import ThemeToggle from './ThemeToggle';
 import { Button, Badge } from './ui';
 
 /**
@@ -53,9 +52,6 @@ export default function ProfessionalTopbar({ onToggleSidebar, title, onRestartTu
 
           {/* Right Section - Auth */}
           <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
             {/* Restart Tutorial Button */}
             {onRestartTutorial && (
               <button

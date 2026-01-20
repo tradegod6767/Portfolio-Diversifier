@@ -106,75 +106,9 @@
   --shadow-dropdown: var(--shadow-xl);
 }
 
-/* Dark Theme */
-.dark {
-  /* Background Colors - Layered for clear visual hierarchy */
-  --bg-primary: #0f172a;       /* Page background - darkest */
-  --bg-secondary: #1e293b;     /* Secondary areas */
-  --bg-card: #1e293b;          /* Card backgrounds - distinct from page */
-  --bg-card-elevated: #293548; /* Elevated cards within cards - more contrast */
-  --bg-elevated: #334155;      /* Elevated elements like dropdowns */
-  --bg-input: #0f172a;         /* Input fields - darker than card for inset look */
-  --bg-hover: #334155;         /* Hover states */
-
-  /* Text Colors - Higher contrast for readability */
-  --text-primary: #F8FAFC;
-  --text-secondary: #E2E8F0;   /* Lighter for better readability */
-  --text-muted: #94A3B8;       /* Slightly lighter muted text */
-  --text-inverse: #0F172A;
-
-  /* Border Colors - More visible */
-  --border-color: #3d4f66;     /* Lighter border for visibility */
-  --border-color-strong: #5a6f8a; /* Even more visible strong borders */
-
-  /* Accent Color (brand - same in both modes) */
-  --accent-color: #3B82F6;
-  --accent-color-hover: #60A5FA;
-  --accent-color-light: #1e3a5f;
-
-  /* Status Colors */
-  --success: #34D399;
-  --success-bg: #064E3B;
-  --success-border: #047857;
-  --warning: #FBBF24;
-  --warning-bg: #78350F;
-  --warning-border: #B45309;
-  --error: #F87171;
-  --error-bg: #7F1D1D;
-  --error-border: #B91C1C;
-  --info: #60A5FA;
-  --info-bg: #1E3A5F;
-  --info-border: #1D4ED8;
-
-  /* Chart Colors */
-  --chart-grid: #334155;
-  --chart-text: #94A3B8;
-  --chart-tooltip-bg: #1e293b;
-  --chart-tooltip-border: #475569;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-}
-
 /* ═══════════════════════════════════════════════════════════
    BASE STYLES - PROFESSIONAL FOUNDATION
    ═══════════════════════════════════════════════════════════ */
-
-/* Smooth theme transition */
-*, *::before, *::after {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-/* Disable transition for elements that shouldn't animate (charts, animations) */
-.no-transition,
-.recharts-wrapper *,
-.animate-spin,
-[class*="animate-"] {
-  transition: none !important;
-}
 
 /* Prevent horizontal scrolling - but exclude SVG and chart elements */
 *:not(svg):not(svg *):not(.recharts-wrapper):not(.recharts-wrapper *) {
@@ -822,24 +756,6 @@ input[type="range"]:focus::-moz-range-thumb {
   }
 }
 
-/* Dark mode support for range slider */
-.dark input[type="range"]::-webkit-slider-runnable-track {
-  background: #3d4f66;
-}
-
-.dark input[type="range"]::-moz-range-track {
-  background: #3d4f66;
-}
-
-.dark input[type="range"]::-webkit-slider-thumb {
-  background: #3B82F6;
-  border-color: #1e293b;
-}
-
-.dark input[type="range"]::-moz-range-thumb {
-  background: #3B82F6;
-  border-color: #1e293b;
-}
 
 /* ═══════════════════════════════════════════════════════════
    MOBILE NAVIGATION STYLES
@@ -939,13 +855,3 @@ input[type="range"]:focus::-moz-range-thumb {
   }
 }
 
-/* Dark mode support for mobile nav */
-.dark .mobile-bottom-nav {
-  background: rgba(30, 41, 59, 0.95);
-  border-color: #3d4f66;
-}
-
-.dark .mobile-header {
-  background: rgba(30, 41, 59, 0.95);
-  border-color: #3d4f66;
-}

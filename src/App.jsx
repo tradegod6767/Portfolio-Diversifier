@@ -44,7 +44,6 @@ import KeyboardShortcutsModal from "./components/KeyboardShortcutsModal";
 import { hasCompletedOnboarding, resetOnboarding, setOnboardingCompleted, isNewSignup } from "./utils/onboardingStorage";
 import { getSavedPortfolios } from "./utils/portfolioStorage";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import WhatsNewModal from "./components/WhatsNewModal";
 import { hasUnseenUpdates } from "./data/changelog";
 import { ResultsSkeleton } from "./components/AppLoadingSkeleton";
@@ -628,9 +627,6 @@ function MainApp(){
   const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
   const [hasUpdates, setHasUpdates] = useState(() => hasUnseenUpdates());
 
-  // Theme context
-  const { toggleTheme, isDark } = useTheme();
-
   // Refs for keyboard shortcut actions
   const portfolioFormRef = useRef(null);
 
@@ -677,11 +673,6 @@ function MainApp(){
         saveBtn.click();
       }
     }, [active, addToast]),
-
-    onToggleDarkMode: useCallback(() => {
-      toggleTheme();
-      addToast(isDark ? 'Light mode enabled' : 'Dark mode enabled', 'info', 2000);
-    }, [isDark, toggleTheme, addToast]),
 
     onShowShortcuts: useCallback(() => {
       setShowShortcutsModal(true);
@@ -917,19 +908,17 @@ function MainApp(){
 export default function App(){
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <ToastProvider>
-          <Routes>
-            <Route path="/success" element={<SuccessPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/auth/callback" element={<AuthCallbackPage />} />
-            <Route path="/terms" element={<TermsOfServicePage />} />
-            <Route path="/privacy" element={<PrivacyPolicyPage />} />
-            <Route path="/" element={<MainApp />} />
-          </Routes>
-          <Toast />
-        </ToastProvider>
-      </ThemeProvider>
+      <ToastProvider>
+        <Routes>
+          <Route path="/success" element={<SuccessPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/" element={<MainApp />} />
+        </Routes>
+        <Toast />
+      </ToastProvider>
     </BrowserRouter>
   );
 }
