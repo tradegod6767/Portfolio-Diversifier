@@ -435,9 +435,9 @@ function ExportButtons({ results }) {
           )}
         </button>
 
-        {/* Dropdown Menu */}
+        {/* Dropdown Menu - Opens upward to avoid cutoff */}
         {exportMenuOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 animate-fade-in">
+          <div className="absolute right-0 bottom-full mb-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 animate-fade-in">
             {/* PDF Export */}
             <button
               onClick={handleDownloadPDF}
