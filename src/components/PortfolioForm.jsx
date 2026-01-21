@@ -899,10 +899,10 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             className="mb-4"
           >
             <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
-              {/* Mobile: Stack vertically, Desktop: Fixed column widths */}
-              <div className="grid grid-cols-1 md:grid-cols-[200px_200px_150px_100px] gap-4">
+              {/* Mobile: Stack vertically, Desktop: Flexible grid */}
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-4 w-full">
                 {/* Ticker Symbol */}
-              <div className="min-w-0">
+              <div>
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Ticker Symbol
                 </label>
@@ -916,14 +916,14 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   autoCapitalize="characters"
                   autoCorrect="off"
                   spellCheck="false"
-                  className="w-full min-w-0 max-w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold uppercase text-base"
+                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold uppercase text-base"
                   style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                   required
                 />
               </div>
 
               {/* Current Value */}
-              <div className="min-w-0">
+              <div>
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Current Value ($)
                 </label>
@@ -940,14 +940,14 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   }}
                   onFocus={handleFieldFocus}
                   onBlur={() => handleFieldBlur('amount')}
-                  className="w-full min-w-0 max-w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
+                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
                   style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                   required
                 />
               </div>
 
               {/* Target Allocation with Slider */}
-              <div className="min-w-0">
+              <div>
                 <label className="block text-sm font-bold mb-2 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
                   Target (%)
                   <Tooltip text="Your ideal percentage for this holding. All targets should add up to 100%" />
@@ -965,7 +965,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                     }}
                     onFocus={handleFieldFocus}
                     onBlur={() => handleFieldBlur('targetPercent')}
-                    className="w-full min-w-0 max-w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
+                    className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
                     style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                     required
                   />
@@ -990,7 +990,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
               </div>
 
               {/* Remove Button - hidden on mobile (use swipe instead) */}
-              <div className="hidden md:flex items-end">
+              <div className="hidden md:flex items-center justify-end">
                 <button
                   type="button"
                   onClick={() => removePosition(position.id)}
