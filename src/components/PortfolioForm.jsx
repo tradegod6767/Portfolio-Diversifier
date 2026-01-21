@@ -899,8 +899,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             className="mb-4"
           >
             <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
-              {/* Mobile: Stack vertically, Desktop: Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 min-w-0">
+              {/* Mobile: Stack vertically, Desktop: Grid with auto-sized Remove button */}
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-4">
                 {/* Ticker Symbol */}
               <div className="min-w-0">
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
@@ -990,12 +990,12 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
               </div>
 
               {/* Remove Button - hidden on mobile (use swipe instead) */}
-              <div className="hidden md:flex items-end min-w-0">
+              <div className="hidden md:flex items-end">
                 <button
                   type="button"
                   onClick={() => removePosition(position.id)}
                   disabled={livePositions.length === 1}
-                  className="w-full px-4 py-3 min-h-[48px] bg-red-500 hover:bg-red-600 active:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2"
+                  className="px-4 py-3 min-h-[48px] whitespace-nowrap bg-red-500 hover:bg-red-600 active:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2"
                 >
                   <span>Remove</span>
                 </button>
