@@ -363,9 +363,9 @@ function HeroView({onNavigate, onLoadExample}){
 /* Calculator View - Main Portfolio Calculator */
 function CalculatorView({onCalculate, onCalculateStart, rebalanceResults, loadedPositions, onLoadClick, onImportClick, user, isPro, loading, calculating}){
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-6 w-full max-w-full overflow-hidden">
       {/* Portfolio Form */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6 w-full max-w-full overflow-hidden">
         <PortfolioForm
           onCalculate={onCalculate}
           onCalculateStart={onCalculateStart}

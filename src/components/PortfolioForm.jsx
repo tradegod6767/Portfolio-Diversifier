@@ -916,7 +916,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   autoCapitalize="characters"
                   autoCorrect="off"
                   spellCheck="false"
-                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold uppercase text-base"
+                  className="w-full min-w-0 max-w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold uppercase text-base"
                   style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                   required
                 />
@@ -940,7 +940,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   }}
                   onFocus={handleFieldFocus}
                   onBlur={() => handleFieldBlur('amount')}
-                  className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
+                  className="w-full min-w-0 max-w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
                   style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                   required
                 />
@@ -965,7 +965,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                     }}
                     onFocus={handleFieldFocus}
                     onBlur={() => handleFieldBlur('targetPercent')}
-                    className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
+                    className="w-full min-w-0 max-w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
                     style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                     required
                   />
