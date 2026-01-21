@@ -441,7 +441,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         existingNames={savedPortfolios.map(p => p.name)}
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in pb-8 md:pb-0">
         {loadedSample && (
           <SamplePortfolioBanner
             sampleName={loadedSample}
@@ -1039,7 +1039,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         </div>
 
         {/* Spacer for sticky button + bottom nav on mobile */}
-        <div className="h-56 md:hidden" />
+        <div className="h-64 md:hidden" />
       </div>
 
       {error && (
