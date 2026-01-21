@@ -441,7 +441,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         existingNames={savedPortfolios.map(p => p.name)}
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in pb-16">
+      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in pb-16 w-full max-w-full">
         {loadedSample && (
           <SamplePortfolioBanner
             sampleName={loadedSample}
@@ -898,9 +898,9 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             deleteLabel="Delete"
             className="mb-4"
           >
-            <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
-              {/* Mobile: Stack vertically, Desktop: Flexible grid */}
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-4 w-full">
+            <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow w-full max-w-full" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
+              {/* Mobile: Stack vertically, Desktop: Proportional grid */}
+              <div className="grid grid-cols-1 md:grid-cols-[2fr_2fr_1.5fr_auto] gap-2 md:gap-4 w-full max-w-full">
                 {/* Ticker Symbol */}
               <div>
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
