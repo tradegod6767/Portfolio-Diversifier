@@ -899,8 +899,8 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             className="mb-4"
           >
             <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
-              {/* Mobile: Stack vertically, Desktop: Grid with auto-sized Remove button */}
-              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-4">
+              {/* Mobile: Stack vertically, Desktop: Fixed column widths */}
+              <div className="grid grid-cols-1 md:grid-cols-[200px_200px_150px_100px] gap-4">
                 {/* Ticker Symbol */}
               <div className="min-w-0">
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
