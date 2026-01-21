@@ -898,11 +898,11 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             deleteLabel="Delete"
             className="mb-4"
           >
-            <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
+            <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
               {/* Mobile: Stack vertically, Desktop: Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 min-w-0">
                 {/* Ticker Symbol */}
-              <div>
+              <div className="min-w-0">
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Ticker Symbol
                 </label>
@@ -923,7 +923,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
               </div>
 
               {/* Current Value */}
-              <div>
+              <div className="min-w-0">
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Current Value ($)
                 </label>
@@ -947,7 +947,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
               </div>
 
               {/* Target Allocation with Slider */}
-              <div>
+              <div className="min-w-0">
                 <label className="block text-sm font-bold mb-2 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
                   Target (%)
                   <Tooltip text="Your ideal percentage for this holding. All targets should add up to 100%" />
@@ -990,7 +990,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
               </div>
 
               {/* Remove Button - hidden on mobile (use swipe instead) */}
-              <div className="hidden md:flex items-end">
+              <div className="hidden md:flex items-end min-w-0">
                 <button
                   type="button"
                   onClick={() => removePosition(position.id)}
