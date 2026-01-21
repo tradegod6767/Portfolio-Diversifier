@@ -441,7 +441,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         existingNames={savedPortfolios.map(p => p.name)}
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in pb-8 md:pb-0">
+      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in pb-8">
         {loadedSample && (
           <SamplePortfolioBanner
             sampleName={loadedSample}
