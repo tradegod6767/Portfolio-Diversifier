@@ -42,10 +42,12 @@ export default async function handler(req, res) {
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY is not set in environment variables');
       return res.status(500).json({
-        error: 'API key not configured',
-        explanation: 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.'
+        error: 'API key not configured - please set ANTHROPIC_API_KEY in Vercel environment variables',
+        explanation: 'AI analysis unavailable - API key not configured.'
       });
     }
+
+    console.log('[AI Explain] API key found, calling Claude API...');
 
     const anthropic = new Anthropic({
       apiKey: apiKey,
@@ -102,6 +104,8 @@ Write in clear, professional language that a non-expert investor can understand.
     });
 
     const explanation = message.content[0].text;
+
+    console.log('[AI Explain] Successfully generated explanation');
 
     return res.status(200).json({ explanation });
   } catch (error) {
