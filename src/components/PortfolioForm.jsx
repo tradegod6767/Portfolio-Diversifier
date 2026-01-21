@@ -441,7 +441,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         existingNames={savedPortfolios.map(p => p.name)}
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in pb-16 w-full max-w-full">
+      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in pb-4 md:pb-8 w-full max-w-full">
         {loadedSample && (
           <SamplePortfolioBanner
             sampleName={loadedSample}
@@ -898,9 +898,9 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             deleteLabel="Delete"
             className="mb-4"
           >
-            <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow w-full max-w-full" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
-              {/* Mobile: Stack vertically, Desktop: Proportional grid */}
-              <div className="grid grid-cols-1 md:grid-cols-[2fr_2fr_1.5fr_auto] gap-2 md:gap-4 w-full max-w-full">
+            <div className="p-4 md:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow box-border" style={{ backgroundColor: 'var(--bg-card-elevated)', border: '1px solid var(--border-color)' }}>
+              {/* Mobile: Stack vertically, Desktop: 4 equal columns */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
                 {/* Ticker Symbol */}
               <div>
                 <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>
@@ -1015,9 +1015,9 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
           </SwipeableItem>
         ))}
 
-        {/* Add Position Button - Sticky on mobile, positioned above bottom nav */}
+        {/* Add Position Button - Sticky on mobile, normal flow on desktop */}
         <div
-          className="md:relative fixed left-0 right-0 md:bottom-auto md:left-auto md:right-auto p-4 md:p-0 md:mt-4 z-40 md:z-auto"
+          className="md:static fixed left-0 right-0 p-4 md:p-0 md:mt-6 z-40 md:z-auto"
           style={{
             bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
             backgroundColor: 'var(--bg-primary)'
@@ -1039,7 +1039,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
         </div>
 
         {/* Spacer for sticky button + bottom nav on mobile */}
-        <div className="h-64 md:hidden" />
+        <div className="h-32 md:hidden" />
       </div>
 
       {error && (
