@@ -12,6 +12,7 @@
 const ALLOWED_ORIGINS = [
   'https://rebalancekit.com',
   'https://www.rebalancekit.com',
+  'https://portfolio-rebalancer.vercel.app',
   'http://localhost:5173',  // Vite dev server
   'http://localhost:5176',  // Alternative dev port
 ];
