@@ -198,9 +198,8 @@ export async function checkRateLimit(req, res, options = {}) {
     // SECURITY FIX: Fail-safe - if Redis is not configured, BLOCK expensive endpoints
     // This prevents cost overruns if rate limiting infrastructure fails
     if (!rateLimiter) {
-      // Allow low-risk endpoints to continue, block high-risk (payment) endpoints
-      // NOTE: AI temporarily allowed without rate limiting - set up Upstash Redis for production
-      const allowedTypesWithoutRateLimit = ['GENERAL', 'WEBHOOK', 'AI'];
+      // Allow low-risk endpoints to continue, block high-risk (AI, payment) endpoints
+      const allowedTypesWithoutRateLimit = ['GENERAL', 'WEBHOOK'];
       const isHighRisk = !allowedTypesWithoutRateLimit.includes(endpointType);
 
       if (isHighRisk) {
@@ -279,8 +278,7 @@ export async function checkRateLimit(req, res, options = {}) {
     // SECURITY FIX: Fail-safe on error - block high-risk endpoints if rate limiter fails
     console.error('[Rate Limit] Error checking rate limit:', error)
 
-    // NOTE: AI temporarily allowed without rate limiting - set up Upstash Redis for production
-    const allowedTypesWithoutRateLimit = ['GENERAL', 'WEBHOOK', 'AI'];
+    const allowedTypesWithoutRateLimit = ['GENERAL', 'WEBHOOK'];
     const isHighRisk = !allowedTypesWithoutRateLimit.includes(endpointType);
 
     if (isHighRisk) {
