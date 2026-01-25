@@ -14,13 +14,16 @@ export default async function handler(req, res) {
   }
 
   // SECURITY: Authenticate request and verify Pro status server-side
+  console.log('[AI Explain] Starting request...');
   const { user, isPro, error: authError } = await authenticateRequest(req);
   const isAuthenticated = !authError && user;
+  console.log('[AI Explain] Auth result:', { isAuthenticated, isPro, authError: authError?.message });
 
   try {
     const { rebalancingData } = req.body;
 
     if (!rebalancingData) {
+      console.log('[AI Explain] Missing rebalancing data');
       return res.status(400).json({ error: 'Missing rebalancing data' });
     }
 
@@ -28,13 +31,16 @@ export default async function handler(req, res) {
     const isProUser = isPro === true;
 
     // SECURITY: Apply rate limiting for AI endpoints (5/20/100 requests per hour)
+    console.log('[AI Explain] Checking rate limit...');
     if (!await applyRateLimit(req, res, {
       endpointType: 'AI',
       user: user,
       isPro: isProUser
     })) {
+      console.log('[AI Explain] Rate limit blocked request');
       return; // Rate limit exceeded, response already sent
     }
+    console.log('[AI Explain] Rate limit passed');
 
     // Initialize Anthropic client
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -92,6 +98,7 @@ ${taxSection}
 Write in clear, professional language that a non-expert investor can understand. Be specific and reference actual ticker symbols and dollar amounts from the data above.`;
 
     // Call Claude API with increased tokens for Pro users
+    console.log('[AI Explain] Calling Claude API with model claude-sonnet-4-20250514...');
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: isProUser ? 1500 : 800, // More tokens for detailed Pro analysis
@@ -102,10 +109,11 @@ Write in clear, professional language that a non-expert investor can understand.
         }
       ]
     });
+    console.log('[AI Explain] Claude API response received');
 
     const explanation = message.content[0].text;
 
-    console.log('[AI Explain] Successfully generated explanation');
+    console.log('[AI Explain] Successfully generated explanation, length:', explanation.length);
 
     return res.status(200).json({ explanation });
   } catch (error) {
