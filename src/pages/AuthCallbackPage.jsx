@@ -15,8 +15,21 @@ function AuthCallbackPage() {
 
     // Check if user is already confirmed
     if (user) {
-      // User is confirmed! Show success toast and redirect
-      addToast('Email confirmed! You can now sign in.', 'success');
+      // Check for pending Pro purchases (user might have bought before confirming email)
+      fetch('/api/claim-pending-purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, userId: user.id })
+      }).then(res => res.json()).then(result => {
+        if (result.found && result.claimed) {
+          addToast('Email confirmed and Pro subscription activated!', 'success');
+        } else {
+          addToast('Email confirmed! You can now sign in.', 'success');
+        }
+      }).catch(() => {
+        addToast('Email confirmed! You can now sign in.', 'success');
+      });
+
       setTimeout(() => {
         navigate('/');
       }, 2000);

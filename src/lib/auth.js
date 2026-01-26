@@ -1,11 +1,40 @@
 import { supabase } from './supabase'
 
+// Check and claim any pending purchases for this email
+async function claimPendingPurchase(email, userId) {
+  try {
+    const response = await fetch('/api/claim-pending-purchase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, userId })
+    })
+
+    if (response.ok) {
+      const result = await response.json()
+      if (result.found && result.claimed) {
+        console.log('[Auth] Claimed pending Pro purchase!')
+        return true
+      }
+    }
+  } catch (error) {
+    // Don't block auth on claim errors
+    console.error('[Auth] Error claiming pending purchase:', error)
+  }
+  return false
+}
+
 export async function login(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
   if (error) throw error
+
+  // Check for pending purchases after login
+  if (data.user) {
+    claimPendingPurchase(email, data.user.id).catch(() => {})
+  }
+
   return data.user
 }
 
@@ -34,9 +63,11 @@ export async function signup(email, password) {
     throw new Error('An account with this email already exists. Please sign in instead.')
   }
 
-  // Send welcome email asynchronously (don't block signup on email send)
+  // Send welcome email and check for pending purchases asynchronously
   if (data.user) {
     const userName = email.split('@')[0]
+
+    // Send welcome email
     fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,6 +79,9 @@ export async function signup(email, password) {
     }).catch(() => {
       // Silently fail - don't block signup if welcome email fails
     })
+
+    // Check for pending Pro purchases (from pre-signup Gumroad purchases)
+    claimPendingPurchase(email, data.user.id).catch(() => {})
   }
 
   return data.user

@@ -22,8 +22,122 @@ async function logWebhookEvent(email, eventType, data) {
   }
 }
 
+// Store orphaned purchase in pending_purchases table
+async function storePendingPurchase(email, payload) {
+  try {
+    const { sale_id, subscription_id, product_name, price, currency } = payload
+
+    const { data, error } = await supabase
+      .from('pending_purchases')
+      .insert({
+        email: email.toLowerCase(),
+        gumroad_sale_id: sale_id,
+        gumroad_subscription_id: subscription_id,
+        product_name: product_name || 'Pro Subscription',
+        amount_cents: price ? Math.round(parseFloat(price) * 100) : null,
+        currency: currency || 'USD',
+        payload: payload,
+        status: 'pending',
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('[Gumroad Webhook] Error storing pending purchase:', error)
+      return null
+    }
+
+    console.log(`[Gumroad Webhook] Stored pending purchase for ${email}:`, data.id)
+    return data
+  } catch (error) {
+    console.error('[Gumroad Webhook] Exception storing pending purchase:', error)
+    return null
+  }
+}
+
 // Email templates
 const emailTemplates = {
+  pendingPurchase: (email) => ({
+    from: 'RebalanceKit <hello@rebalancekit.com>',
+    to: email,
+    subject: 'Complete your RebalanceKit Pro signup',
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Your Pro Signup</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 40px; text-align: center;">
+              <div style="display: inline-block; background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin-bottom: 16px;">
+                <span style="font-size: 40px;">⏳</span>
+              </div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">One More Step!</h1>
+              <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">Your Pro purchase is waiting</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">Hi there,</p>
+              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                Thank you for purchasing RebalanceKit Pro! We received your payment, but we noticed you don't have an account yet.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                <tr>
+                  <td style="padding: 16px;">
+                    <p style="margin: 0; color: #92400e; font-size: 15px; line-height: 1.6;">
+                      <strong>Action Required:</strong> Create an account with this email address (${email}) to activate your Pro subscription.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                Your Pro features will be automatically activated as soon as you sign up. No need to purchase again!
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="https://rebalancekit.com" style="display: inline-block; padding: 14px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Create Your Account</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">
+                <strong>Important:</strong> Use this exact email when signing up:
+              </p>
+              <p style="margin: 0 0 24px 0; color: #0f172a; font-size: 16px; font-weight: 600; font-family: monospace; background-color: #f1f5f9; padding: 12px; border-radius: 6px; text-align: center;">
+                ${email}
+              </p>
+              <p style="margin: 24px 0 0 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                Your purchase will be held for 30 days. If you have any questions, just reply to this email.
+              </p>
+              <p style="margin: 24px 0 0 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                Cheers,<br><strong>The RebalanceKit Team</strong>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0; color: #64748b; font-size: 14px;">RebalanceKit Pro - $9.99/month</p>
+              <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 12px;">Questions? Reply to this email</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `,
+  }),
+
   proUpgrade: (email, userName) => ({
     from: 'RebalanceKit <hello@rebalancekit.com>',
     to: email,
@@ -220,6 +334,9 @@ async function sendEmail(type, email, userName = null, accessEnds = null) {
       case 'subscriptionCancelled':
         emailData = emailTemplates.subscriptionCancelled(email, userName, accessEnds)
         break
+      case 'pendingPurchase':
+        emailData = emailTemplates.pendingPurchase(email)
+        break
       default:
         console.warn(`[Gumroad Webhook] Unknown email type: ${type}`)
         return { success: false, error: 'Unknown email type' }
@@ -304,7 +421,27 @@ export default async function handler(req, res) {
 
     if (!user) {
       console.log(`[Gumroad Webhook] User not found: ${email}`)
-      // Still return 200 to acknowledge receipt
+
+      // For new purchases/subscriptions, store as pending purchase
+      if (eventType === 'subscription_created' || eventType === 'sale') {
+        console.log(`[Gumroad Webhook] Storing as pending purchase for: ${email}`)
+
+        const pendingPurchase = await storePendingPurchase(email, payload)
+
+        if (pendingPurchase) {
+          // Send email prompting user to create account
+          await sendEmail('pendingPurchase', email)
+
+          return res.status(200).json({
+            success: true,
+            action: 'pending_purchase_stored',
+            message: 'Purchase stored. User will get Pro when they sign up.',
+            pendingPurchaseId: pendingPurchase.id
+          })
+        }
+      }
+
+      // For cancellations/refunds of non-existent users, just log
       return res.status(200).json({ message: 'User not found, event logged' })
     }
 

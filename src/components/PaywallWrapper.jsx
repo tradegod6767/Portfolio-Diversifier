@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import AuthModal from './AuthModal';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 /**
  * PaywallWrapper - Wraps premium features with paywall protection
@@ -15,6 +17,9 @@ import { useState, useEffect } from 'react';
 function PaywallWrapper({ user, isPro, loading, featureName, description, children, blur = true }) {
   // Use auth state passed as props instead of calling useAuth again
   const [showTimeout, setShowTimeout] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
 
   // Add timeout for slow auth checks
   useEffect(() => {
@@ -25,6 +30,29 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
       return () => clearTimeout(timer);
     }
   }, [loading]);
+
+  // After successful auth, continue to checkout if pending
+  useEffect(() => {
+    if (pendingCheckout && user) {
+      setPendingCheckout(false);
+      // Small delay to ensure auth state is settled
+      setTimeout(() => {
+        const gumroadUrl = `https://rebalancekit.gumroad.com/l/fvdfk?wanted=true&email=${encodeURIComponent(user.email)}`;
+        window.open(gumroadUrl, '_blank');
+      }, 500);
+    }
+  }, [user, pendingCheckout]);
+
+  // Handle upgrade button click - require auth first
+  const handleUpgradeClick = (e) => {
+    if (!user) {
+      e.preventDefault();
+      setPendingCheckout(true);
+      setShowAuthModal(true);
+      return;
+    }
+    // User is logged in, proceed to Gumroad (link will handle it)
+  };
 
   // If timed out, treat as free user
   if (loading && !showTimeout) {
@@ -92,12 +120,13 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
               </div>
             )}
 
-            {/* Upgrade button - uses Gumroad overlay checkout */}
+            {/* Upgrade button - requires auth, then uses Gumroad overlay checkout */}
             <a
-              href={`https://rebalancekit.gumroad.com/l/fvdfk?wanted=true${user?.email ? `&email=${encodeURIComponent(user.email)}` : ''}`}
-              className="gumroad-button w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg text-center block"
+              href={user ? `https://rebalancekit.gumroad.com/l/fvdfk?wanted=true&email=${encodeURIComponent(user.email)}` : '#'}
+              onClick={handleUpgradeClick}
+              className={`${user ? 'gumroad-button' : ''} w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg text-center block`}
             >
-              Upgrade to Pro - $9.99/month
+              {user ? 'Upgrade to Pro - $9.99/month' : 'Sign Up to Unlock Pro'}
             </a>
 
             {/* Feature list */}
@@ -145,6 +174,33 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
           </div>
         </div>
       </div>
+
+      {/* Auth Modal - shown when unauthenticated user clicks upgrade */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => {
+          setShowAuthModal(false);
+          setPendingCheckout(false);
+        }}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          // pendingCheckout effect will handle continuation
+        }}
+        onForgotPassword={() => {
+          setShowAuthModal(false);
+          setShowForgotPassword(true);
+        }}
+      />
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        onBackToLogin={() => {
+          setShowForgotPassword(false);
+          setShowAuthModal(true);
+        }}
+      />
     </>
   );
 }
