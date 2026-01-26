@@ -507,7 +507,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
         featureName="PDF Export"
         description="Professional report with all your charts, trade instructions, and analysis in one shareable PDF. Perfect for advisors or record-keeping."
       >
-        <ExportButtons results={results} />
+        <ExportButtons results={results} isPro={isPro} userEmail={user?.email} />
       </PaywallWrapper>
     </div>
   );

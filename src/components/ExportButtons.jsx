@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 import { formatCurrency } from '../utils/calculations';
-import { groupByAssetClass } from '../utils/assetClasses';
 import { exportHoldingsCSV, exportTradesCSV } from '../utils/csvExport';
+import { generatePDF } from '../utils/pdfGenerator';
 import { LoadingSpinner, ProgressBar, SuccessCheckmark } from './ui';
 
-function ExportButtons({ results }) {
+function ExportButtons({ results, isPro = false, userEmail = null }) {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatingProgress, setGeneratingProgress] = useState(0);
@@ -14,7 +12,6 @@ function ExportButtons({ results }) {
   const [exportSuccess, setExportSuccess] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const exportMenuRef = useRef(null);
-  const groupedPositions = groupByAssetClass(results.positions);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -43,9 +40,46 @@ function ExportButtons({ results }) {
     setExportMenuOpen(false);
   };
 
-  const handleDownloadPDF = () => {
-    downloadPDF();
+  const handleDownloadPDF = async () => {
     setExportMenuOpen(false);
+    setGenerating(true);
+    setGeneratingProgress(0);
+    setGeneratingMessage('Initializing...');
+    setExportSuccess(false);
+
+    try {
+      await generatePDF(
+        {
+          totalValue: results.totalValue,
+          positions: results.positions,
+          aiExplanation: results.aiExplanation
+        },
+        {
+          isPro,
+          userEmail,
+          onProgress: (progress, message) => {
+            setGeneratingProgress(progress);
+            setGeneratingMessage(message);
+          }
+        }
+      );
+
+      setExportSuccess(true);
+
+      // Show success briefly before resetting
+      setTimeout(() => {
+        setExportSuccess(false);
+        setGenerating(false);
+        setGeneratingProgress(0);
+        setGeneratingMessage('');
+      }, 1500);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert(`Failed to generate PDF: ${error.message}`);
+      setGenerating(false);
+      setGeneratingProgress(0);
+      setGeneratingMessage('');
+    }
   };
 
   const copyToClipboard = () => {
@@ -67,301 +101,6 @@ function ExportButtons({ results }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
-  };
-
-  const downloadPDF = async () => {
-    setGenerating(true);
-    setGeneratingProgress(0);
-    setGeneratingMessage('Initializing...');
-    setExportSuccess(false);
-
-    try {
-      setGeneratingProgress(10);
-      setGeneratingMessage('Creating document...');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      let yPosition = 20;
-
-      // Header
-      pdf.setFontSize(24);
-      pdf.setTextColor(30, 58, 138); // Blue-900
-      pdf.text('Portfolio Rebalancing Report', pageWidth / 2, yPosition, { align: 'center' });
-
-      yPosition += 10;
-      pdf.setFontSize(12);
-      pdf.setTextColor(100, 116, 139); // Gray-500
-      pdf.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), pageWidth / 2, yPosition, { align: 'center' });
-
-      yPosition += 15;
-
-      // Total Value Box
-      pdf.setFillColor(239, 246, 255); // Blue-50
-      pdf.roundedRect(15, yPosition, pageWidth - 30, 15, 3, 3, 'F');
-      pdf.setFontSize(14);
-      pdf.setTextColor(30, 58, 138);
-      pdf.text(`Total Portfolio Value: ${formatCurrency(results.totalValue)}`, pageWidth / 2, yPosition + 10, { align: 'center' });
-
-      yPosition += 25;
-
-      setGeneratingProgress(25);
-      setGeneratingMessage('Capturing charts...');
-
-      // Capture pie charts
-      const chartsElement = document.querySelector('[data-charts]');
-      if (chartsElement) {
-        try {
-          // Wait a moment for charts to fully render
-          await new Promise(resolve => setTimeout(resolve, 500));
-          const canvas = await html2canvas(chartsElement, {
-            scale: 2,
-            backgroundColor: '#ffffff',
-            logging: false,
-            useCORS: true,
-            allowTaint: true,
-            onclone: (clonedDoc) => {
-              // Convert oklch colors to rgb in the cloned document
-              const originalElements = chartsElement.querySelectorAll('*');
-              const clonedElements = clonedDoc.body.querySelectorAll('*');
-
-              originalElements.forEach((origEl, index) => {
-                if (clonedElements[index]) {
-                  const styles = window.getComputedStyle(origEl);
-                  const clonedEl = clonedElements[index];
-
-                  // Force computed colors (which are in rgb) to be applied as inline styles
-                  if (styles.color && styles.color !== 'rgba(0, 0, 0, 0)') {
-                    clonedEl.style.color = styles.color;
-                  }
-                  if (styles.backgroundColor && styles.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-                    clonedEl.style.backgroundColor = styles.backgroundColor;
-                  }
-                  if (styles.borderColor) {
-                    clonedEl.style.borderColor = styles.borderColor;
-                  }
-                  if (styles.fill && styles.fill !== 'none') {
-                    clonedEl.style.fill = styles.fill;
-                  }
-                  if (styles.stroke && styles.stroke !== 'none') {
-                    clonedEl.style.stroke = styles.stroke;
-                  }
-                }
-              });
-            }
-          });
-          const imgData = canvas.toDataURL('image/png');
-          const imgWidth = pageWidth - 30;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-          if (yPosition + imgHeight > pageHeight - 20) {
-            pdf.addPage();
-            yPosition = 20;
-          }
-
-          pdf.addImage(imgData, 'PNG', 15, yPosition, imgWidth, imgHeight);
-          yPosition += imgHeight + 10;
-        } catch {
-          // Add a note in the PDF that charts were skipped
-          pdf.setFontSize(10);
-          pdf.setTextColor(107, 114, 128);
-          pdf.text('Note: Charts could not be included due to browser compatibility. View charts in the web interface.', 15, yPosition);
-          yPosition += 15;
-        }
-      }
-
-      setGeneratingProgress(50);
-      setGeneratingMessage('Building tables...');
-
-      // Rebalancing Actions Table
-      if (yPosition > pageHeight - 60) {
-        pdf.addPage();
-        yPosition = 20;
-      }
-
-      pdf.setFontSize(16);
-      pdf.setTextColor(30, 58, 138);
-      pdf.text('Rebalancing Actions', 15, yPosition);
-      yPosition += 8;
-
-      // Table Header
-      pdf.setFillColor(249, 250, 251); // Gray-50
-      pdf.rect(15, yPosition, pageWidth - 30, 8, 'F');
-      pdf.setFontSize(10);
-      pdf.setTextColor(75, 85, 99);
-      pdf.text('Position', 20, yPosition + 5.5);
-      pdf.text('Current', 70, yPosition + 5.5);
-      pdf.text('Target', 110, yPosition + 5.5);
-      pdf.text('Action', 145, yPosition + 5.5);
-      pdf.text('Amount', 170, yPosition + 5.5);
-      yPosition += 10;
-
-      // Table Rows
-      results.positions.forEach((pos, index) => {
-        if (yPosition > pageHeight - 20) {
-          pdf.addPage();
-          yPosition = 20;
-        }
-
-        if (index % 2 === 0) {
-          pdf.setFillColor(249, 250, 251);
-          pdf.rect(15, yPosition - 2, pageWidth - 30, 8, 'F');
-        }
-
-        pdf.setFontSize(9);
-        pdf.setTextColor(31, 41, 55);
-        pdf.text(pos.ticker, 20, yPosition + 3.5);
-        pdf.text(`${pos.currentPercent.toFixed(1)}%`, 70, yPosition + 3.5);
-        pdf.text(`${pos.targetPercent.toFixed(1)}%`, 110, yPosition + 3.5);
-
-        // Action badge
-        if (pos.action === 'BUY') {
-          pdf.setTextColor(22, 163, 74);
-        } else if (pos.action === 'SELL') {
-          pdf.setTextColor(239, 68, 68);
-        } else {
-          pdf.setTextColor(107, 114, 128);
-        }
-        pdf.text(pos.action, 145, yPosition + 3.5);
-
-        pdf.setTextColor(31, 41, 55);
-        pdf.text(formatCurrency(Math.abs(pos.difference)), 170, yPosition + 3.5);
-
-        yPosition += 8;
-      });
-
-      yPosition += 10;
-
-      // Asset Class View Table
-      if (yPosition > pageHeight - 60) {
-        pdf.addPage();
-        yPosition = 20;
-      }
-
-      pdf.setFontSize(16);
-      pdf.setTextColor(30, 58, 138);
-      pdf.text('Asset Class View', 15, yPosition);
-      yPosition += 8;
-
-      // Table Header
-      pdf.setFillColor(249, 250, 251);
-      pdf.rect(15, yPosition, pageWidth - 30, 8, 'F');
-      pdf.setFontSize(10);
-      pdf.setTextColor(75, 85, 99);
-      pdf.text('Asset Class', 20, yPosition + 5.5);
-      pdf.text('Current', 70, yPosition + 5.5);
-      pdf.text('Target', 110, yPosition + 5.5);
-      pdf.text('Action', 145, yPosition + 5.5);
-      pdf.text('Amount', 170, yPosition + 5.5);
-      yPosition += 10;
-
-      // Table Rows
-      groupedPositions.forEach((pos, index) => {
-        if (yPosition > pageHeight - 20) {
-          pdf.addPage();
-          yPosition = 20;
-        }
-
-        if (index % 2 === 0) {
-          pdf.setFillColor(249, 250, 251);
-          pdf.rect(15, yPosition - 2, pageWidth - 30, 8, 'F');
-        }
-
-        pdf.setFontSize(9);
-        pdf.setTextColor(31, 41, 55);
-
-        // Asset class name with tickers below
-        pdf.text(pos.assetClass, 20, yPosition + 3.5);
-
-        pdf.text(`${pos.currentPercent.toFixed(1)}%`, 70, yPosition + 3.5);
-        pdf.text(`${pos.targetPercent.toFixed(1)}%`, 110, yPosition + 3.5);
-
-        // Action badge
-        if (pos.action === 'BUY') {
-          pdf.setTextColor(22, 163, 74);
-        } else if (pos.action === 'SELL') {
-          pdf.setTextColor(239, 68, 68);
-        } else {
-          pdf.setTextColor(107, 114, 128);
-        }
-        pdf.text(pos.action, 145, yPosition + 3.5);
-
-        pdf.setTextColor(31, 41, 55);
-        pdf.text(formatCurrency(Math.abs(pos.difference)), 170, yPosition + 3.5);
-
-        yPosition += 8;
-
-        // Add ticker list if there are tickers
-        if (pos.tickers && pos.tickers.length > 0) {
-          pdf.setFontSize(7);
-          pdf.setTextColor(107, 114, 128);
-          const tickersText = pos.tickers.join(', ');
-          const truncated = tickersText.length > 50 ? tickersText.substring(0, 47) + '...' : tickersText;
-          pdf.text(truncated, 25, yPosition - 4);
-        }
-      });
-
-      yPosition += 5;
-
-      setGeneratingProgress(75);
-      setGeneratingMessage('Adding analysis...');
-
-      // AI Analysis
-      if (results.aiExplanation) {
-        if (yPosition > pageHeight - 60) {
-          pdf.addPage();
-          yPosition = 20;
-        }
-
-        pdf.setFontSize(16);
-        pdf.setTextColor(30, 58, 138);
-        pdf.text('AI Analysis', 15, yPosition);
-        yPosition += 8;
-
-        pdf.setFontSize(10);
-        pdf.setTextColor(55, 65, 81);
-        const splitText = pdf.splitTextToSize(results.aiExplanation, pageWidth - 35);
-
-        splitText.forEach(line => {
-          if (yPosition > pageHeight - 15) {
-            pdf.addPage();
-            yPosition = 20;
-          }
-          pdf.text(line, 15, yPosition);
-          yPosition += 5;
-        });
-      }
-
-      // Footer
-      const totalPages = pdf.internal.getNumberOfPages();
-      for (let i = 1; i <= totalPages; i++) {
-        pdf.setPage(i);
-        pdf.setFontSize(8);
-        pdf.setTextColor(156, 163, 175);
-        pdf.text(`Generated by Portfolio Rebalancer - Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
-      }
-
-      setGeneratingProgress(90);
-      setGeneratingMessage('Saving PDF...');
-
-      pdf.save(`portfolio-rebalancing-${new Date().toISOString().split('T')[0]}.pdf`);
-
-      setGeneratingProgress(100);
-      setGeneratingMessage('Complete!');
-      setExportSuccess(true);
-
-      // Show success briefly before resetting
-      setTimeout(() => {
-        setExportSuccess(false);
-        setGenerating(false);
-        setGeneratingProgress(0);
-        setGeneratingMessage('');
-      }, 1500);
-    } catch (error) {
-      alert(`Failed to generate PDF: ${error.message}`);
-      setGenerating(false);
-      setGeneratingProgress(0);
-      setGeneratingMessage('');
-    }
   };
 
   return (
@@ -450,7 +189,7 @@ function ExportButtons({ results }) {
               </div>
               <div className="text-left">
                 <div className="font-medium">PDF Report</div>
-                <div className="text-xs text-gray-500">Full report with charts</div>
+                <div className="text-xs text-gray-500">Professional report with analysis</div>
               </div>
             </button>
 
