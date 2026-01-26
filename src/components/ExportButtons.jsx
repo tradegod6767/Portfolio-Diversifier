@@ -174,9 +174,9 @@ function ExportButtons({ results, isPro = false, userEmail = null }) {
           )}
         </button>
 
-        {/* Dropdown Menu - Opens upward, constrained to viewport */}
+        {/* Dropdown Menu - Opens downward, aligned left to stay within container */}
         {exportMenuOpen && (
-          <div className="absolute right-0 sm:right-0 -right-2 bottom-full mb-2 w-48 sm:w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 animate-fade-in max-w-[calc(100vw-2rem)]">
+          <div className="absolute left-0 top-full mt-2 w-52 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 animate-fade-in">
             {/* PDF Export */}
             <button
               onClick={handleDownloadPDF}

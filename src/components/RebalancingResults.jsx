@@ -6,8 +6,10 @@ import PortfolioHealthScore from './PortfolioHealthScore';
 import RebalancingCostEstimate from './RebalancingCostEstimate';
 import PortfolioComparison from './PortfolioComparison';
 import PaywallWrapper from './PaywallWrapper';
+import AIAnalysisDisplay from './AIAnalysisDisplay';
 import { groupByAssetClass } from '../utils/assetClasses';
 import Tooltip from './Tooltip';
+import './AIAnalysisDisplay.css';
 
 function RebalancingResults({ results, user, isPro, loading }) {
   const { totalValue, positions, aiExplanation, mode, modeData, isSimulation, scenarioDescription, onApplyScenario } = results;
@@ -429,53 +431,11 @@ function RebalancingResults({ results, user, isPro, loading }) {
       </div>
 
       {aiExplanation && (
-        <div className="bg-gradient-to-br from-slate-50 to-slate-50 border border-slate-200 rounded-lg p-5 md:p-6 shadow-sm">
-          <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 md:mb-6 flex items-center">
-            AI Analysis
-            <Tooltip text="Get personalized insights about your portfolio's diversification and risk" />
-          </h3>
-          <div className="text-gray-800 leading-relaxed space-y-6 text-base md:text-sm max-w-3xl">
-            {aiExplanation.split('\n\n').map((paragraph, index) => {
-              // Check if paragraph is a header (starts with ** or #)
-              const isHeader = paragraph.trim().startsWith('**') || paragraph.trim().startsWith('#');
-
-              if (isHeader) {
-                // Remove markdown formatting
-                const headerText = paragraph.replace(/\*\*/g, '').replace(/^#+\s*/, '').trim();
-                return (
-                  <h4 key={index} className="text-lg md:text-base font-bold text-slate-900 mt-6 mb-3 first:mt-0">
-                    {headerText}
-                  </h4>
-                );
-              }
-
-              return (
-                <p key={index} className="mb-4 last:mb-0">
-                  {paragraph}
-                </p>
-              );
-            })}
-          </div>
-
-          {/* Rate limit notice */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-2">
-              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div className="text-sm">
-                <p className="font-semibold text-blue-900">
-                  {isPro ? 'Pro Tier: 100 AI analyses per hour' : user ? 'Free Tier: 20 AI analyses per hour' : 'Anonymous: 5 AI analyses per hour'}
-                </p>
-                {!isPro && (
-                  <p className="text-blue-700 mt-1">
-                    Upgrade to Pro for 100 analyses per hour plus comprehensive tax optimization guidance.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <AIAnalysisDisplay
+          content={aiExplanation}
+          isPro={isPro}
+          user={user}
+        />
       )}
 
       {/* Rebalancing Cost Estimate */}

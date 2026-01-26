@@ -814,6 +814,7 @@ function MainApp(){
           isOpen={showOnboardingWizard}
           onClose={() => setShowOnboardingWizard(false)}
           onComplete={handleOnboardingComplete}
+          onLoadExample={handleLoadExample}
           user={user}
         />
       )}
