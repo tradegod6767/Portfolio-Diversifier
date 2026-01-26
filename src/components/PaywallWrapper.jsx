@@ -92,12 +92,10 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
               </div>
             )}
 
-            {/* Upgrade button */}
+            {/* Upgrade button - uses Gumroad overlay checkout */}
             <a
-              href={`https://rebalancekit.gumroad.com/l/fvdfk${user?.email ? `?email=${encodeURIComponent(user.email)}` : ''}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg text-center block"
+              href={`https://rebalancekit.gumroad.com/l/fvdfk?wanted=true${user?.email ? `&email=${encodeURIComponent(user.email)}` : ''}`}
+              className="gumroad-button w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg text-center block"
             >
               Upgrade to Pro - $9.99/month
             </a>
