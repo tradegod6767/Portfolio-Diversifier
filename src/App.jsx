@@ -619,6 +619,7 @@ function MainApp(){
 
   // Onboarding wizard state
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(false);
 
   // Keyboard shortcuts modal state
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
@@ -698,12 +699,16 @@ function MainApp(){
     if (!user || loading) return;
 
     // Skip if this user already completed onboarding
-    if (hasCompletedOnboarding(user.id)) return;
+    if (hasCompletedOnboarding(user.id)) {
+      setOnboardingDone(true);
+      return;
+    }
 
     // Only show if they just signed up (created in last 5 minutes)
     if (!isNewSignup(user)) {
       // Not a new signup - mark as completed so we don't check again
       setOnboardingCompleted(user.id);
+      setOnboardingDone(true);
       return;
     }
 
@@ -761,12 +766,14 @@ function MainApp(){
     setLoadedPositions(positions);
     setRebalanceResults(results);
     setShowOnboardingWizard(false);
+    setOnboardingDone(true);
     setActive('calculator');
   }
 
   function handleRestartTutorial() {
     if (!user) return;
     resetOnboarding(user.id);
+    setOnboardingDone(false);
     setShowOnboardingWizard(true);
   }
 
@@ -797,7 +804,7 @@ function MainApp(){
       {showOnboardingWizard && (
         <OnboardingWizard
           isOpen={showOnboardingWizard}
-          onClose={() => setShowOnboardingWizard(false)}
+          onClose={() => { setShowOnboardingWizard(false); setOnboardingDone(true); }}
           onComplete={handleOnboardingComplete}
           onLoadExample={handleLoadExample}
           user={user}
@@ -834,7 +841,7 @@ function MainApp(){
         <MobileHeader
           title={NAV_ITEMS.find(n => n.key === active)?.label || 'RebalanceKit'}
           onShowWhatsNew={() => setShowWhatsNewModal(true)}
-          onRestartTutorial={user && hasCompletedOnboarding(user.id) ? handleRestartTutorial : null}
+          onRestartTutorial={user && onboardingDone ? handleRestartTutorial : null}
           showUpdateDot={hasUpdates}
         />
 
@@ -843,7 +850,7 @@ function MainApp(){
           <ProfessionalTopbar
             onToggleSidebar={() => setMobileMenuOpen(true)}
             title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
-            onRestartTutorial={user && hasCompletedOnboarding(user.id) ? handleRestartTutorial : null}
+            onRestartTutorial={user && onboardingDone ? handleRestartTutorial : null}
           />
         </div>
 
