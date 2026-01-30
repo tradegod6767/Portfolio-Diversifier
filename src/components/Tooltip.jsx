@@ -51,7 +51,7 @@ function Tooltip({ text, children, position = 'top', className = '' }) {
   };
 
   return (
-    <span className="relative inline-block">
+    <span className="relative hidden md:inline-block">
       <span
         role="button"
         tabIndex={0}

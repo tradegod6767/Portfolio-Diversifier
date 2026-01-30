@@ -46,7 +46,6 @@ import { hasUnseenUpdates } from "./data/changelog";
 import { ResultsSkeleton } from "./components/AppLoadingSkeleton";
 import MobileBottomNav from "./components/MobileBottomNav";
 import MobileHeader from "./components/MobileHeader";
-import FloatingActionButton from "./components/FloatingActionButton";
 import WelcomeBanner from "./components/WelcomeBanner";
 
 /* ---------- Sidebar nav items ---------- */
@@ -822,24 +821,6 @@ function MainApp(){
         onOpenSettings={() => setShowShortcutsModal(true)}
       />
 
-      {/* Floating Action Button - only on calculator screen */}
-      <FloatingActionButton
-        show={active === 'calculator'}
-        onClick={() => {
-          // Focus on first empty ticker input or add new position
-          const tickerInputs = document.querySelectorAll('input[placeholder="AAPL"]');
-          const emptyInput = Array.from(tickerInputs).find(input => !input.value);
-          if (emptyInput) {
-            emptyInput.focus();
-            emptyInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          } else {
-            // Click the add position button
-            const addBtn = document.querySelector('button[title*="Add"]');
-            if (addBtn) addBtn.click();
-          }
-        }}
-        bottomOffset={80}
-      />
     </div>
   );
 }
