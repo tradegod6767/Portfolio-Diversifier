@@ -619,6 +619,7 @@ function MainApp(){
 
   // Onboarding wizard state
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(() => hasCompletedOnboarding(user?.id || null));
 
   // Keyboard shortcuts modal state
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
@@ -698,7 +699,10 @@ function MainApp(){
       const userId = user?.id || null;
 
       // Skip if this user already completed onboarding
-      if (hasCompletedOnboarding(userId)) return;
+      if (hasCompletedOnboarding(userId)) {
+        setOnboardingDone(true);
+        return;
+      }
 
       // For logged-in users: only show if they just signed up (new account)
       if (user) {
@@ -706,6 +710,7 @@ function MainApp(){
         if (!isNewSignup(user)) {
           // Not a new signup - mark as completed so we don't check again
           setOnboardingCompleted(userId);
+          setOnboardingDone(true);
           return;
         }
       } else {
@@ -713,6 +718,7 @@ function MainApp(){
         const localPortfolios = getSavedPortfolios(null, false);
         if (localPortfolios.length > 0) {
           setOnboardingCompleted(userId);
+          setOnboardingDone(true);
           return;
         }
       }
@@ -777,11 +783,13 @@ function MainApp(){
     setLoadedPositions(positions);
     setRebalanceResults(results);
     setShowOnboardingWizard(false);
+    setOnboardingDone(true);
     setActive('calculator');
   }
 
   function handleRestartTutorial() {
     resetOnboarding(user?.id || null);
+    setOnboardingDone(false);
     setShowOnboardingWizard(true);
   }
 
@@ -812,7 +820,7 @@ function MainApp(){
       {showOnboardingWizard && (
         <OnboardingWizard
           isOpen={showOnboardingWizard}
-          onClose={() => setShowOnboardingWizard(false)}
+          onClose={() => { setShowOnboardingWizard(false); setOnboardingDone(true); }}
           onComplete={handleOnboardingComplete}
           onLoadExample={handleLoadExample}
           user={user}
@@ -849,7 +857,7 @@ function MainApp(){
         <MobileHeader
           title={NAV_ITEMS.find(n => n.key === active)?.label || 'RebalanceKit'}
           onShowWhatsNew={() => setShowWhatsNewModal(true)}
-          onRestartTutorial={hasCompletedOnboarding(user?.id || null) ? handleRestartTutorial : null}
+          onRestartTutorial={onboardingDone ? handleRestartTutorial : null}
           showUpdateDot={hasUpdates}
         />
 
@@ -858,7 +866,7 @@ function MainApp(){
           <ProfessionalTopbar
             onToggleSidebar={() => setMobileMenuOpen(true)}
             title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
-            onRestartTutorial={hasCompletedOnboarding(user?.id || null) ? handleRestartTutorial : null}
+            onRestartTutorial={onboardingDone ? handleRestartTutorial : null}
           />
         </div>
 
