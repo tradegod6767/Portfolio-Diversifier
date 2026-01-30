@@ -894,7 +894,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
             key={position.id}
             onDelete={() => removePosition(position.id)}
             disabled={livePositions.length === 1}
-            confirmDelete={true}
+            confirmDelete={false}
             deleteLabel="Delete"
             className="mb-4"
           >
@@ -968,23 +968,6 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                     className="w-full px-4 py-3 min-h-[48px] border-2 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-base font-mono"
                     style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color-strong)', color: 'var(--text-primary)' }}
                     required
-                  />
-                  {/* Slider for quick adjustment - visible on mobile */}
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={position.targetPercent || 0}
-                    onChange={(e) => updatePosition(position.id, 'targetPercent', e.target.value)}
-                    onMouseDown={handleFieldFocus}
-                    onTouchStart={handleFieldFocus}
-                    onMouseUp={() => handleFieldBlur('targetPercent')}
-                    onTouchEnd={() => handleFieldBlur('targetPercent')}
-                    className="w-full h-2 rounded-lg appearance-none cursor-pointer md:hidden"
-                    style={{
-                      background: `linear-gradient(to right, #0A2540 0%, #0A2540 ${position.targetPercent || 0}%, #e2e8f0 ${position.targetPercent || 0}%, #e2e8f0 100%)`
-                    }}
                   />
                 </div>
               </div>
