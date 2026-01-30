@@ -39,10 +39,7 @@ import ProfessionalHero from "./components/ProfessionalHero";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import FinancialDisclaimer from "./components/FinancialDisclaimer";
-import OnboardingWizard from "./components/OnboardingWizard";
 import KeyboardShortcutsModal from "./components/KeyboardShortcutsModal";
-import { hasCompletedOnboarding, resetOnboarding, setOnboardingCompleted, isNewSignup } from "./utils/onboardingStorage";
-import { getSavedPortfolios } from "./utils/portfolioStorage";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import WhatsNewModal from "./components/WhatsNewModal";
 import { hasUnseenUpdates } from "./data/changelog";
@@ -50,6 +47,7 @@ import { ResultsSkeleton } from "./components/AppLoadingSkeleton";
 import MobileBottomNav from "./components/MobileBottomNav";
 import MobileHeader from "./components/MobileHeader";
 import FloatingActionButton from "./components/FloatingActionButton";
+import WelcomeBanner from "./components/WelcomeBanner";
 
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
@@ -361,9 +359,12 @@ function HeroView({onNavigate, onLoadExample}){
 }
 
 /* Calculator View - Main Portfolio Calculator */
-function CalculatorView({onCalculate, onCalculateStart, rebalanceResults, loadedPositions, onLoadClick, onImportClick, user, isPro, loading, calculating}){
+function CalculatorView({onCalculate, onCalculateStart, rebalanceResults, loadedPositions, onLoadClick, onImportClick, user, isPro, loading, calculating, onLoadExample}){
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-6">
+      {/* Welcome Banner */}
+      <WelcomeBanner user={user} onLoadExample={onLoadExample} />
+
       {/* Portfolio Form */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6 w-full max-w-full">
         <PortfolioForm
@@ -495,9 +496,9 @@ function AboutView(){
             Try the calculator with our example portfolio to see how it works:
           </p>
           <ul className="list-disc list-inside space-y-1 ml-4">
-            <li>VTI (US Stocks) - $30,000 / 60% target</li>
-            <li>BND (Bonds) - $15,000 / 30% target</li>
-            <li>CASH - $5,000 / 10% target</li>
+            <li>VTI (US Stocks) - $38,000 / 60% target</li>
+            <li>BND (Bonds) - $8,500 / 30% target</li>
+            <li>CASH - $3,500 / 10% target</li>
           </ul>
 
           <h3 className="text-2xl font-semibold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>Privacy & Security</h3>
@@ -617,10 +618,6 @@ function MainApp(){
   const [loadedPositions, setLoadedPositions] = useState([]);
   const [calculating, setCalculating] = useState(false);
 
-  // Onboarding wizard state
-  const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(() => hasCompletedOnboarding(user?.id || null));
-
   // Keyboard shortcuts modal state
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
@@ -683,54 +680,12 @@ function MainApp(){
       // Close any open modal
       if (showShortcutsModal) {
         setShowShortcutsModal(false);
-      } else if (showOnboardingWizard) {
-        setShowOnboardingWizard(false);
       }
-    }, [showShortcutsModal, showOnboardingWizard]),
+    }, [showShortcutsModal]),
   };
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts(shortcutHandlers, true);
-
-  // Check if we should show onboarding wizard
-  // Only shows for NEW signups who haven't completed it before
-  useEffect(() => {
-    const checkOnboarding = async () => {
-      const userId = user?.id || null;
-
-      // Skip if this user already completed onboarding
-      if (hasCompletedOnboarding(userId)) {
-        setOnboardingDone(true);
-        return;
-      }
-
-      // For logged-in users: only show if they just signed up (new account)
-      if (user) {
-        // Check if this is a new signup (created in last 5 minutes)
-        if (!isNewSignup(user)) {
-          // Not a new signup - mark as completed so we don't check again
-          setOnboardingCompleted(userId);
-          setOnboardingDone(true);
-          return;
-        }
-      } else {
-        // For anonymous users: check if they have any portfolios
-        const localPortfolios = getSavedPortfolios(null, false);
-        if (localPortfolios.length > 0) {
-          setOnboardingCompleted(userId);
-          setOnboardingDone(true);
-          return;
-        }
-      }
-
-      // Show wizard for new signups or first-time anonymous users
-      setShowOnboardingWizard(true);
-    };
-
-    if (!loading) {
-      checkOnboarding();
-    }
-  }, [loading, user]);
 
   // Handler functions
   function handleCalculate(results) {
@@ -745,9 +700,9 @@ function MainApp(){
   function handleLoadExample() {
     // Load example portfolio
     const examplePositions = [
-      { id: 1, ticker: 'VTI', amount: '30000', targetPercent: '60' },
-      { id: 2, ticker: 'BND', amount: '15000', targetPercent: '30' },
-      { id: 3, ticker: 'CASH', amount: '5000', targetPercent: '10' }
+      { id: 1, ticker: 'VTI', amount: '38000', targetPercent: '60' },
+      { id: 2, ticker: 'BND', amount: '8500', targetPercent: '30' },
+      { id: 3, ticker: 'CASH', amount: '3500', targetPercent: '10' }
     ];
     setLoadedPositions(examplePositions);
 
@@ -779,20 +734,6 @@ function MainApp(){
     setActive('calculator');
   }
 
-  function handleOnboardingComplete(positions, mode, modeAmount, results) {
-    setLoadedPositions(positions);
-    setRebalanceResults(results);
-    setShowOnboardingWizard(false);
-    setOnboardingDone(true);
-    setActive('calculator');
-  }
-
-  function handleRestartTutorial() {
-    resetOnboarding(user?.id || null);
-    setOnboardingDone(false);
-    setShowOnboardingWizard(true);
-  }
-
   function renderActive(){
     switch(active){
       case 'home': return <ProfessionalHero onNavigate={setActive} onLoadExample={handleLoadExample} />;
@@ -807,6 +748,7 @@ function MainApp(){
         isPro={isPro}
         loading={loading}
         calculating={calculating}
+        onLoadExample={handleLoadExample}
       />;
       case 'load': return <LoadPortfolioPage onBack={handleBack} user={user} isPro={isPro} />;
       case 'import': return <ImportPortfolioPage onBack={handleBack} />;
@@ -817,16 +759,6 @@ function MainApp(){
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-      {showOnboardingWizard && (
-        <OnboardingWizard
-          isOpen={showOnboardingWizard}
-          onClose={() => { setShowOnboardingWizard(false); setOnboardingDone(true); }}
-          onComplete={handleOnboardingComplete}
-          onLoadExample={handleLoadExample}
-          user={user}
-        />
-      )}
-
       {/* Keyboard Shortcuts Modal */}
       <KeyboardShortcutsModal
         isOpen={showShortcutsModal}
@@ -857,7 +789,6 @@ function MainApp(){
         <MobileHeader
           title={NAV_ITEMS.find(n => n.key === active)?.label || 'RebalanceKit'}
           onShowWhatsNew={() => setShowWhatsNewModal(true)}
-          onRestartTutorial={onboardingDone ? handleRestartTutorial : null}
           showUpdateDot={hasUpdates}
         />
 
@@ -866,7 +797,6 @@ function MainApp(){
           <ProfessionalTopbar
             onToggleSidebar={() => setMobileMenuOpen(true)}
             title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
-            onRestartTutorial={onboardingDone ? handleRestartTutorial : null}
           />
         </div>
 

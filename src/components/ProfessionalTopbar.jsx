@@ -8,7 +8,7 @@ import { Button, Badge } from './ui';
  * Professional Topbar Component
  * Modern, clean design following RebalanceKit design system
  */
-export default function ProfessionalTopbar({ onToggleSidebar, title, onRestartTutorial }) {
+export default function ProfessionalTopbar({ onToggleSidebar, title }) {
   const { user, isPro } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -52,21 +52,6 @@ export default function ProfessionalTopbar({ onToggleSidebar, title, onRestartTu
 
           {/* Right Section - Auth */}
           <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-            {/* Restart Tutorial Button */}
-            {onRestartTutorial && (
-              <button
-                onClick={onRestartTutorial}
-                className="hidden md:flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
-                style={{ color: 'var(--text-secondary)' }}
-                title="Restart onboarding tutorial"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-                <span>Tutorial</span>
-              </button>
-            )}
-
             {!user ? (
               <Button
                 onClick={() => setShowAuthModal(true)}
