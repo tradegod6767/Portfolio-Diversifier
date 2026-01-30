@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { setOnboardingCompleted, hasCompletedOnboarding } from '../utils/onboardingStorage';
 
 /**
  * Premium Onboarding Experience
- * Compact 3-step intro that only shows once per authenticated user
+ * Compact 3-step intro that only shows once per user
  */
 export default function OnboardingWizard({ isOpen, onClose, onComplete, user, onLoadExample }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -13,25 +12,14 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
 
   // Check if onboarding was already completed
   useEffect(() => {
-    if (user && isOpen && hasCompletedOnboarding(user.id)) {
+    if (isOpen && hasCompletedOnboarding(user?.id || null)) {
       onClose();
     }
   }, [isOpen, user, onClose]);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen && user) {
-      document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = ''; };
-    }
-  }, [isOpen, user]);
-
-  // Never show for unauthenticated users
-  if (!user) return null;
-
   const handleClose = () => {
     setIsExiting(true);
-    setOnboardingCompleted(user.id);
+    setOnboardingCompleted(user?.id || null);
     setTimeout(() => {
       setIsExiting(false);
       onClose();
@@ -40,18 +28,18 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
 
   const handleSkip = () => {
     if (dontShowAgain) {
-      setOnboardingCompleted(user.id);
+      setOnboardingCompleted(user?.id || null);
     }
     handleClose();
   };
 
   const handleGetStarted = () => {
-    setOnboardingCompleted(user.id);
+    setOnboardingCompleted(user?.id || null);
     onClose();
   };
 
   const handleLoadExample = () => {
-    setOnboardingCompleted(user.id);
+    setOnboardingCompleted(user?.id || null);
     onClose();
     if (onLoadExample) {
       onLoadExample();
@@ -109,7 +97,7 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
 
   if (!isOpen) return null;
 
-  return createPortal(
+  return (
     <div className={`onboarding-overlay ${isExiting ? 'exiting' : ''}`}>
       <div className={`onboarding-modal ${isExiting ? 'exiting' : ''}`}>
         {/* Close Button */}
@@ -270,7 +258,6 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
           </div>
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }

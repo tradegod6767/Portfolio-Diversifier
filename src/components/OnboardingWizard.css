@@ -7,7 +7,7 @@
 .onboarding-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,7 +27,6 @@
   position: relative;
   width: 100%;
   max-width: 420px;
-  max-height: 90vh;
   background: #ffffff;
   border-radius: 20px;
   box-shadow:

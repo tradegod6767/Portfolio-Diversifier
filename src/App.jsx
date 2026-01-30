@@ -619,7 +619,6 @@ function MainApp(){
 
   // Onboarding wizard state
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(false);
 
   // Keyboard shortcuts modal state
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
@@ -693,26 +692,38 @@ function MainApp(){
   useKeyboardShortcuts(shortcutHandlers, true);
 
   // Check if we should show onboarding wizard
-  // Only shows for authenticated users who just signed up
+  // Only shows for NEW signups who haven't completed it before
   useEffect(() => {
-    // Never show for logged-out users
-    if (!user || loading) return;
+    const checkOnboarding = async () => {
+      const userId = user?.id || null;
 
-    // Skip if this user already completed onboarding
-    if (hasCompletedOnboarding(user.id)) {
-      setOnboardingDone(true);
-      return;
+      // Skip if this user already completed onboarding
+      if (hasCompletedOnboarding(userId)) return;
+
+      // For logged-in users: only show if they just signed up (new account)
+      if (user) {
+        // Check if this is a new signup (created in last 5 minutes)
+        if (!isNewSignup(user)) {
+          // Not a new signup - mark as completed so we don't check again
+          setOnboardingCompleted(userId);
+          return;
+        }
+      } else {
+        // For anonymous users: check if they have any portfolios
+        const localPortfolios = getSavedPortfolios(null, false);
+        if (localPortfolios.length > 0) {
+          setOnboardingCompleted(userId);
+          return;
+        }
+      }
+
+      // Show wizard for new signups or first-time anonymous users
+      setShowOnboardingWizard(true);
+    };
+
+    if (!loading) {
+      checkOnboarding();
     }
-
-    // Only show if they just signed up (created in last 5 minutes)
-    if (!isNewSignup(user)) {
-      // Not a new signup - mark as completed so we don't check again
-      setOnboardingCompleted(user.id);
-      setOnboardingDone(true);
-      return;
-    }
-
-    setShowOnboardingWizard(true);
   }, [loading, user]);
 
   // Handler functions
@@ -766,14 +777,11 @@ function MainApp(){
     setLoadedPositions(positions);
     setRebalanceResults(results);
     setShowOnboardingWizard(false);
-    setOnboardingDone(true);
     setActive('calculator');
   }
 
   function handleRestartTutorial() {
-    if (!user) return;
-    resetOnboarding(user.id);
-    setOnboardingDone(false);
+    resetOnboarding(user?.id || null);
     setShowOnboardingWizard(true);
   }
 
@@ -804,7 +812,7 @@ function MainApp(){
       {showOnboardingWizard && (
         <OnboardingWizard
           isOpen={showOnboardingWizard}
-          onClose={() => { setShowOnboardingWizard(false); setOnboardingDone(true); }}
+          onClose={() => setShowOnboardingWizard(false)}
           onComplete={handleOnboardingComplete}
           onLoadExample={handleLoadExample}
           user={user}
@@ -841,7 +849,7 @@ function MainApp(){
         <MobileHeader
           title={NAV_ITEMS.find(n => n.key === active)?.label || 'RebalanceKit'}
           onShowWhatsNew={() => setShowWhatsNewModal(true)}
-          onRestartTutorial={user && onboardingDone ? handleRestartTutorial : null}
+          onRestartTutorial={hasCompletedOnboarding(user?.id || null) ? handleRestartTutorial : null}
           showUpdateDot={hasUpdates}
         />
 
@@ -850,7 +858,7 @@ function MainApp(){
           <ProfessionalTopbar
             onToggleSidebar={() => setMobileMenuOpen(true)}
             title={NAV_ITEMS.find(n => n.key === active)?.label || 'Home'}
-            onRestartTutorial={user && onboardingDone ? handleRestartTutorial : null}
+            onRestartTutorial={hasCompletedOnboarding(user?.id || null) ? handleRestartTutorial : null}
           />
         </div>
 
