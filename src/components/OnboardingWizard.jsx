@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { setOnboardingCompleted, hasCompletedOnboarding } from '../utils/onboardingStorage';
 
 /**
@@ -97,7 +98,7 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className={`onboarding-overlay ${isExiting ? 'exiting' : ''}`}>
       <div className={`onboarding-modal ${isExiting ? 'exiting' : ''}`}>
         {/* Close Button */}
@@ -258,6 +259,7 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
