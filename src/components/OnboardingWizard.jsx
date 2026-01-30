@@ -3,7 +3,7 @@ import { setOnboardingCompleted, hasCompletedOnboarding } from '../utils/onboard
 
 /**
  * Premium Onboarding Experience
- * Compact 3-step intro that only shows once per user
+ * Compact 3-step intro that only shows once per authenticated user
  */
 export default function OnboardingWizard({ isOpen, onClose, onComplete, user, onLoadExample }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -12,14 +12,25 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
 
   // Check if onboarding was already completed
   useEffect(() => {
-    if (isOpen && hasCompletedOnboarding(user?.id || null)) {
+    if (user && isOpen && hasCompletedOnboarding(user.id)) {
       onClose();
     }
   }, [isOpen, user, onClose]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen && user) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [isOpen, user]);
+
+  // Never show for unauthenticated users
+  if (!user) return null;
+
   const handleClose = () => {
     setIsExiting(true);
-    setOnboardingCompleted(user?.id || null);
+    setOnboardingCompleted(user.id);
     setTimeout(() => {
       setIsExiting(false);
       onClose();
@@ -28,18 +39,18 @@ export default function OnboardingWizard({ isOpen, onClose, onComplete, user, on
 
   const handleSkip = () => {
     if (dontShowAgain) {
-      setOnboardingCompleted(user?.id || null);
+      setOnboardingCompleted(user.id);
     }
     handleClose();
   };
 
   const handleGetStarted = () => {
-    setOnboardingCompleted(user?.id || null);
+    setOnboardingCompleted(user.id);
     onClose();
   };
 
   const handleLoadExample = () => {
-    setOnboardingCompleted(user?.id || null);
+    setOnboardingCompleted(user.id);
     onClose();
     if (onLoadExample) {
       onLoadExample();
