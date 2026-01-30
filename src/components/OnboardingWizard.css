@@ -35,8 +35,6 @@
     0 0 0 1px rgba(10, 37, 64, 0.05);
   animation: slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .onboarding-modal.exiting {
@@ -73,7 +71,6 @@
   justify-content: center;
   gap: 8px;
   padding: 24px 24px 0;
-  flex-shrink: 0;
 }
 
 .onboarding-step {
@@ -138,8 +135,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-y: auto;
-  flex: 1;
 }
 
 .step-content {
@@ -320,7 +315,6 @@
   padding: 16px 24px;
   background: #f8fafc;
   border-top: 1px solid #e2e8f0;
-  flex-shrink: 0;
 }
 
 .footer-left {
