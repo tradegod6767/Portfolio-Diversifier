@@ -10,6 +10,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import AuthModal from './AuthModal';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 export default function MobileHeader({
   title,
@@ -21,6 +23,7 @@ export default function MobileHeader({
   const { user, isPro } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const menuRef = useRef(null);
 
   // Close menu on outside click
@@ -256,6 +259,20 @@ export default function MobileHeader({
           </div>
         </>
       )}
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onForgotPassword={() => {
+          setShowAuthModal(false);
+          setShowForgotPassword(true);
+        }}
+      />
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </>
   );
 }
