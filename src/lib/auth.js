@@ -108,7 +108,7 @@ export async function checkIfPro(userId) {
     const subscriptionStatus = metadata.subscription_status
 
     // User must have is_pro = true AND subscription_status must not be 'cancelled'
-    return isPro && subscriptionStatus !== 'cancelled'
+    return isPro && subscriptionStatus === 'active'
   } catch {
     return false
   }

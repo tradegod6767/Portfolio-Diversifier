@@ -410,14 +410,31 @@ export default async function handler(req, res) {
     await logWebhookEvent(email, eventType, payload)
 
     // Get user from Supabase Auth by email
-    const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
+    // Use paginated search to handle >50 users
+    let user = null
+    let page = 1
+    const perPage = 50
+    let listError = null
+
+    while (!user) {
+      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage })
+
+      if (error) {
+        listError = error
+        break
+      }
+
+      user = data.users.find(u => u.email?.toLowerCase() === email.toLowerCase())
+
+      // No more pages to search
+      if (data.users.length < perPage) break
+      page++
+    }
 
     if (listError) {
       console.error('[Gumroad Webhook] Error listing users:', listError)
       return res.status(500).json({ error: 'Failed to find user' })
     }
-
-    const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase())
 
     if (!user) {
       console.log(`[Gumroad Webhook] User not found: ${email}`)

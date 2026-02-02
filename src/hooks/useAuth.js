@@ -22,7 +22,7 @@ export function useAuth() {
           const metadata = currentUser.user_metadata || {}
           const isProUser = metadata.is_pro === true
           const subscriptionStatus = metadata.subscription_status
-          const hasActiveSubscription = isProUser && subscriptionStatus !== 'cancelled'
+          const hasActiveSubscription = isProUser && subscriptionStatus === 'active'
 
           if (mounted) {
             setIsPro(hasActiveSubscription)
@@ -50,7 +50,7 @@ export function useAuth() {
           const metadata = newUser.user_metadata || {}
           const isProUser = metadata.is_pro === true
           const subscriptionStatus = metadata.subscription_status
-          const hasActiveSubscription = isProUser && subscriptionStatus !== 'cancelled'
+          const hasActiveSubscription = isProUser && subscriptionStatus === 'active'
 
           if (mounted) {
             setIsPro(hasActiveSubscription)

@@ -23,8 +23,8 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
         onClose();
       } else {
         await login(email, password);
-        // Reload page to ensure auth state is fresh
-        window.location.reload();
+        onClose();
+        onSuccess?.();
       }
     } catch (err) {
       setError(err.message || 'An error occurred');

@@ -30,7 +30,7 @@ function AuthCallbackPage() {
         addToast('Email confirmed! You can now sign in.', 'success');
       });
 
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         navigate('/');
       }, 2000);
       setLoading(false);

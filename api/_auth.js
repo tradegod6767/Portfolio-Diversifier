@@ -122,13 +122,24 @@ export async function getUserByEmail(email) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     )
 
-    const { data: { users }, error } = await supabase.auth.admin.listUsers()
+    // Paginated search to handle >50 users
+    let user = null
+    let page = 1
+    const perPage = 50
 
-    if (error) {
-      return { user: null, error }
+    while (!user) {
+      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage })
+
+      if (error) {
+        return { user: null, error }
+      }
+
+      user = data.users.find(u => u.email?.toLowerCase() === email.toLowerCase())
+
+      // No more pages to search
+      if (data.users.length < perPage) break
+      page++
     }
-
-    const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase())
 
     if (!user) {
       return { user: null, error: new Error('User not found') }
