@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 function ImportPortfolioPage({ onBack }) {
   const [activeTab, setActiveTab] = useState('csv');
-  const [csvFile, setCsvFile] = useState(null);
+  const [, setCsvFile] = useState(null);
   const [textInput, setTextInput] = useState('');
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');

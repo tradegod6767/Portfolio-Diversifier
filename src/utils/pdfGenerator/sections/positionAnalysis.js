@@ -1,8 +1,8 @@
 // Position Analysis section for PDF report
-import { PDF_CONFIG, getContentWidth } from '../config.js';
+import { PDF_CONFIG } from '../config.js';
 import { renderSectionTitle, checkPageBreak } from '../helpers/layoutUtils.js';
 import { formatCurrency } from '../../calculations.js';
-import { groupByAssetClass, getAssetClassColor } from '../../assetClasses.js';
+import { groupByAssetClass } from '../../assetClasses.js';
 
 /**
  * Render the Detailed Position Analysis section
@@ -13,17 +13,14 @@ import { groupByAssetClass, getAssetClassColor } from '../../assetClasses.js';
  * @returns {number} - Y position after section
  */
 export const renderPositionAnalysis = (pdf, data, startY, autoTable) => {
-  const { margins, colors, fonts, spacing } = PDF_CONFIG;
+  const { margins, colors, spacing } = PDF_CONFIG;
   const { positions } = data;
-  const contentWidth = getContentWidth();
 
   let y = renderSectionTitle(pdf, 'Detailed Position Analysis', startY);
 
   // Prepare table data
   const tableData = positions.map(pos => {
     const driftPercent = pos.currentPercent - pos.targetPercent;
-    const driftAmount = pos.currentAmount - (pos.targetAmount || pos.currentAmount * (pos.targetPercent / pos.currentPercent));
-
     return [
       pos.ticker,
       formatCurrency(pos.currentAmount),

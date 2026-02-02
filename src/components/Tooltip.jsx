@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function Tooltip({ text, children, position = 'top', className = '' }) {
+function Tooltip({ text, position = 'top', className = '' }) {
   const [show, setShow] = useState(false);
 
   const getPositionClasses = () => {

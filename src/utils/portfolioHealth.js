@@ -312,7 +312,7 @@ function calculateAssetClassFactor(positions) {
 /**
  * Generate prioritized action items
  */
-function generateActions(factors, positions) {
+function generateActions(factors) {
   const actions = [];
 
   // Sort factors by severity and points lost

@@ -75,7 +75,7 @@ export const renderSubsectionTitle = (pdf, title, y) => {
  * @param {object} options - Options including reportId, userEmail
  */
 export const addPageHeader = (pdf, pageNum, options = {}) => {
-  const { pageWidth, margins, colors, fonts, headerHeight } = PDF_CONFIG;
+  const { pageWidth, margins, colors, headerHeight } = PDF_CONFIG;
 
   pdf.setPage(pageNum);
 

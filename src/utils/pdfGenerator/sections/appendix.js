@@ -11,7 +11,7 @@ import { calculateDrift } from '../../portfolioHealth.js';
  * @returns {number} - Y position after section
  */
 export const renderAppendix = (pdf, data, options = {}) => {
-  const { margins, colors, fonts, spacing } = PDF_CONFIG;
+  const { margins } = PDF_CONFIG;
   const { positions } = data;
   const { isPro } = options;
 
@@ -43,7 +43,6 @@ export const renderAppendix = (pdf, data, options = {}) => {
  */
 const renderTaxOptimization = (pdf, positions, startY) => {
   const { margins, colors, fonts, spacing } = PDF_CONFIG;
-  const contentWidth = getContentWidth();
 
   let y = renderSubsectionTitle(pdf, 'Tax-Efficient Selling Order', startY);
 
@@ -169,7 +168,6 @@ const renderRebalancingRecommendations = (pdf, positions, startY) => {
  */
 const renderMethodology = (pdf, startY) => {
   const { margins, colors, fonts, spacing } = PDF_CONFIG;
-  const contentWidth = getContentWidth();
 
   let y = checkPageBreak(pdf, startY, 40);
   y = renderSubsectionTitle(pdf, 'Calculation Methodology', y);
@@ -221,7 +219,7 @@ const renderMethodology = (pdf, startY) => {
  * Render Disclaimer subsection
  */
 const renderDisclaimer = (pdf, startY) => {
-  const { margins, colors, fonts, pageHeight } = PDF_CONFIG;
+  const { margins, pageHeight } = PDF_CONFIG;
   const contentWidth = getContentWidth();
 
   let y = checkPageBreak(pdf, startY, 50);

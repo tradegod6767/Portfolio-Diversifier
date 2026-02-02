@@ -45,7 +45,6 @@ export const generatePDF = async (data, options = {}) => {
 
     // Create PDF document
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const { margins } = PDF_CONFIG;
 
     // Generate report metadata
     const reportId = generateReportId();
@@ -146,7 +145,6 @@ export const generatePDFBlob = async (data, options = {}) => {
     onProgress(5, 'Initializing document...');
 
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const { margins } = PDF_CONFIG;
 
     const reportId = generateReportId();
     const generatedDate = formatReportDate();

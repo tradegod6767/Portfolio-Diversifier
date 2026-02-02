@@ -29,6 +29,51 @@ const getRiskBadgeColor = (riskLevel) => {
   }
 };
 
+// Custom label renderer for bars (declared outside component to avoid re-creation)
+const renderBarLabel = (props) => {
+  const { x, y, width, value } = props;
+  if (value < 3) return null; // Don't show labels for very small values
+  return (
+    <text
+      x={x + width / 2}
+      y={y - 5}
+      fill="#64748b"
+      textAnchor="middle"
+      fontSize={10}
+      fontWeight={500}
+    >
+      {value.toFixed(0)}%
+    </text>
+  );
+};
+
+// Custom tooltip for chart (declared outside component to avoid re-creation)
+function CustomTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    const fullName = payload[0]?.payload?.fullName || label;
+    const diff = payload[0]?.payload?.difference;
+    return (
+      <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
+        <p className="font-semibold text-slate-900 mb-2">{fullName}</p>
+        {payload.map((entry, index) => (
+          <p key={index} className="text-sm text-slate-600">
+            <span className="font-medium" style={{ color: entry.color }}>
+              {entry.name}:
+            </span>{' '}
+            {entry.value.toFixed(1)}%
+          </p>
+        ))}
+        {diff !== 0 && (
+          <p className={`text-sm font-semibold mt-2 pt-2 border-t border-slate-100 ${diff > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+            Difference: {diff > 0 ? '+' : ''}{diff.toFixed(1)}%
+          </p>
+        )}
+      </div>
+    );
+  }
+  return null;
+}
+
 function PortfolioComparison({ groupedPositions }) {
   // Find closest model automatically
   const closestModelInfo = findClosestModel(groupedPositions);
@@ -68,50 +113,6 @@ function PortfolioComparison({ groupedPositions }) {
   }));
 
   const selectedModelData = MODEL_PORTFOLIOS[selectedModel];
-
-  // Custom label renderer for bars
-  const renderBarLabel = (props) => {
-    const { x, y, width, value } = props;
-    if (value < 3) return null; // Don't show labels for very small values
-    return (
-      <text
-        x={x + width / 2}
-        y={y - 5}
-        fill="#64748b"
-        textAnchor="middle"
-        fontSize={10}
-        fontWeight={500}
-      >
-        {value.toFixed(0)}%
-      </text>
-    );
-  };
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      const fullName = payload[0]?.payload?.fullName || label;
-      const diff = payload[0]?.payload?.difference;
-      return (
-        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
-          <p className="font-semibold text-slate-900 mb-2">{fullName}</p>
-          {payload.map((entry, index) => (
-            <p key={index} className="text-sm text-slate-600">
-              <span className="font-medium" style={{ color: entry.color }}>
-                {entry.name}:
-              </span>{' '}
-              {entry.value.toFixed(1)}%
-            </p>
-          ))}
-          {diff !== 0 && (
-            <p className={`text-sm font-semibold mt-2 pt-2 border-t border-slate-100 ${diff > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-              Difference: {diff > 0 ? '+' : ''}{diff.toFixed(1)}%
-            </p>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

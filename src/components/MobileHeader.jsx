@@ -15,8 +15,6 @@ import ForgotPasswordModal from './ForgotPasswordModal';
 
 export default function MobileHeader({
   title,
-  onOpenSettings,
-  onShowShortcuts,
   onShowWhatsNew,
   showUpdateDot
 }) {

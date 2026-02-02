@@ -12,10 +12,9 @@ import { groupByAssetClass, getAssetClassColor } from '../../assetClasses.js';
  * @param {object} options - Options including isPro
  * @returns {number} - Y position after section
  */
-export const renderRiskAnalysis = (pdf, data, startY, options = {}) => {
-  const { margins, colors, fonts, spacing } = PDF_CONFIG;
+export const renderRiskAnalysis = (pdf, data, startY) => {
+  const { spacing } = PDF_CONFIG;
   const { positions } = data;
-  const contentWidth = getContentWidth();
 
   let y = renderSectionTitle(pdf, 'Risk Analysis', startY);
 
@@ -38,7 +37,7 @@ export const renderRiskAnalysis = (pdf, data, startY, options = {}) => {
  * Render Concentration Risk subsection
  */
 const renderConcentrationRisk = (pdf, positions, startY) => {
-  const { margins, colors, fonts, spacing } = PDF_CONFIG;
+  const { margins, colors } = PDF_CONFIG;
   const contentWidth = getContentWidth();
 
   let y = renderSubsectionTitle(pdf, 'Concentration Risk', startY);
@@ -122,7 +121,7 @@ const renderConcentrationRisk = (pdf, positions, startY) => {
  * Render Asset Class Exposure subsection
  */
 const renderAssetExposure = (pdf, groupedPositions, startY) => {
-  const { margins, colors, fonts, spacing } = PDF_CONFIG;
+  const { margins, colors } = PDF_CONFIG;
   const contentWidth = getContentWidth();
 
   let y = checkPageBreak(pdf, startY, 50);
@@ -155,7 +154,7 @@ const renderAssetExposure = (pdf, groupedPositions, startY) => {
   let legendY = y;
   let colIndex = 0;
 
-  groupedPositions.forEach((group, index) => {
+  groupedPositions.forEach((group) => {
     if (colIndex >= legendCols) {
       colIndex = 0;
       legendX = margins.left;
@@ -187,7 +186,7 @@ const renderAssetExposure = (pdf, groupedPositions, startY) => {
  * Render Health Score Factors subsection
  */
 const renderHealthFactors = (pdf, health, startY) => {
-  const { margins, colors, fonts, spacing } = PDF_CONFIG;
+  const { margins, colors } = PDF_CONFIG;
 
   if (health.issues.length === 0) {
     return startY; // No issues to display

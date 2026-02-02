@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getSavedPortfolios, deletePortfolio, getPortfolio } from '../utils/portfolioStorage';
+import { getSavedPortfolios, deletePortfolio } from '../utils/portfolioStorage';
 import { EmptyState } from './ui';
 
 function LoadPortfolioPage({ onBack, user, isPro }) {

@@ -14,8 +14,6 @@ import { useState, useRef, useEffect } from 'react';
 export default function SwipeableItem({
   children,
   onDelete,
-  onSwipeLeft,
-  onSwipeRight,
   deleteLabel = 'Delete',
   confirmDelete = true,
   disabled = false,

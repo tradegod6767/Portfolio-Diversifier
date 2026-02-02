@@ -97,7 +97,7 @@ export async function getCurrentUser() {
   return user
 }
 
-export async function checkIfPro(userId) {
+export async function checkIfPro() {
   try {
     const { data: { user }, error } = await supabase.auth.getUser()
 

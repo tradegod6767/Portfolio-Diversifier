@@ -10,7 +10,7 @@ import { renderSectionTitle, checkPageBreak, drawBox, wrapText } from '../helper
  * @returns {number} - Y position after section
  */
 export const renderAIAnalysis = (pdf, aiExplanation, startY) => {
-  const { margins, colors, fonts, spacing, pageHeight } = PDF_CONFIG;
+  const { margins, colors, fonts, spacing } = PDF_CONFIG;
   const contentWidth = getContentWidth();
 
   if (!aiExplanation) {
@@ -167,7 +167,6 @@ export const renderAIAnalysis = (pdf, aiExplanation, startY) => {
  */
 const extractRecommendations = (text) => {
   const recommendations = [];
-  const lowerText = text.toLowerCase();
 
   // Look for patterns that indicate recommendations
   const patterns = [

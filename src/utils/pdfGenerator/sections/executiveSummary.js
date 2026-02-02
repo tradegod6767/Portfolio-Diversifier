@@ -55,7 +55,7 @@ const drawHealthGauge = (pdf, score, x, y, radius = 18) => {
  * @returns {number} - Y position after section
  */
 export const renderExecutiveSummary = (pdf, data, startY, options = {}) => {
-  const { margins, colors, fonts, spacing } = PDF_CONFIG;
+  const { margins, colors, spacing } = PDF_CONFIG;
   const { positions, totalValue } = data;
   const { isPro } = options;
   const contentWidth = getContentWidth();

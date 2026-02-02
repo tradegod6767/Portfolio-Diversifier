@@ -1,6 +1,6 @@
 // Charts section for PDF report
 import { PDF_CONFIG, getContentWidth } from '../config.js';
-import { renderSectionTitle, checkPageBreak } from '../helpers/layoutUtils.js';
+import { renderSectionTitle } from '../helpers/layoutUtils.js';
 
 /**
  * Render the Charts section (captures existing charts from DOM)

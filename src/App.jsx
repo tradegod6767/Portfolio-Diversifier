@@ -12,7 +12,7 @@ Notes:
 - The layout is responsive: collapsible sidebar on small screens.
 */
 
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ImportPortfolioPage from "./components/ImportPortfolioPage";
 import LoadPortfolioPage from "./components/LoadPortfolioPage";
@@ -623,9 +623,6 @@ function MainApp(){
   // What's New modal state
   const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
   const [hasUpdates, setHasUpdates] = useState(() => hasUnseenUpdates());
-
-  // Refs for keyboard shortcut actions
-  const portfolioFormRef = useRef(null);
 
   // Keyboard shortcut handlers
   const shortcutHandlers = {

@@ -42,8 +42,6 @@ function PortfolioInsights({ results, groupedPositions }) {
 
   // Determine if rebalancing is needed
   const needsRebalancing = maxDrift > 5;
-  const hasCapitalGains = positions.some(p => p.difference !== 0);
-
   // Calculate next review date (3 months from now)
   const nextReviewDate = new Date();
   nextReviewDate.setMonth(nextReviewDate.getMonth() + 3);

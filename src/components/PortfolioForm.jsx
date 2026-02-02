@@ -206,16 +206,6 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
     }
   };
 
-  const loadExamplePortfolio = () => {
-    const examplePositions = [
-      { id: 1, ticker: 'VTI', amount: '30000', targetPercent: '60' },
-      { id: 2, ticker: 'BND', amount: '15000', targetPercent: '30' },
-      { id: 3, ticker: 'CASH', amount: '5000', targetPercent: '10' }
-    ];
-    setLivePositions(examplePositions);
-    pushPositions(examplePositions, 'Load example portfolio');
-    setError('');
-  };
 
   const handleLoadSample = (sample) => {
     const positionsWithIds = sample.positions.map((pos, index) => ({
@@ -295,13 +285,9 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
   };
 
   const handleSavePortfolio = async (name) => {
-    try {
-      await savePortfolio(name, livePositions, user, isPro);
-      await loadSavedPortfolios();
-      setShowSaveModal(false);
-    } catch (err) {
-      throw err;
-    }
+    await savePortfolio(name, livePositions, user, isPro);
+    await loadSavedPortfolios();
+    setShowSaveModal(false);
   };
 
 
@@ -350,7 +336,6 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
 
     // Validate contribution/withdrawal amount (only in real mode)
     if (!isSimulatorMode && (rebalancingMode === 'contribution' || rebalancingMode === 'withdrawal') && (!modeAmount || parseFloat(modeAmount) <= 0)) {
-      const actionType = rebalancingMode === 'contribution' ? 'contribution' : 'withdrawal';
       setError(`You need to enter how much money you want to ${rebalancingMode === 'contribution' ? 'add to' : 'withdraw from'} your portfolio. Please enter an amount greater than $0.`);
       return;
     }

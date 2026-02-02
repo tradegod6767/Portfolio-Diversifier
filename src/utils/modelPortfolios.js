@@ -200,7 +200,6 @@ export function generateSuggestions(comparison) {
  * @returns {Object} Closest model info
  */
 export function findClosestModel(groupedPositions) {
-  const userAllocations = calculateAssetClassAllocations(groupedPositions);
   let closestModel = null;
   let smallestDifference = Infinity;
 
