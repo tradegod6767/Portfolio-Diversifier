@@ -56,23 +56,36 @@ export const LAST_SEEN_VERSION_KEY = "rebalancekit_lastSeenVersion";
  * Check if there are unseen updates
  */
 export function hasUnseenUpdates() {
-  const lastSeen = localStorage.getItem(LAST_SEEN_VERSION_KEY);
-  if (!lastSeen) return true; // First visit, show indicator
-  return lastSeen !== CURRENT_VERSION;
+  try {
+    const lastSeen = localStorage.getItem(LAST_SEEN_VERSION_KEY);
+    if (!lastSeen) return true; // First visit, show indicator
+    return lastSeen !== CURRENT_VERSION;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Mark current version as seen
  */
 export function markVersionAsSeen() {
-  localStorage.setItem(LAST_SEEN_VERSION_KEY, CURRENT_VERSION);
+  try {
+    localStorage.setItem(LAST_SEEN_VERSION_KEY, CURRENT_VERSION);
+  } catch {
+    // Ignore - private browsing or storage full
+  }
 }
 
 /**
  * Get changelog entries since last seen version
  */
 export function getUnseenChangelog() {
-  const lastSeen = localStorage.getItem(LAST_SEEN_VERSION_KEY);
+  let lastSeen;
+  try {
+    lastSeen = localStorage.getItem(LAST_SEEN_VERSION_KEY);
+  } catch {
+    return CHANGELOG;
+  }
   if (!lastSeen) return CHANGELOG; // Show all if first visit
 
   const lastSeenIndex = CHANGELOG.findIndex(entry => entry.version === lastSeen);

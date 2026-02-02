@@ -22,7 +22,7 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
   // Calculate current allocations and rebalancing actions
   const positionsWithCalcs = positions.map(pos => {
     const currentAmount = parseFloat(pos.amount);
-    const currentPercent = (currentAmount / totalValue) * 100;
+    const currentPercent = totalValue > 0 ? (currentAmount / totalValue) * 100 : 0;
     const targetPercent = parseFloat(pos.targetPercent);
     const targetAmount = (targetPercent / 100) * totalValue;
     const difference = targetAmount - currentAmount;
@@ -119,7 +119,7 @@ function calculateContribution(positions, currentTotal, contribution) {
 
   const positionsWithCalcs = positions.map(pos => {
     const currentAmount = parseFloat(pos.amount);
-    const currentPercent = (currentAmount / currentTotal) * 100;
+    const currentPercent = currentTotal > 0 ? (currentAmount / currentTotal) * 100 : 0;
     const targetPercent = parseFloat(pos.targetPercent);
 
     // Calculate target amount after contribution
@@ -186,7 +186,7 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
 
   const positionsWithCalcs = positions.map(pos => {
     const currentAmount = parseFloat(pos.amount);
-    const currentPercent = (currentAmount / currentTotal) * 100;
+    const currentPercent = currentTotal > 0 ? (currentAmount / currentTotal) * 100 : 0;
     const targetPercent = parseFloat(pos.targetPercent);
 
     // Calculate target amount after withdrawal

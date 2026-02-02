@@ -111,7 +111,14 @@ Write in clear, professional language that a non-expert investor can understand.
     });
     console.log('[AI Explain] Claude API response received');
 
-    const explanation = message.content[0].text;
+    const explanation = message?.content?.[0]?.text;
+    if (!explanation) {
+      console.error('[AI Explain] Empty or malformed response from Claude API');
+      return res.status(500).json({
+        error: 'Empty response from AI',
+        explanation: 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.'
+      });
+    }
 
     console.log('[AI Explain] Successfully generated explanation, length:', explanation.length);
 
