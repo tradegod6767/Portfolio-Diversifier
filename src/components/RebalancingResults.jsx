@@ -88,18 +88,18 @@ function RebalancingResults({ results, user, isPro, loading }) {
 
       <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
             {isSimulation ? 'Simulated Results' : 'Rebalancing Results'}
           </h2>
 
           {/* View By Toggle */}
-          <div className="bg-white border border-slate-200 rounded-lg p-1 flex shadow-sm w-full md:w-auto">
+          <div className="border rounded-lg p-1 flex shadow-sm w-full md:w-auto" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
             <button
               onClick={() => setViewMode('tickers')}
               className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded-md font-medium text-sm transition-all duration-200 min-h-[48px] md:min-h-0 ${
                 viewMode === 'tickers'
                   ? 'bg-[#0A2540] text-white shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+                  : 'text-slate-700 hover:bg-slate-100 active:bg-slate-200'
               }`}
             >
               Individual Tickers
@@ -109,7 +109,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
               className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded-md font-medium text-sm transition-all duration-200 min-h-[48px] md:min-h-0 ${
                 viewMode === 'asset-classes'
                   ? 'bg-[#0A2540] text-white shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+                  : 'text-slate-700 hover:bg-slate-100 active:bg-slate-200'
               }`}
             >
               Asset Classes
@@ -118,7 +118,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
         </div>
 
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 md:p-6 mb-6 shadow-sm">
-          <p className="text-lg md:text-xl font-bold text-gray-900">
+          <p className="text-lg md:text-xl font-bold text-slate-900">
             Total Portfolio Value: {formatCurrency(totalValue)}
           </p>
         </div>
@@ -135,7 +135,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Total Deviation */}
-              <div className="bg-white rounded-lg p-4 border border-slate-200">
+              <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                 <p className="text-sm text-slate-600 mb-1">Total drift being corrected</p>
                 <p className="text-xl font-bold text-slate-900">
                   {formatCurrency(impactSummary.totalDeviation)}
@@ -143,7 +143,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
               </div>
 
               {/* Number of Trades */}
-              <div className="bg-white rounded-lg p-4 border border-slate-200">
+              <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                 <p className="text-sm text-slate-600 mb-1">Trades to rebalance</p>
                 <p className="text-xl font-bold text-slate-900">
                   {impactSummary.tradesNeeded} {impactSummary.tradesNeeded === 1 ? 'trade' : 'trades'}
@@ -195,7 +195,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
                 </p>
                 <div className="space-y-1 mb-3">
                   {positions.filter(p => p.difference > 0).map((position, index) => (
-                    <div key={index} className="text-sm text-gray-700">
+                    <div key={index} className="text-sm text-slate-700">
                       <span className="font-bold">{position.ticker}:</span> +{formatCurrency(position.difference)}
                     </div>
                   ))}
@@ -228,7 +228,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
                 </p>
                 <div className="space-y-1 mb-3">
                   {positions.filter(p => p.difference < 0).map((position, index) => (
-                    <div key={index} className="text-sm text-gray-700">
+                    <div key={index} className="text-sm text-slate-700">
                       <span className="font-bold">{position.ticker}:</span> {formatCurrency(Math.abs(position.difference))}
                     </div>
                   ))}
@@ -274,7 +274,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
                 </p>
                 <div className="space-y-1 mb-3">
                   {positions.filter(p => p.difference > 0).map((position, index) => (
-                    <div key={index} className="text-sm text-gray-700">
+                    <div key={index} className="text-sm text-slate-700">
                       <span className="font-bold">{position.ticker}:</span> {formatCurrency(position.difference)}
                     </div>
                   ))}
@@ -307,7 +307,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
                 </p>
                 <div className="space-y-1 mb-3">
                   {positions.filter(p => p.difference < 0).map((position, index) => (
-                    <div key={index} className="text-sm text-gray-700">
+                    <div key={index} className="text-sm text-slate-700">
                       <span className="font-bold">{position.ticker}:</span> Sell {formatCurrency(Math.abs(position.difference))}
                     </div>
                   ))}
@@ -349,7 +349,7 @@ function RebalancingResults({ results, user, isPro, loading }) {
         />
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-xl shadow-md border border-slate-200 -mx-4 md:mx-0">
+      <div className="overflow-x-auto rounded-xl shadow-md border -mx-4 md:mx-0" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
         <div className="min-w-[640px]">
           <table className="w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
@@ -374,26 +374,26 @@ function RebalancingResults({ results, user, isPro, loading }) {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
+            <tbody className="divide-y" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
               {displayPositions.map((position, index) => (
-                <tr key={index} className={index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 hover:bg-gray-100'} style={{ transition: 'background-color 0.2s' }}>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-gray-900">
+                <tr key={index} className="transition-colors duration-200" style={{ backgroundColor: index % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-secondary)' }}>
+                  <td className="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-slate-900">
                     <div>
                       {viewMode === 'asset-classes' ? position.assetClass : position.ticker}
                     </div>
                     {viewMode === 'asset-classes' && position.tickers && (
-                      <div className="text-xs text-gray-500 font-normal mt-1">
+                      <div className="text-xs text-slate-500 font-normal mt-1">
                         {position.tickers.join(', ')}
                       </div>
                     )}
                   </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-700">
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-slate-700">
                     {formatCurrency(position.currentAmount)}
                   </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-700">
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-slate-700">
                     {formatPercent(position.currentPercent)}
                   </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-700">
+                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-slate-700">
                     {formatPercent(position.targetPercent)}
                   </td>
                   <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
@@ -402,8 +402,8 @@ function RebalancingResults({ results, user, isPro, loading }) {
                         position.action === 'BUY'
                           ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                           : position.action === 'SELL'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-gray-100 text-gray-800 border border-gray-300'
+                          ? 'bg-red-50 text-red-700 border border-red-200'
+                          : 'bg-slate-100 text-slate-800 border border-slate-300'
                       }`}
                     >
                       {position.action}
@@ -415,8 +415,8 @@ function RebalancingResults({ results, user, isPro, loading }) {
                         position.difference > 0
                           ? 'text-emerald-600 font-mono'
                           : position.difference < 0
-                          ? 'text-emerald-600 font-mono'
-                          : 'text-gray-600'
+                          ? 'text-red-600 font-mono'
+                          : 'text-slate-600'
                       }
                     >
                       {position.difference > 0 ? '+' : ''}

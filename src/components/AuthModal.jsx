@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { login, signup } from '../lib/auth';
+import { useToast } from '../context/ToastContext';
 import './AuthModal.css';
 
 function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
@@ -8,6 +9,7 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { addToast } = useToast();
 
   if (!isOpen) return null;
 
@@ -19,7 +21,7 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
     try {
       if (mode === 'signup') {
         await signup(email, password);
-        alert('Check your email to confirm your account!');
+        addToast('Check your email to confirm your account!', 'success');
         onClose();
       } else {
         await login(email, password);

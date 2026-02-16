@@ -32,5 +32,15 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey),
       'import.meta.env.NEXT_PUBLIC_APP_URL': JSON.stringify(appUrl),
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            recharts: ['recharts'],
+            pdf: ['jspdf', 'html2canvas', 'jspdf-autotable'],
+          },
+        },
+      },
+    },
   }
 })

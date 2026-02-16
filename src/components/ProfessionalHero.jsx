@@ -22,14 +22,14 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight px-2">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight px-2" style={{ color: 'var(--text-primary)' }}>
               Rebalance Your Portfolio
               <br />
               <span className="text-[#0A2540]">Without the Tax Bill</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto px-2 leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto px-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               Calculate exact buy and sell orders in seconds. Minimize taxes with add-only mode.
               <span className="font-semibold text-slate-700"> Save thousands annually.</span>
             </p>
@@ -80,13 +80,13 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
           {/* Feature Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto stagger-fade-in">
             {/* Feature 1 */}
-            <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="rounded-xl p-8 border shadow-sm hover:shadow-md transition-shadow" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
               <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">Add-Only Mode</h3>
+              <h3 className="text-xl font-semibold mb-3">Add-Only Mode</h3>
               <p className="text-slate-600 leading-relaxed mb-4">
                 Avoid capital gains taxes by only buying positions. Perfect for contributing new money while staying balanced.
               </p>
@@ -96,13 +96,13 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="rounded-xl p-8 border shadow-sm hover:shadow-md transition-shadow" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">Portfolio Health Score</h3>
+              <h3 className="text-xl font-semibold mb-3">Portfolio Health Score</h3>
               <p className="text-slate-600 leading-relaxed mb-4">
                 Instant analysis of concentration risk, drift from targets, and overall portfolio health on a 0-100 scale.
               </p>
@@ -123,7 +123,7 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">Cloud Portfolio Sync</h3>
+              <h3 className="text-xl font-semibold mb-3">Cloud Portfolio Sync</h3>
               <p className="text-slate-600 leading-relaxed mb-4">
                 Save unlimited portfolios with automatic cloud sync. Access your configurations from any device, anytime.
               </p>
@@ -133,13 +133,13 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
             </div>
 
             {/* Feature 4 */}
-            <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="rounded-xl p-8 border shadow-sm hover:shadow-md transition-shadow" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">PDF Reports</h3>
+              <h3 className="text-xl font-semibold mb-3">PDF Reports</h3>
               <p className="text-slate-600 leading-relaxed mb-4">
                 Export professional reports with charts, analysis, and trade recommendations. Perfect for record-keeping.
               </p>

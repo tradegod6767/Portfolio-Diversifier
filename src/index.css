@@ -55,7 +55,7 @@
   /* Text Colors */
   --text-primary: #0F172A;
   --text-secondary: #475569;
-  --text-muted: #94A3B8;
+  --text-muted: #64748B;
   --text-inverse: #FFFFFF;
 
   /* Border Colors */
@@ -94,6 +94,74 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 
   /* Legacy variables for compatibility */
+  --color-page-bg: var(--bg-primary);
+  --color-card-bg: var(--bg-card);
+  --color-border-subtle: var(--border-color);
+  --color-hover-bg: var(--bg-hover);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-muted);
+  --shadow-card: var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-dropdown: var(--shadow-xl);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DARK MODE OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+
+html.dark {
+  /* Background Colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-elevated: #334155;
+  --bg-elevated: #334155;
+  --bg-input: #1e293b;
+  --bg-hover: #334155;
+
+  /* Text Colors */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+
+  /* Border Colors */
+  --border-color: #334155;
+  --border-color-strong: #475569;
+
+  /* Accent Color */
+  --accent-color: #60a5fa;
+  --accent-color-hover: #93bbfc;
+  --accent-color-light: #1e3a5f;
+
+  /* Status Colors */
+  --success: #34d399;
+  --success-bg: #064e3b;
+  --success-border: #065f46;
+  --warning: #fbbf24;
+  --warning-bg: #78350f;
+  --warning-border: #92400e;
+  --error: #f87171;
+  --error-bg: #7f1d1d;
+  --error-border: #991b1b;
+  --info: #60a5fa;
+  --info-bg: #1e3a5f;
+  --info-border: #1e40af;
+
+  /* Chart Colors */
+  --chart-grid: #334155;
+  --chart-text: #94a3b8;
+  --chart-tooltip-bg: #1e293b;
+  --chart-tooltip-border: #475569;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+
+  /* Legacy variables */
   --color-page-bg: var(--bg-primary);
   --color-card-bg: var(--bg-card);
   --color-border-subtle: var(--border-color);
@@ -212,7 +280,8 @@ html {
 }
 
 .input-pro:focus {
-  outline: none;
+  outline: 2px solid #3B82F6;
+  outline-offset: 1px;
   border-color: #3B82F6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }

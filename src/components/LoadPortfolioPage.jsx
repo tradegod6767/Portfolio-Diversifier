@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { getSavedPortfolios, deletePortfolio } from '../utils/portfolioStorage';
 import { EmptyState } from './ui';
+import { useToast } from '../context/ToastContext';
 
 function LoadPortfolioPage({ onBack, user, isPro }) {
   const [savedPortfolios, setSavedPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
 
   useEffect(() => {
     loadSavedPortfolios();
@@ -39,7 +41,7 @@ function LoadPortfolioPage({ onBack, user, isPro }) {
         await deletePortfolio(portfolio, user, isPro);
         await loadSavedPortfolios();
       } catch {
-        alert('Failed to delete portfolio. Please try again.');
+        addToast('Failed to delete portfolio. Please try again.', 'error');
       }
     }
   };

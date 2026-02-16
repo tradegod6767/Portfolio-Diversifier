@@ -3,8 +3,10 @@ import { formatCurrency } from '../utils/calculations';
 import { exportHoldingsCSV, exportTradesCSV } from '../utils/csvExport';
 import { generatePDF } from '../utils/pdfGenerator';
 import { LoadingSpinner, ProgressBar, SuccessCheckmark } from './ui';
+import { useToast } from '../context/ToastContext';
 
 function ExportButtons({ results, isPro = false, userEmail = null }) {
+  const { addToast } = useToast();
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatingProgress, setGeneratingProgress] = useState(0);
@@ -75,7 +77,7 @@ function ExportButtons({ results, isPro = false, userEmail = null }) {
       }, 1500);
     } catch (error) {
       console.error('PDF generation failed:', error);
-      alert(`Failed to generate PDF: ${error.message}`);
+      addToast(`Failed to generate PDF: ${error.message}`, 'error');
       setGenerating(false);
       setGeneratingProgress(0);
       setGeneratingMessage('');

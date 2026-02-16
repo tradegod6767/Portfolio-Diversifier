@@ -12,7 +12,7 @@ Notes:
 - The layout is responsive: collapsible sidebar on small screens.
 */
 
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, Suspense} from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ImportPortfolioPage from "./components/ImportPortfolioPage";
 import LoadPortfolioPage from "./components/LoadPortfolioPage";
@@ -24,11 +24,8 @@ import ExportButtons from "./components/ExportButtons";
 import SavePortfolioModal from "./components/SavePortfolioModal";
 import RebalancingResults from "./components/RebalancingResults";
 import RebalancingCostEstimate from "./components/RebalancingCostEstimate";
-import SuccessPage from "./pages/SuccessPage";
-import AuthCallbackPage from "./pages/AuthCallbackPage";
 import Toast from "./components/Toast";
 import { ToastProvider, useToast } from "./context/ToastContext";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthModal from "./components/AuthModal";
 import ForgotPasswordModal from "./components/ForgotPasswordModal";
 import { useAuth } from "./hooks/useAuth";
@@ -36,17 +33,24 @@ import { calculateRebalancing } from "./utils/calculations";
 import ProfessionalTopbar from "./components/ProfessionalTopbar";
 import ProfessionalSidebar from "./components/ProfessionalSidebar";
 import ProfessionalHero from "./components/ProfessionalHero";
-import TermsOfServicePage from "./pages/TermsOfServicePage";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import FinancialDisclaimer from "./components/FinancialDisclaimer";
 import KeyboardShortcutsModal from "./components/KeyboardShortcutsModal";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import WhatsNewModal from "./components/WhatsNewModal";
 import { hasUnseenUpdates } from "./data/changelog";
-import { ResultsSkeleton } from "./components/AppLoadingSkeleton";
+import AppLoadingSkeleton, { ResultsSkeleton } from "./components/AppLoadingSkeleton";
 import MobileBottomNav from "./components/MobileBottomNav";
 import MobileHeader from "./components/MobileHeader";
 import WelcomeBanner from "./components/WelcomeBanner";
+import ErrorBoundary from "./components/ErrorBoundary";
+
+// Lazy-loaded pages (not needed on initial render)
+const SuccessPage = React.lazy(() => import("./pages/SuccessPage"));
+const ResetPasswordPage = React.lazy(() => import("./pages/ResetPasswordPage"));
+const AuthCallbackPage = React.lazy(() => import("./pages/AuthCallbackPage"));
+const TermsOfServicePage = React.lazy(() => import("./pages/TermsOfServicePage"));
+const PrivacyPolicyPage = React.lazy(() => import("./pages/PrivacyPolicyPage"));
+const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
 
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
@@ -442,6 +446,7 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
     <div className="border rounded-lg overflow-hidden" style={{ borderColor: 'var(--border-color)' }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
         className="w-full px-5 py-4 flex items-center justify-between transition-colors"
         style={{ backgroundColor: isOpen ? 'var(--bg-secondary)' : 'var(--bg-card)' }}
       >
@@ -798,7 +803,9 @@ function MainApp(){
 
         {/* Main content area - add padding bottom for mobile nav + sticky button */}
         <main className="flex-1 p-4 md:p-6 overflow-auto pb-24 md:pb-8 max-w-full">
-          {renderActive()}
+          <div key={active} className="animate-fade-in">
+            {renderActive()}
+          </div>
         </main>
 
         {/* Desktop Footer - hidden on mobile */}
@@ -826,15 +833,20 @@ export default function App(){
   return (
     <BrowserRouter>
       <ToastProvider>
-        <Routes>
-          <Route path="/success" element={<SuccessPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/auth/callback" element={<AuthCallbackPage />} />
-          <Route path="/terms" element={<TermsOfServicePage />} />
-          <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="/" element={<MainApp />} />
-        </Routes>
-        <Toast />
+        <ErrorBoundary>
+          <Suspense fallback={<AppLoadingSkeleton />}>
+            <Routes>
+              <Route path="/success" element={<SuccessPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/" element={<MainApp />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+          <Toast />
+        </ErrorBoundary>
       </ToastProvider>
     </BrowserRouter>
   );

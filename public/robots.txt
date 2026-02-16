@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/callback
+Disallow: /reset-password
+
+Sitemap: https://rebalancekit.com/sitemap.xml

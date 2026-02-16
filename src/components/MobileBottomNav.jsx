@@ -131,6 +131,7 @@ export default function MobileBottomNav({ activeKey, onNavigate, onOpenSettings 
 
   return (
     <nav
+      aria-label="Mobile navigation"
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
       style={{
         backgroundColor: 'var(--bg-card)',
