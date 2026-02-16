@@ -68,9 +68,6 @@ function PortfolioHealthScore({ positions }) {
               <text x="60" y="52" textAnchor="middle" className="gauge-score">
                 {animatedScore}
               </text>
-              <text x="60" y="66" textAnchor="middle" className="gauge-label">
-                out of 100
-              </text>
             </svg>
             {/* Rating badge */}
             <div className={`health-rating-badge ${health.color}`}>

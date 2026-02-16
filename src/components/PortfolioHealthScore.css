@@ -48,11 +48,6 @@
   fill: #0A2540;
 }
 
-.gauge-label {
-  font-size: 10px;
-  fill: #64748b;
-  font-weight: 500;
-}
 
 .health-rating-badge {
   position: absolute;
