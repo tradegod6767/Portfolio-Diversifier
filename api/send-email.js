@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { handleCors } from './_cors.js'
+import { applyRateLimit } from './_ratelimit.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -390,6 +391,11 @@ export default async function handler(req, res) {
 
     if (!type || !email) {
       return res.status(400).json({ error: 'Missing required fields: type and email' })
+    }
+
+    // SECURITY: Apply rate limiting to prevent email spam abuse
+    if (!await applyRateLimit(req, res, { endpointType: 'EMAIL' })) {
+      return // Rate limit exceeded, response already sent
     }
 
     if (!process.env.RESEND_API_KEY) {

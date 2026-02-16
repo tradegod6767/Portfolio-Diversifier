@@ -90,6 +90,7 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
  * @returns {string} Formatted currency string
  */
 export function formatCurrency(value) {
+  if (value == null || isNaN(value)) return '$0.00';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -104,6 +105,7 @@ export function formatCurrency(value) {
  * @returns {string} Formatted percentage string
  */
 export function formatPercent(value) {
+  if (value == null || isNaN(value)) return '0.00%';
   return `${value.toFixed(2)}%`;
 }
 
@@ -195,7 +197,7 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
 
     // New allocation after withdrawal
     const newAmount = currentAmount - (amountToSell > 0 ? amountToSell : 0);
-    const newPercent = (newAmount / newTotal) * 100;
+    const newPercent = newTotal > 0 ? (newAmount / newTotal) * 100 : 0;
 
     return {
       ticker: pos.ticker,
@@ -219,10 +221,10 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
     const totalCurrentAmount = positions.reduce((sum, pos) => sum + parseFloat(pos.amount), 0);
 
     positionsWithCalcs.forEach(pos => {
-      const additionalSale = (pos.currentAmount / totalCurrentAmount) * remainder;
+      const additionalSale = totalCurrentAmount > 0 ? (pos.currentAmount / totalCurrentAmount) * remainder : 0;
       pos.difference -= additionalSale;
       pos.newAmount -= additionalSale;
-      pos.newPercent = (pos.newAmount / newTotal) * 100;
+      pos.newPercent = newTotal > 0 ? (pos.newAmount / newTotal) * 100 : 0;
       if (pos.difference < 0) {
         pos.action = 'SELL';
       }

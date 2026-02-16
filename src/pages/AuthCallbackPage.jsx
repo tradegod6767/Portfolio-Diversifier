@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../context/ToastContext';
+import { supabase } from '../lib/supabase';
 
 function AuthCallbackPage() {
   const [loading, setLoading] = useState(true);
@@ -16,10 +17,16 @@ function AuthCallbackPage() {
     // Check if user is already confirmed
     if (user) {
       // Check for pending Pro purchases (user might have bought before confirming email)
-      fetch('/api/claim-pending-purchase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user.email, userId: user.id })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        const headers = { 'Content-Type': 'application/json' };
+        if (session?.access_token) {
+          headers.Authorization = `Bearer ${session.access_token}`;
+        }
+        return fetch('/api/claim-pending-purchase', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ email: user.email, userId: user.id })
+        });
       }).then(res => res.json()).then(result => {
         if (result.found && result.claimed) {
           addToast('Email confirmed and Pro subscription activated!', 'success');

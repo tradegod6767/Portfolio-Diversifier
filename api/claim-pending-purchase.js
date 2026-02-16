@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { handleCors } from './_cors.js'
+import { authenticateRequest } from './_auth.js'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -85,6 +86,17 @@ export default async function handler(req, res) {
 
     if (!email || !userId) {
       return res.status(400).json({ error: 'Missing email or userId' })
+    }
+
+    // SECURITY: Verify the request comes from an authenticated user
+    // and that the userId matches the authenticated user's ID
+    const { user: authUser, error: authError } = await authenticateRequest(req)
+    if (authError || !authUser) {
+      return res.status(401).json({ error: 'Authentication required' })
+    }
+    if (authUser.id !== userId) {
+      console.warn(`[Claim Purchase] User ID mismatch: token=${authUser.id}, body=${userId}`)
+      return res.status(403).json({ error: 'User ID does not match authenticated user' })
     }
 
     console.log(`[Claim Purchase] Checking for pending purchase: ${email}`)

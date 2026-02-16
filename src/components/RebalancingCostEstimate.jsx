@@ -27,7 +27,7 @@ function RebalancingCostEstimate({ results }) {
 
   // Total cost
   const totalCost = tradingCosts + estimatedTaxes;
-  const costAsPercentage = (totalCost / totalValue) * 100;
+  const costAsPercentage = totalValue > 0 ? (totalCost / totalValue) * 100 : 0;
 
   const buyActions = positions.filter(p => p.action === 'BUY');
 
@@ -142,7 +142,7 @@ function RebalancingCostEstimate({ results }) {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Cost as % of portfolio:</span>
-            <span className={`font-bold ${costAsPercentage > 1 ? 'text-slate-600' : 'text-slate-600'}`}>
+            <span className={`font-bold ${costAsPercentage > 1 ? 'text-amber-600' : 'text-slate-600'}`}>
               {costAsPercentage.toFixed(3)}%
             </span>
           </div>

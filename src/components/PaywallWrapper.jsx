@@ -63,8 +63,8 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
     );
   }
 
-  // If user is Pro, show full content
-  if (isPro && !showTimeout) {
+  // If user is Pro, show full content (regardless of timeout state)
+  if (isPro) {
     return <>{children}</>;
   }
 

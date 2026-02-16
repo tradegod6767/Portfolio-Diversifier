@@ -15,6 +15,18 @@ const FACTORS = {
  * Calculate comprehensive portfolio health with detailed breakdown
  */
 export const calculatePortfolioHealth = (positions) => {
+  if (!positions || positions.length === 0) {
+    return {
+      score: 0,
+      factors: [],
+      actions: [],
+      issues: [],
+      rating: 'Critical',
+      color: 'red',
+      summary: 'No positions to evaluate.'
+    };
+  }
+
   const factors = [];
   let totalScore = 0;
 

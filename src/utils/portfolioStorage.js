@@ -1,10 +1,11 @@
 // Local storage utilities for portfolio management
 
 const STORAGE_KEY = 'saved_portfolios';
-const MAX_PORTFOLIOS = 5;
+const MAX_FREE_PORTFOLIOS = 5;
+const MAX_PRO_PORTFOLIOS = 50;
 
-export const savePortfolio = (name, positions) => {
-  const portfolios = getSavedPortfolios();
+export const savePortfolio = (name, positions, user = null, isPro = false) => {
+  const portfolios = getSavedPortfolios(user, isPro);
 
   // Check if portfolio with this name already exists
   const existingIndex = portfolios.findIndex(p => p.name === name);
@@ -22,8 +23,9 @@ export const savePortfolio = (name, positions) => {
   if (existingIndex >= 0) {
     portfolios[existingIndex] = portfolio;
   } else {
-    if (portfolios.length >= MAX_PORTFOLIOS) {
-      throw new Error(`Maximum of ${MAX_PORTFOLIOS} portfolios can be saved`);
+    const maxPortfolios = isPro ? MAX_PRO_PORTFOLIOS : MAX_FREE_PORTFOLIOS;
+    if (portfolios.length >= maxPortfolios) {
+      throw new Error(`Maximum of ${maxPortfolios} portfolios can be saved${!isPro ? '. Upgrade to Pro for more.' : '.'}`);
     }
     portfolios.push(portfolio);
   }
@@ -32,7 +34,7 @@ export const savePortfolio = (name, positions) => {
   return portfolio;
 };
 
-export const getSavedPortfolios = () => {
+export const getSavedPortfolios = (user = null, isPro = false) => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
