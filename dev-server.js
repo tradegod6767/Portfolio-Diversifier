@@ -9,10 +9,6 @@ import dotenv from 'dotenv';
 
 // Import API handlers
 import explainHandler from './api/explain.js';
-import createCheckoutHandler from './api/create-checkout-session.js';
-import sendEmailHandler from './api/send-email.js';
-import stripeWebhookHandler from './api/stripe-webhook.js';
-import gumroadWebhookHandler from './api/gumroad-webhook.js';
 
 dotenv.config();
 
@@ -36,10 +32,6 @@ app.use((req, res, next) => {
 
 // Mount API endpoints
 app.post('/api/explain', explainHandler);
-app.post('/api/create-checkout-session', createCheckoutHandler);
-app.post('/api/send-email', sendEmailHandler);
-app.post('/api/stripe-webhook', stripeWebhookHandler);
-app.post('/api/gumroad-webhook', gumroadWebhookHandler);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -50,9 +42,5 @@ app.listen(PORT, () => {
   console.log(`\n✅ Development API server running on http://localhost:${PORT}`);
   console.log(`📡 API endpoints:`);
   console.log(`   - POST /api/explain`);
-  console.log(`   - POST /api/create-checkout-session`);
-  console.log(`   - POST /api/send-email`);
-  console.log(`   - POST /api/stripe-webhook`);
-  console.log(`   - POST /api/gumroad-webhook`);
   console.log(`   - GET  /api/health\n`);
 });
