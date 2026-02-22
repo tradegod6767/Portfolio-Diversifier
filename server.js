@@ -71,7 +71,7 @@ ${taxSection}
 Write in clear, professional language that a non-expert investor can understand. Be specific and reference actual ticker symbols and dollar amounts from the data above.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: isProUser ? 1500 : 800, // More tokens for detailed Pro analysis
       messages: [
         {
