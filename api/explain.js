@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     console.log('[AI Explain] Rate limit passed');
 
     // Initialize Anthropic client
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
 
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY is not set in environment variables');
@@ -98,9 +98,9 @@ ${taxSection}
 Write in clear, professional language that a non-expert investor can understand. Be specific and reference actual ticker symbols and dollar amounts from the data above.`;
 
     // Call Claude API with increased tokens for Pro users
-    console.log('[AI Explain] Calling Claude API with model claude-sonnet-4-20250514...');
+    console.log('[AI Explain] Calling Claude API with model claude-sonnet-4-6...');
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: isProUser ? 1500 : 800, // More tokens for detailed Pro analysis
       messages: [
         {
