@@ -12,12 +12,12 @@ export default function Badge({
   const baseClasses = 'inline-flex items-center font-semibold rounded-full uppercase tracking-wider';
 
   const variantClasses = {
-    default: 'bg-slate-100 text-slate-700',
-    pro: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-    free: 'bg-slate-100 text-slate-600 border border-slate-200',
-    success: 'bg-green-50 text-green-700',
-    warning: 'bg-amber-50 text-amber-700',
-    error: 'bg-red-50 text-red-700',
+    default: 'bg-slate-700 text-slate-300',
+    pro: 'bg-emerald-900/50 text-emerald-400 border border-emerald-700',
+    free: 'bg-slate-700 text-slate-400 border border-slate-600',
+    success: 'bg-green-900/50 text-green-400',
+    warning: 'bg-amber-900/50 text-amber-400',
+    error: 'bg-red-900/50 text-red-400',
   };
 
   const sizeClasses = {

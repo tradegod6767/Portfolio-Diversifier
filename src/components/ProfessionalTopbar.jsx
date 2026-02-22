@@ -74,7 +74,7 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
                 )}
 
                 {/* User Email */}
-                <div className="hidden lg:block text-sm text-slate-600 max-w-[180px] truncate font-medium">
+                <div className="hidden lg:block text-sm text-slate-400 max-w-[180px] truncate font-medium">
                   {user.email}
                 </div>
 

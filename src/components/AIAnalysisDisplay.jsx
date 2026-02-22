@@ -351,31 +351,31 @@ function getSectionColors(color) {
   const colors = {
     emerald: {
       wrapper: 'ai-section-emerald',
-      icon: 'bg-emerald-100 text-emerald-600',
-      marker: 'text-emerald-500',
-      number: 'bg-emerald-100 text-emerald-700',
-      callout: 'bg-emerald-50 border-emerald-200 text-emerald-800'
+      icon: 'bg-emerald-900/50 text-emerald-400',
+      marker: 'text-emerald-400',
+      number: 'bg-emerald-900/50 text-emerald-400',
+      callout: 'bg-emerald-900/20 border-emerald-700 text-emerald-300'
     },
     amber: {
       wrapper: 'ai-section-amber',
-      icon: 'bg-amber-100 text-amber-600',
-      marker: 'text-amber-500',
-      number: 'bg-amber-100 text-amber-700',
-      callout: 'bg-amber-50 border-amber-200 text-amber-800'
+      icon: 'bg-amber-900/50 text-amber-400',
+      marker: 'text-amber-400',
+      number: 'bg-amber-900/50 text-amber-400',
+      callout: 'bg-amber-900/20 border-amber-700 text-amber-300'
     },
     blue: {
       wrapper: 'ai-section-blue',
-      icon: 'bg-blue-100 text-blue-600',
-      marker: 'text-blue-500',
-      number: 'bg-blue-100 text-blue-700',
-      callout: 'bg-blue-50 border-blue-200 text-blue-800'
+      icon: 'bg-blue-900/50 text-blue-400',
+      marker: 'text-blue-400',
+      number: 'bg-blue-900/50 text-blue-400',
+      callout: 'bg-blue-900/20 border-blue-700 text-blue-300'
     },
     slate: {
       wrapper: 'ai-section-slate',
-      icon: 'bg-slate-100 text-slate-600',
-      marker: 'text-slate-500',
-      number: 'bg-slate-100 text-slate-700',
-      callout: 'bg-slate-50 border-slate-200 text-slate-800'
+      icon: 'bg-slate-700 text-slate-400',
+      marker: 'text-slate-400',
+      number: 'bg-slate-700 text-slate-300',
+      callout: 'bg-slate-800 border-slate-600 text-slate-300'
     }
   };
 

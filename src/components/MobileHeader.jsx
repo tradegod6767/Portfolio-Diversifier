@@ -70,7 +70,7 @@ export default function MobileHeader({
       >
         {/* Left: Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#0A2540] flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
             RK
           </div>
           <span className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
@@ -84,8 +84,8 @@ export default function MobileHeader({
           {user && (
             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
               isPro
-                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                : 'bg-slate-100 text-slate-700 border border-slate-300'
+                ? 'bg-emerald-900/50 text-emerald-400 border border-emerald-700'
+                : 'bg-slate-700 text-slate-300 border border-slate-600'
             }`}>
               {isPro ? 'Pro' : 'Free'}
             </span>
@@ -167,8 +167,8 @@ export default function MobileHeader({
               {user ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                       </svg>
                     </div>
@@ -183,7 +183,7 @@ export default function MobileHeader({
                   </div>
                   <button
                     onClick={handleSignOut}
-                    className="w-full py-2 px-4 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                    className="w-full py-2 px-4 text-sm font-medium text-red-400 bg-red-900/30 hover:bg-red-900/50 rounded-lg transition-colors"
                   >
                     Sign Out
                   </button>
@@ -194,7 +194,7 @@ export default function MobileHeader({
                     setMenuOpen(false);
                     setShowAuthModal(true);
                   }}
-                  className="w-full py-3 px-4 bg-[#0A2540] hover:bg-[#0D2F52] text-white font-semibold rounded-lg transition-colors"
+                  className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors"
                 >
                   Sign In
                 </button>

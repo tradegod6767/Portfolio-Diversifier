@@ -49,7 +49,7 @@ function PortfolioHealthScore({ positions }) {
               <path
                 d="M 10 60 A 50 50 0 0 1 110 60"
                 fill="none"
-                stroke="#e2e8f0"
+                stroke="#334155"
                 strokeWidth="10"
                 strokeLinecap="round"
               />

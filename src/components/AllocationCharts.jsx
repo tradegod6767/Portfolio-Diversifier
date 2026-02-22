@@ -25,9 +25,9 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="p-3 rounded-lg shadow-lg" style={{ backgroundColor: 'var(--chart-tooltip-bg)', border: '1px solid var(--chart-tooltip-border)' }}>
-          <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{payload[0].name}</p>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        <div className="p-3 rounded-lg shadow-lg" style={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#F1F5F9' }}>
+          <p className="font-semibold" style={{ color: '#F1F5F9' }}>{payload[0].name}</p>
+          <p className="text-sm" style={{ color: '#94A3B8' }}>
             {payload[0].value}% (${payload[0].payload.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
           </p>
         </div>
@@ -62,8 +62,8 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
     { title: 'Current Allocation', data: currentData },
     { title: 'Target Allocation', data: targetData }
   ].map(({ title, data }) => (
-    <div key={title} className="rounded-xl p-4 md:p-6 shadow-lg" style={{ backgroundColor: 'var(--bg-card)', border: '2px solid var(--border-color)' }}>
-      <h3 className="text-lg md:text-xl font-bold mb-4 text-center" style={{ color: 'var(--text-primary)' }}>
+    <div key={title} className="rounded-xl p-4 md:p-6 shadow-lg" style={{ backgroundColor: '#1E293B', border: '2px solid #334155' }}>
+      <h3 className="text-lg md:text-xl font-bold mb-4 text-center" style={{ color: '#F1F5F9' }}>
         {title}
       </h3>
       {/* Chart container with explicit min-height */}
@@ -88,8 +88,9 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
             <Legend
               verticalAlign="bottom"
               height={36}
+              wrapperStyle={{ color: '#94A3B8' }}
               formatter={(value, entry) => (
-                <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <span className="text-sm font-medium" style={{ color: '#94A3B8' }}>
                   {value} ({entry.payload.value}%)
                 </span>
               )}

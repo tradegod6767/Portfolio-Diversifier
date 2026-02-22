@@ -101,11 +101,11 @@ export default function WelcomeBanner({ user, onLoadExample }) {
             }}
             className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-lg transition-colors"
             style={{
-              backgroundColor: '#0A2540',
+              backgroundColor: '#6366f1',
               color: 'white'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0D2F52'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0A2540'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4F46E5'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6366f1'}
           >
             Try Sample
           </button>

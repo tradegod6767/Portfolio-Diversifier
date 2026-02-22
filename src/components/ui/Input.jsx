@@ -14,7 +14,7 @@ export default function Input({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-slate-700 mb-2">
+        <label className="block text-sm font-medium text-slate-300 mb-2">
           {label}
         </label>
       )}
@@ -23,20 +23,21 @@ export default function Input({
         className={`
           w-full px-4 py-3
           border-2 rounded-md
-          text-slate-900 placeholder-slate-400
+          text-slate-100 placeholder-slate-500
           transition-all duration-200
-          focus:outline-none focus:ring-2 focus:ring-offset-1
-          disabled:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60
+          focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-slate-900
+          disabled:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60
           ${error
-            ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-            : 'border-slate-200 hover:border-slate-300 focus:border-[#0A2540] focus:ring-[#0A2540]/10'
+            ? 'border-red-500 focus:border-red-400 focus:ring-red-500/20'
+            : 'border-slate-600 hover:border-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20'
           }
           ${className}
         `}
+        style={{ backgroundColor: 'var(--bg-input)' }}
         {...props}
       />
       {helpText && !error && (
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-slate-400">
           {helpText}
         </p>
       )}

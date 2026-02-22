@@ -286,7 +286,11 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
 
   const handleSavePortfolio = async (name) => {
     await savePortfolio(name, livePositions, user, isPro);
-    await loadSavedPortfolios();
+    try {
+      await loadSavedPortfolios();
+    } catch {
+      // Non-critical — save succeeded, list refresh failed
+    }
     setShowSaveModal(false);
   };
 
@@ -834,37 +838,37 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
           return (
             <div className={`mb-4 p-4 rounded-lg border-2 transition-all duration-300 ${
               isValid
-                ? 'border-emerald-200 bg-emerald-50 '
-                : 'border-amber-300 bg-amber-50 '
+                ? 'border-emerald-700 bg-emerald-900/30 '
+                : 'border-amber-700 bg-amber-900/20 '
             }`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {isValid ? (
-                    <svg className="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                   )}
-                  <span className={`font-semibold ${isValid ? 'text-emerald-800' : 'text-amber-800'}`}>
+                  <span className={`font-semibold ${isValid ? 'text-emerald-300' : 'text-amber-300'}`}>
                     Total Allocation
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-2xl font-bold font-mono ${isValid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  <span className={`text-2xl font-bold font-mono ${isValid ? 'text-emerald-400' : 'text-amber-400'}`}>
                     {totalTarget.toFixed(1)}%
                   </span>
                   {!isValid && (
-                    <span className="text-sm text-amber-600 font-medium">
+                    <span className="text-sm text-amber-400 font-medium">
                       {totalTarget > 100 ? `${(totalTarget - 100).toFixed(1)}% over` : `${(100 - totalTarget).toFixed(1)}% under`}
                     </span>
                   )}
                 </div>
               </div>
               {/* Progress bar visualization */}
-              <div className="mt-3 h-2 bg-white rounded-full overflow-hidden">
+              <div className="mt-3 h-2 bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 rounded-full ${isValid ? 'bg-emerald-500' : totalTarget > 100 ? 'bg-red-500' : 'bg-amber-500'}`}
                   style={{ width: `${Math.min(100, totalTarget)}%` }}
@@ -985,7 +989,7 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
 
         {/* Add Position Button - Sticky on mobile, normal flow on desktop */}
         <div
-          className="md:static fixed left-0 right-0 p-4 md:p-0 md:mt-6 z-40 md:z-auto"
+          className="md:static fixed left-0 right-0 p-4 md:p-0 md:mt-6 z-40 md:z-auto md:flex md:justify-center"
           style={{
             bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
             backgroundColor: 'var(--bg-primary)'
