@@ -1,6 +1,6 @@
 /**
- * Professional Card Component
- * Follows RebalanceKit design system
+ * Card — Minimal Fintech design system
+ * NO box-shadow. Borders only for elevation.
  */
 
 export default function Card({
@@ -8,36 +8,28 @@ export default function Card({
   title,
   subtitle,
   className = '',
-  hoverable = false,
   padding = 'normal',
   ...props
 }) {
-  const paddingClasses = {
-    none: 'p-0',
-    sm: 'p-4',
+  const paddings = {
+    none:   'p-0',
+    sm:     'p-4',
     normal: 'p-6',
-    lg: 'p-8',
+    lg:     'p-8',
   };
-
-  const hoverClass = hoverable ? 'hover:shadow-lg hover:-translate-y-1 hover:border-slate-600 transition-all duration-200 ease-out cursor-pointer' : '';
 
   return (
     <div
-      className={`rounded-lg border shadow-sm ${paddingClasses[padding]} ${hoverClass} ${className}`}
-      style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
+      className={`bg-card border border-border rounded-lg ${paddings[padding] ?? paddings.normal} ${className}`}
       {...props}
     >
       {(title || subtitle) && (
         <div className="mb-6">
           {title && (
-            <h3 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-              {title}
-            </h3>
+            <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
           )}
           {subtitle && (
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {subtitle}
-            </p>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           )}
         </div>
       )}

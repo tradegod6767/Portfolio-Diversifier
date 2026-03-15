@@ -1,12 +1,14 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { login, signup } from '../lib/auth';
 import { useToast } from '../context/ToastContext';
-import './AuthModal.css';
 
 function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
   const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { addToast } = useToast();
@@ -42,13 +44,19 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
     onClose();
   };
 
-  return (
-    <div className="auth-modal-overlay">
-      <div className="auth-modal-content">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)', animation: 'fadeIn 200ms ease' }}
+    >
+      <div
+        className="relative w-full max-w-[440px] bg-card border border-border rounded-xl shadow-lg"
+        style={{ animation: 'slideUp 250ms ease' }}
+      >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="auth-modal-close"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors z-10"
           aria-label="Close"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,13 +64,13 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
           </svg>
         </button>
 
-        <div className="auth-modal-body">
+        <div className="p-8">
           {/* Header */}
-          <div className="auth-modal-header">
-            <h2 className="auth-modal-title">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">
               {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
             </h2>
-            <p className="auth-modal-subtitle">
+            <p className="text-sm text-muted-foreground">
               {mode === 'signin'
                 ? 'Sign in to access your portfolio'
                 : 'Start managing your portfolio today'}
@@ -71,15 +79,15 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
 
           {/* Error message */}
           {error && (
-            <div className="auth-error-message">
-              <p>{error}</p>
+            <div className="mb-6 px-4 py-3 bg-loss-bg border border-loss/30 rounded-md">
+              <p className="text-sm text-loss font-medium">{error}</p>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="auth-form">
-            <div className="auth-form-field">
-              <label className="auth-form-label">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 EMAIL ADDRESS
               </label>
               <input
@@ -87,40 +95,51 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="auth-form-input"
+                className="h-9 border border-input bg-background rounded-md px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-60 disabled:cursor-not-allowed"
                 placeholder="you@example.com"
                 disabled={loading}
               />
             </div>
 
-            <div className="auth-form-field">
-              <label className="auth-form-label">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 PASSWORD
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="auth-form-input"
-                placeholder="••••••••"
-                disabled={loading}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="h-9 w-full border border-input bg-background rounded-md px-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-60 disabled:cursor-not-allowed"
+                  placeholder="••••••••"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-0 bg-transparent border-none z-10"
+                  style={{ color: '#737373' }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword
+                    ? <EyeOff size={18} strokeWidth={2} color="currentColor" />
+                    : <Eye size={18} strokeWidth={2} color="currentColor" />}
+                </button>
+              </div>
               {mode === 'signup' && (
-                <p className="auth-form-hint">
-                  Must be at least 6 characters
-                </p>
+                <p className="text-xs text-muted-foreground">Must be at least 6 characters</p>
               )}
               {mode === 'signin' && (
-                <div className="auth-forgot-password-container">
+                <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={() => {
                       handleClose();
                       onForgotPassword?.();
                     }}
-                    className="auth-forgot-password-link"
+                    className="text-sm font-medium text-foreground hover:underline transition-colors"
                   >
                     Forgot password?
                   </button>
@@ -131,16 +150,16 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
             <button
               type="submit"
               disabled={loading}
-              className={`auth-submit-btn ${loading ? 'loading' : ''}`}
+              className="mt-2 w-full h-11 bg-primary text-primary-foreground rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <span className="auth-submit-btn-content">
-                  <svg className="auth-spinner" fill="none" viewBox="0 0 24 24">
+                <>
+                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
-                </span>
+                </>
               ) : (
                 mode === 'signin' ? 'Sign In' : 'Create Account'
               )}
@@ -148,30 +167,25 @@ function AuthModal({ isOpen, onClose, onSuccess, onForgotPassword }) {
           </form>
 
           {/* Toggle mode */}
-          <div className="auth-toggle-mode">
+          <div className="mt-6 text-center">
             <button
               onClick={() => {
                 setMode(mode === 'signin' ? 'signup' : 'signin');
                 setError('');
               }}
-              className="auth-toggle-link"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               {mode === 'signin' ? (
-                <>
-                  Don't have an account?{' '}
-                  <span className="auth-toggle-link-emphasis">Sign up</span>
-                </>
+                <>Don't have an account?{' '}<span className="text-foreground font-semibold">Sign up</span></>
               ) : (
-                <>
-                  Already have an account?{' '}
-                  <span className="auth-toggle-link-emphasis">Sign in</span>
-                </>
+                <>Already have an account?{' '}<span className="text-foreground font-semibold">Sign in</span></>
               )}
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

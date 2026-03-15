@@ -1,7 +1,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as ChartTooltip } from 'recharts';
 import { getAssetClassColor } from '../utils/assetClasses';
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
+// Neutral, accessible palette — no rainbow
+const COLORS = ['#171717', '#525252', '#737373', '#A3A3A3', '#D4D4D4'];
 
 function AllocationCharts({ positions, viewMode, groupedPositions }) {
   const displayPositions = viewMode === 'asset-classes' ? groupedPositions : positions;
@@ -25,9 +26,9 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="p-3 rounded-lg shadow-lg" style={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#F1F5F9' }}>
-          <p className="font-semibold" style={{ color: '#F1F5F9' }}>{payload[0].name}</p>
-          <p className="text-sm" style={{ color: '#94A3B8' }}>
+        <div className="bg-card border border-border rounded-md p-3 text-sm shadow-md">
+          <p className="font-semibold text-foreground">{payload[0].name}</p>
+          <p className="text-muted-foreground text-xs mt-0.5" style={{ fontVariantNumeric: 'tabular-nums lining-nums' }}>
             {payload[0].value}% (${payload[0].payload.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
           </p>
         </div>
@@ -51,7 +52,8 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
         fill="white"
         textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
-        className="text-sm font-semibold"
+        fontSize={12}
+        fontWeight={600}
       >
         {`${(percent * 100).toFixed(0)}%`}
       </text>
@@ -62,11 +64,10 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
     { title: 'Current Allocation', data: currentData },
     { title: 'Target Allocation', data: targetData }
   ].map(({ title, data }) => (
-    <div key={title} className="rounded-xl p-4 md:p-6 shadow-lg" style={{ backgroundColor: '#1E293B', border: '2px solid #334155' }}>
-      <h3 className="text-lg md:text-xl font-bold mb-4 text-center" style={{ color: '#F1F5F9' }}>
+    <div key={title} className="bg-card border border-border rounded-lg p-4 md:p-6">
+      <h3 className="text-base font-semibold text-foreground mb-4 text-center">
         {title}
       </h3>
-      {/* Chart container with explicit min-height */}
       <div className="w-full" style={{ minHeight: '300px', height: '300px' }}>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
@@ -77,7 +78,6 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
               labelLine={false}
               label={renderCustomLabel}
               outerRadius={100}
-              fill="#8884d8"
               dataKey="value"
             >
               {data.map((entry, index) => (
@@ -88,9 +88,8 @@ function AllocationCharts({ positions, viewMode, groupedPositions }) {
             <Legend
               verticalAlign="bottom"
               height={36}
-              wrapperStyle={{ color: '#94A3B8' }}
               formatter={(value, entry) => (
-                <span className="text-sm font-medium" style={{ color: '#94A3B8' }}>
+                <span className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
                   {value} ({entry.payload.value}%)
                 </span>
               )}

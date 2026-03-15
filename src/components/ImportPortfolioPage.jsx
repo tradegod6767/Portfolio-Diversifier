@@ -30,14 +30,12 @@ function ImportPortfolioPage({ onBack }) {
 
       const [ticker, amount, target] = parts;
 
-      // Validate ticker (basic check)
       if (!ticker || ticker.length > 10) {
         errors.push(`Line ${i + 1}: Invalid ticker "${ticker}"`);
         hasError = true;
         continue;
       }
 
-      // Validate amount
       const amountNum = parseFloat(amount.replace(/[$,]/g, ''));
       if (isNaN(amountNum) || amountNum < 0) {
         errors.push(`Line ${i + 1}: Invalid amount "${amount}"`);
@@ -45,7 +43,6 @@ function ImportPortfolioPage({ onBack }) {
         continue;
       }
 
-      // Validate target percentage
       const targetNum = parseFloat(target.replace(/%/g, ''));
       if (isNaN(targetNum) || targetNum < 0 || targetNum > 100) {
         errors.push(`Line ${i + 1}: Invalid target "${target}"`);
@@ -83,14 +80,12 @@ function ImportPortfolioPage({ onBack }) {
 
       let ticker, amount, target;
 
-      // Try comma-separated first
       if (line.includes(',')) {
         const parts = line.split(',').map(p => p.trim());
         if (parts.length === 3) {
           [ticker, amount, target] = parts;
         }
       } else {
-        // Try space-separated
         const parts = line.split(/\s+/);
         if (parts.length >= 3) {
           ticker = parts[0];
@@ -105,7 +100,6 @@ function ImportPortfolioPage({ onBack }) {
         continue;
       }
 
-      // Clean and validate
       ticker = ticker.toUpperCase().replace(/[^A-Z]/g, '');
       const amountNum = parseFloat(amount.replace(/[$,]/g, ''));
       const targetNum = parseFloat(target.replace(/%/g, ''));
@@ -196,7 +190,7 @@ function ImportPortfolioPage({ onBack }) {
       {/* Back Button */}
       <button
         onClick={() => onBack()}
-        className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-800 font-semibold rounded-lg transition duration-200 shadow-sm"
+        className="flex items-center gap-2 px-4 py-2 bg-background border border-border hover:bg-muted text-foreground font-semibold rounded-lg transition duration-200"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -204,26 +198,26 @@ function ImportPortfolioPage({ onBack }) {
         Back to Portfolio Form
       </button>
 
-      <h2 className="text-2xl font-bold text-gray-900">Import Portfolio</h2>
+      <h2 className="text-2xl font-bold text-foreground">Import Portfolio</h2>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-border">
         <button
           onClick={() => { setActiveTab('csv'); setError(''); setPreview(null); }}
-          className={`px-6 py-3 font-medium text-sm ${
+          className={`px-6 py-3 font-medium text-sm transition-colors ${
             activeTab === 'csv'
-              ? 'border-b-2 border-slate-900 text-slate-900'
-              : 'text-gray-600 hover:text-gray-800'
+              ? 'border-b-2 border-foreground text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           CSV File
         </button>
         <button
           onClick={() => { setActiveTab('text'); setError(''); setPreview(null); }}
-          className={`px-6 py-3 font-medium text-sm ${
+          className={`px-6 py-3 font-medium text-sm transition-colors ${
             activeTab === 'text'
-              ? 'border-b-2 border-slate-900 text-slate-900'
-              : 'text-gray-600 hover:text-gray-800'
+              ? 'border-b-2 border-foreground text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           Paste Text
@@ -234,13 +228,13 @@ function ImportPortfolioPage({ onBack }) {
       {activeTab === 'csv' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Upload CSV File
             </label>
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               Format: Ticker,Amount,Target%
             </p>
-            <div className="bg-gray-50 p-3 rounded-lg text-sm font-mono mb-4">
+            <div className="bg-muted border border-border p-3 rounded-lg text-sm font-mono mb-4 text-foreground">
               VTI,30000,60<br />
               BND,15000,30<br />
               CASH,5000,10
@@ -249,7 +243,7 @@ function ImportPortfolioPage({ onBack }) {
               type="file"
               accept=".csv,.txt"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-3"
+              className="block w-full text-sm text-foreground border border-input bg-background rounded-lg cursor-pointer focus:outline-none p-3"
             />
           </div>
         </div>
@@ -259,10 +253,10 @@ function ImportPortfolioPage({ onBack }) {
       {activeTab === 'text' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Paste Portfolio Data
             </label>
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               Accepts formats: "VTI $30000 60%" or "VTI,30000,60"
             </p>
             <textarea
@@ -270,13 +264,13 @@ function ImportPortfolioPage({ onBack }) {
               onChange={(e) => setTextInput(e.target.value)}
               placeholder="VTI $30000 60%&#10;BND $15000 30%&#10;CASH $5000 10%"
               rows={8}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-slate-800 font-mono text-sm"
+              className="w-full px-4 py-3 border border-input bg-background rounded-lg focus:ring-2 focus:ring-ring focus:outline-none font-mono text-sm text-foreground"
             />
           </div>
           <button
             onClick={handleTextPreview}
             disabled={!textInput.trim()}
-            className="px-6 py-3 bg-slate-900 hover:bg-slate-800 disabled:bg-gray-400 text-white font-semibold rounded-lg text-sm"
+            className="px-6 py-3 bg-primary hover:opacity-90 disabled:opacity-40 text-primary-foreground font-semibold rounded-lg text-sm transition-opacity"
           >
             Preview
           </button>
@@ -285,39 +279,39 @@ function ImportPortfolioPage({ onBack }) {
 
       {/* Error Display */}
       {error && (
-        <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
-          <p className="text-sm text-red-800 font-semibold mb-1">Import Error:</p>
-          <pre className="text-xs text-red-700 whitespace-pre-wrap">{error}</pre>
+        <div className="p-4 bg-loss-bg border border-loss/30 rounded-lg">
+          <p className="text-sm text-loss font-semibold mb-1">Import Error:</p>
+          <pre className="text-xs text-loss/80 whitespace-pre-wrap">{error}</pre>
         </div>
       )}
 
       {/* Preview */}
       {preview && (
-        <div className="p-5 bg-green-50 border-2 border-green-300 rounded-lg">
-          <p className="text-base font-bold text-green-800 mb-3">
+        <div className="p-5 bg-gain-bg border border-gain/30 rounded-lg">
+          <p className="text-base font-bold text-gain mb-3">
             Preview ({preview.length} position{preview.length !== 1 ? 's' : ''})
           </p>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b-2 border-green-400">
-                  <th className="text-left py-2 px-3 font-bold">Ticker</th>
-                  <th className="text-left py-2 px-3 font-bold">Amount</th>
-                  <th className="text-left py-2 px-3 font-bold">Target %</th>
+                <tr className="border-b border-gain/30">
+                  <th className="text-left py-2 px-3 font-bold text-foreground">Ticker</th>
+                  <th className="text-left py-2 px-3 font-bold text-foreground">Amount</th>
+                  <th className="text-left py-2 px-3 font-bold text-foreground">Target %</th>
                 </tr>
               </thead>
               <tbody>
                 {preview.map((pos, idx) => (
-                  <tr key={idx} className="border-b border-green-200">
-                    <td className="py-2 px-3 font-bold">{pos.ticker}</td>
-                    <td className="py-2 px-3">${parseFloat(pos.amount).toLocaleString()}</td>
-                    <td className="py-2 px-3">{pos.targetPercent}%</td>
+                  <tr key={idx} className="border-b border-gain/20">
+                    <td className="py-2 px-3 font-bold text-foreground">{pos.ticker}</td>
+                    <td className="py-2 px-3 text-muted-foreground font-mono">${parseFloat(pos.amount).toLocaleString()}</td>
+                    <td className="py-2 px-3 text-muted-foreground font-mono">{pos.targetPercent}%</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="text-sm text-green-700 mt-3 font-medium">
+          <p className="text-sm text-gain mt-3 font-medium">
             Total target: {preview.reduce((sum, p) => sum + parseFloat(p.targetPercent), 0).toFixed(1)}%
           </p>
         </div>
@@ -328,7 +322,7 @@ function ImportPortfolioPage({ onBack }) {
         <button
           type="button"
           onClick={() => onBack()}
-          className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50"
+          className="flex-1 px-6 py-3 border border-border text-foreground font-semibold rounded-lg hover:bg-muted transition-colors"
         >
           Cancel
         </button>
@@ -336,7 +330,7 @@ function ImportPortfolioPage({ onBack }) {
           type="button"
           onClick={handleConfirmImport}
           disabled={!preview}
-          className="flex-1 px-6 py-3 bg-slate-900 hover:bg-slate-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg"
+          className="flex-1 px-6 py-3 bg-primary hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-primary-foreground font-semibold rounded-lg transition-opacity"
         >
           Import {preview ? `(${preview.length})` : ''}
         </button>

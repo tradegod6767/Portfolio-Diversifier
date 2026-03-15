@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './SavePortfolioModal.css';
+import { createPortal } from 'react-dom';
 import { LoadingSpinner, SuccessCheckmark } from './ui';
 
 function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
@@ -26,7 +26,6 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
     try {
       await onSave(name.trim());
       setSaveSuccess(true);
-      // Show success state briefly before closing
       setTimeout(() => {
         setName('');
         setSaveSuccess(false);
@@ -40,7 +39,7 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
   };
 
   const handleClose = () => {
-    if (saving) return; // Don't close while saving
+    if (saving) return;
     setName('');
     setError('');
     setSaving(false);
@@ -52,13 +51,19 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
 
   const isExisting = existingNames.includes(name.trim());
 
-  return (
-    <div className="save-modal-overlay">
-      <div className="save-modal-content">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)', animation: 'fadeIn 200ms ease' }}
+    >
+      <div
+        className="relative w-full max-w-[440px] bg-card border border-border rounded-xl shadow-lg overflow-y-auto max-h-[90vh]"
+        style={{ animation: 'slideUp 250ms ease' }}
+      >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="save-modal-close"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors z-10"
           aria-label="Close"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,18 +71,16 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
           </svg>
         </button>
 
-        <div className="save-modal-body">
+        <div className="p-8">
           {/* Header */}
-          <div className="save-modal-header">
-            <h3 className="save-modal-title">Save Portfolio</h3>
-            <p className="save-modal-subtitle">
-              Give your portfolio a name to save it for later
-            </p>
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold tracking-tight text-foreground mb-2">Save Portfolio</h3>
+            <p className="text-sm text-muted-foreground">Give your portfolio a name to save it for later</p>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="save-form-field">
-              <label className="save-form-label">
+            <div className="mb-6">
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                 PORTFOLIO NAME
               </label>
               <input
@@ -85,12 +88,12 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., My 401k, Roth IRA, Taxable Account"
-                className="save-form-input"
+                className="w-full h-9 border border-input bg-background rounded-md px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
                 autoFocus
               />
               {isExisting && (
-                <div className="save-warning-message">
-                  <svg className="save-warning-icon" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-start gap-2 mt-2 px-3 py-2 bg-loss-bg border border-loss/30 rounded-md text-xs text-loss">
+                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   <span>A portfolio with this name already exists and will be overwritten</span>
@@ -99,35 +102,39 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
             </div>
 
             {error && (
-              <div className="save-error-message">
-                <p>{error}</p>
+              <div className="mb-5 px-4 py-3 bg-loss-bg border border-loss/30 rounded-md">
+                <p className="text-sm text-loss font-medium">{error}</p>
               </div>
             )}
 
-            <div className="save-button-group">
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={saving}
-                className="save-cancel-btn"
+                className="flex-1 h-11 bg-muted text-foreground border border-border rounded-md text-sm font-semibold transition-colors hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving || saveSuccess}
-                className={`save-submit-btn ${saveSuccess ? 'save-submit-btn-success' : ''}`}
+                className={`flex-1 h-11 rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed ${
+                  saveSuccess
+                    ? 'bg-gain text-white'
+                    : 'bg-primary text-primary-foreground hover:opacity-90'
+                }`}
               >
                 {saveSuccess ? (
-                  <span className="flex items-center justify-center gap-2">
+                  <>
                     <SuccessCheckmark size="sm" />
                     Saved!
-                  </span>
+                  </>
                 ) : saving ? (
-                  <span className="flex items-center justify-center gap-2">
+                  <>
                     <LoadingSpinner size="sm" color="white" />
                     Saving...
-                  </span>
+                  </>
                 ) : (
                   'Save Portfolio'
                 )}
@@ -136,7 +143,8 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

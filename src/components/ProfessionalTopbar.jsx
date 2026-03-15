@@ -5,8 +5,7 @@ import ForgotPasswordModal from './ForgotPasswordModal';
 import { Button, Badge } from './ui';
 
 /**
- * Professional Topbar Component
- * Modern, clean design following RebalanceKit design system
+ * ProfessionalTopbar — Minimal Fintech design system
  */
 export default function ProfessionalTopbar({ onToggleSidebar, title }) {
   const { user, isPro } = useAuth();
@@ -21,69 +20,44 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 shadow-sm" style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 min-h-[72px]">
-          {/* Left Section */}
-          <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-            {/* Mobile Menu Button */}
+      <header className="sticky top-0 z-30 bg-card border-b border-border">
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 min-h-[60px]">
+          {/* Left */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <button
               onClick={onToggleSidebar}
-              className="md:hidden p-2 -ml-2 rounded-md transition-colors flex-shrink-0"
-              style={{ color: 'var(--text-primary)' }}
+              className="md:hidden p-1.5 -ml-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex-shrink-0"
               aria-label="Open menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
 
-            {/* Page Title */}
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg md:text-xl font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
-                {title}
-              </h1>
-              {title === 'Calculator' && (
-                <span className="hidden lg:inline-block px-2 py-0.5 text-xs font-medium rounded" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
-                  Core Product
-                </span>
-              )}
-            </div>
+            <h1 className="text-base font-semibold text-foreground truncate">{title}</h1>
           </div>
 
-          {/* Right Section - Auth */}
-          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+          {/* Right */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             {!user ? (
-              <Button
-                onClick={() => setShowAuthModal(true)}
-                variant="primary"
-                size="md"
-              >
+              <Button onClick={() => setShowAuthModal(true)} variant="primary" size="sm">
                 Sign In
               </Button>
             ) : (
-              <div className="flex items-center gap-2 md:gap-3">
-                {/* Pro/Free Badge */}
+              <div className="flex items-center gap-2">
                 {isPro ? (
-                  <Badge variant="pro" size="md">
-                    Pro
-                  </Badge>
+                  <Badge variant="pro" size="sm">Pro</Badge>
                 ) : (
-                  <Badge variant="free" size="md">
-                    Free
-                  </Badge>
+                  <Badge variant="default" size="sm">Free</Badge>
                 )}
-
-                {/* User Email */}
-                <div className="hidden lg:block text-sm text-slate-400 max-w-[180px] truncate font-medium">
+                <span className="hidden lg:block text-sm text-muted-foreground max-w-[180px] truncate">
                   {user.email}
-                </div>
-
-                {/* Sign Out Button */}
+                </span>
                 <Button
                   onClick={handleSignOut}
-                  variant="secondary"
-                  size="md"
-                  className="hover:text-red-600 hover:border-red-300"
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-loss"
                 >
                   <span className="hidden sm:inline">Sign Out</span>
                   <span className="sm:hidden">Out</span>
@@ -94,7 +68,6 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
         </div>
       </header>
 
-      {/* Auth Modals */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -103,7 +76,6 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
           setShowForgotPassword(true);
         }}
       />
-
       <ForgotPasswordModal
         isOpen={showForgotPassword}
         onClose={() => setShowForgotPassword(false)}

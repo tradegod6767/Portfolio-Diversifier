@@ -62,7 +62,7 @@ const NAV_ITEMS = [
 /* ---------- Small utility components ---------- */
 function IconCircle({children}){
   return (
-    <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-100 text-sm font-medium shadow-sm">
+    <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-foreground text-sm font-medium">
       {children}
     </div>
   );
@@ -71,7 +71,7 @@ function IconCircle({children}){
 /* ---------- Footer component ---------- */
 function Footer({ onShowShortcuts, onShowWhatsNew, showUpdateDot }){
   return (
-    <footer className="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 w-full">
+    <footer className="bg-card text-foreground py-8 border-t border-border w-full">
       <div className="max-w-7xl mx-auto px-4">
         {/* Financial Disclaimer */}
         <div className="mb-6">
@@ -80,35 +80,35 @@ function Footer({ onShowShortcuts, onShowWhatsNew, showUpdateDot }){
 
         {/* Links */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
-          <a href="/terms" className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
+          <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Terms of Service
           </a>
-          <span className="hidden sm:inline text-slate-600">|</span>
-          <a href="/privacy" className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
+          <span className="hidden sm:inline text-border">|</span>
+          <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Privacy Policy
           </a>
-          <span className="hidden sm:inline text-slate-600">|</span>
+          <span className="hidden sm:inline text-border">|</span>
           <button
             onClick={onShowShortcuts}
-            className="text-sm text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1.5"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
             Keyboard Shortcuts
-            <kbd className="ml-1 px-1 py-0.5 text-xs font-mono bg-slate-800 border border-slate-700 rounded">?</kbd>
+            <kbd className="ml-1 px-1 py-0.5 text-xs font-mono bg-muted border border-border rounded">?</kbd>
           </button>
-          <span className="hidden sm:inline text-slate-600">|</span>
+          <span className="hidden sm:inline text-border">|</span>
           <button
             onClick={onShowWhatsNew}
-            className="text-sm text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1.5 relative"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 relative"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
             </svg>
             What's New
             {showUpdateDot && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-gain rounded-full animate-pulse" />
             )}
           </button>
         </div>
@@ -126,8 +126,8 @@ function NavItem({item, active, onClick}){
   return (
     <button
       onClick={() => onClick(item.key)}
-      className={`flex gap-3 items-center w-full text-left px-4 py-2 rounded-md transition-colors 
-        ${active ? 'bg-slate-800 text-slate-50' : 'text-slate-200 hover:bg-slate-800/60 hover:text-slate-50'}`}
+      className={`flex gap-3 items-center w-full text-left px-4 py-2 rounded-md transition-colors
+        ${active ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
     >
       <IconCircle>{item.label.charAt(0)}</IconCircle>
       <span className="text-sm font-medium">{item.label}</span>
@@ -151,29 +151,29 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle, mobileOpen, onMobi
       {/* Sidebar */}
       <aside className={`
         fixed md:static inset-y-0 left-0 z-50
-        flex flex-col bg-slate-900 text-slate-50 h-screen md:h-auto md:min-h-screen transition-all duration-300
+        flex flex-col bg-card text-foreground h-screen md:h-auto md:min-h-screen border-r border-border transition-all duration-300
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
         ${collapsed ? 'w-16' : 'w-64'}
       `}>
         <div className="flex items-center gap-3 px-4 py-4">
           {!collapsed ? (
             <div className="flex items-center gap-3 flex-1">
-              <div className="w-10 h-10 rounded-md bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold">RK</div>
+              <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-semibold">RK</div>
               <div>
                 <div className="text-sm font-semibold">RebalanceKit</div>
-                <div className="text-xs text-slate-300">Investor workspace</div>
+                <div className="text-xs text-muted-foreground">Investor workspace</div>
               </div>
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center text-white font-semibold">RK</div>
+              <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-semibold">RK</div>
             </div>
           )}
 
           {/* Close button for mobile */}
           <button
             onClick={onMobileClose}
-            className="md:hidden p-2 rounded hover:bg-slate-800"
+            className="md:hidden p-2 rounded hover:bg-accent"
             aria-label="Close menu"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,10 +184,10 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle, mobileOpen, onMobi
           {/* Desktop toggle */}
           <button
             onClick={onToggle}
-            className="hidden md:inline ml-auto p-1 rounded hover:bg-slate-800/50"
+            className="hidden md:inline ml-auto p-1 rounded hover:bg-accent"
             aria-label="Toggle sidebar"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" className="fill-slate-200"><path d="M4 6h16M4 12h10M4 18h16" strokeWidth="0"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" className="fill-muted-foreground"><path d="M4 6h16M4 12h10M4 18h16" strokeWidth="0"/></svg>
           </button>
         </div>
 
@@ -219,49 +219,49 @@ function Topbar({onToggleSidebar, title}){
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white border-b border-slate-200 min-h-[60px]">
+      <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-card border-b border-border min-h-[60px]">
         <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
           {/* Hamburger menu for mobile */}
           <button
             onClick={onToggleSidebar}
-            className="md:hidden p-2 -ml-2 rounded-md hover:bg-slate-100 flex-shrink-0"
+            className="md:hidden p-2 -ml-2 rounded-md hover:bg-accent flex-shrink-0"
             aria-label="Open menu"
           >
-            <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
           {/* Title - responsive sizing */}
-          <h1 className="text-base md:text-lg font-semibold text-slate-900 truncate">{title}</h1>
-          <div className="hidden lg:block text-sm text-slate-500">Minimal • Investor</div>
+          <h1 className="text-base md:text-lg font-semibold text-foreground truncate">{title}</h1>
+          <div className="hidden lg:block text-sm text-muted-foreground">Minimal • Investor</div>
         </div>
 
         <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
           {!user ? (
             <button
               onClick={() => setShowAuthModal(true)}
-              className="px-3 py-2 md:px-4 md:py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors shadow-sm text-sm md:text-base min-h-[44px]"
+              className="px-3 py-2 md:px-4 md:py-2 bg-primary hover:opacity-90 text-primary-foreground font-semibold rounded-lg transition-opacity text-sm md:text-base min-h-[44px]"
             >
               Sign In
             </button>
           ) : (
             <div className="flex items-center gap-2 md:gap-3">
               {isPro ? (
-                <span className="px-2 py-1 md:px-3 md:py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs md:text-sm font-bold border border-emerald-200">
-                  Pro ⭐
+                <span className="px-2 py-1 md:px-3 md:py-1 bg-primary text-primary-foreground rounded-md text-xs md:text-sm font-bold">
+                  PRO
                 </span>
               ) : (
-                <span className="px-2 py-1 md:px-3 md:py-1 bg-slate-100 text-slate-700 rounded-full text-xs md:text-sm font-semibold border border-slate-300">
+                <span className="px-2 py-1 md:px-3 md:py-1 bg-muted text-muted-foreground rounded-md text-xs md:text-sm font-semibold border border-border">
                   Free
                 </span>
               )}
-              <div className="text-sm text-slate-600 hidden lg:block max-w-[150px] truncate">
+              <div className="text-sm text-muted-foreground hidden lg:block max-w-[150px] truncate">
                 {user.email}
               </div>
               <button
                 onClick={handleSignOut}
-                className="px-2 py-2 md:px-3 md:py-2 bg-white hover:bg-red-50 border border-slate-200 rounded-md text-slate-700 hover:text-red-600 hover:border-red-200 transition-colors text-xs md:text-sm font-medium min-h-[44px]"
+                className="px-2 py-2 md:px-3 md:py-2 bg-background hover:bg-loss-bg border border-border rounded-md text-foreground hover:text-loss transition-colors text-xs md:text-sm font-medium min-h-[44px]"
               >
                 <span className="hidden sm:inline">Sign Out</span>
                 <span className="sm:hidden">Out</span>
@@ -291,13 +291,13 @@ function Topbar({onToggleSidebar, title}){
 /* ---------- Generic Card ---------- */
 function Card({title, subtitle, children}){
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4">
+    <div className="bg-card rounded-lg border border-border p-4">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="text-sm font-semibold text-slate-800">{title}</div>
-          {subtitle && <div className="text-xs text-slate-500">{subtitle}</div>}
+          <div className="text-sm font-semibold text-foreground">{title}</div>
+          {subtitle && <div className="text-xs text-muted-foreground">{subtitle}</div>}
         </div>
-        <div className="text-xs text-slate-400">•••</div>
+        <div className="text-xs text-muted-foreground">•••</div>
       </div>
       <div>{children}</div>
     </div>
@@ -314,10 +314,10 @@ function HeroView({onNavigate, onLoadExample}){
       <div className="max-w-4xl mx-auto text-center space-y-8">
         {/* Hero Section */}
         <div className="space-y-4 md:space-y-6">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 px-2">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground px-2">
             RebalanceKit
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto px-2 leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto px-2 leading-relaxed">
             Calculate exact portfolio rebalancing trades in seconds. Tax-efficient add-only mode. No signup required.
           </p>
         </div>
@@ -326,34 +326,34 @@ function HeroView({onNavigate, onLoadExample}){
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full max-w-md mx-auto sm:max-w-none px-2">
           <button
             onClick={onLoadExample}
-            className="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold text-base sm:text-lg rounded-xl transition duration-200 shadow-lg min-h-[56px]"
+            className="w-full sm:w-auto px-8 py-4 bg-primary hover:opacity-90 active:opacity-80 text-primary-foreground font-bold text-base sm:text-lg rounded-xl transition duration-200 min-h-[56px]"
           >
             Try Calculator
           </button>
           <button
             onClick={() => onNavigate('about')}
-            className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 active:bg-slate-100 border-2 border-slate-300 text-slate-700 font-bold text-base sm:text-lg rounded-xl transition duration-200 shadow-sm min-h-[56px]"
+            className="w-full sm:w-auto px-8 py-4 bg-background hover:bg-muted border-2 border-border text-foreground font-bold text-base sm:text-lg rounded-xl transition duration-200 min-h-[56px]"
           >
             See Example
           </button>
         </div>
 
         {/* Feature Highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-12 border-t border-slate-200">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-12 border-t border-border">
+          <div className="bg-card rounded-xl p-6 border border-border">
             <div className="text-4xl mb-3">📊</div>
-            <h3 className="font-bold text-slate-900 mb-2">Add-Only Mode</h3>
-            <p className="text-sm text-slate-600">Avoid triggering capital gains taxes</p>
+            <h3 className="font-bold text-foreground mb-2">Add-Only Mode</h3>
+            <p className="text-sm text-muted-foreground">Avoid triggering capital gains taxes</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+          <div className="bg-card rounded-xl p-6 border border-border">
             <div className="text-4xl mb-3">💯</div>
-            <h3 className="font-bold text-slate-900 mb-2">Health Score</h3>
-            <p className="text-sm text-slate-600">Know your portfolio's risk level</p>
+            <h3 className="font-bold text-foreground mb-2">Health Score</h3>
+            <p className="text-sm text-muted-foreground">Know your portfolio's risk level</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+          <div className="bg-card rounded-xl p-6 border border-border">
             <div className="text-4xl mb-3">📑</div>
-            <h3 className="font-bold text-slate-900 mb-2">PDF Reports</h3>
-            <p className="text-sm text-slate-600">Export professional summaries</p>
+            <h3 className="font-bold text-foreground mb-2">PDF Reports</h3>
+            <p className="text-sm text-muted-foreground">Export professional summaries</p>
           </div>
         </div>
       </div>
@@ -369,7 +369,7 @@ function CalculatorView({onCalculate, onCalculateStart, rebalanceResults, loaded
       <WelcomeBanner user={user} onLoadExample={onLoadExample} />
 
       {/* Portfolio Form */}
-      <div className="rounded-xl shadow-sm border p-4 md:p-6 w-full max-w-full" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+      <div className="bg-card rounded-xl border border-border p-4 md:p-6 w-full max-w-full">
         <PortfolioForm
           onCalculate={onCalculate}
           onCalculateStart={onCalculateStart}
@@ -396,36 +396,36 @@ function CalculatorView({onCalculate, onCalculateStart, rebalanceResults, loaded
         </div>
       ) : (
         /* Pre-calculation empty state */
-        <div className="rounded-xl shadow-sm border p-8" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+        <div className="bg-card rounded-xl border border-border p-8">
           <div className="text-center py-6">
             <div className="mb-6 flex justify-center">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                <svg className="w-10 h-10" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center bg-muted">
+                <svg className="w-10 h-10 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
             </div>
-            <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+            <h3 className="text-xl font-bold mb-2 text-foreground">
               Ready to rebalance
             </h3>
-            <p className="text-base mb-6 max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-base mb-6 max-w-md mx-auto text-muted-foreground">
               Enter your holdings above and click "Calculate Rebalancing" to see your recommended trades.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-gain" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <span>Add your ticker symbols</span>
               </div>
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-gain" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <span>Enter current values</span>
               </div>
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-gain" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <span>Set target allocations</span>
@@ -443,20 +443,18 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border rounded-lg overflow-hidden" style={{ borderColor: 'var(--border-color)' }}>
+    <div className="border border-border rounded-lg overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        className="w-full px-5 py-4 flex items-center justify-between transition-colors"
-        style={{ backgroundColor: isOpen ? 'var(--bg-secondary)' : 'var(--bg-card)' }}
+        className={`w-full px-5 py-4 flex items-center justify-between transition-colors ${isOpen ? 'bg-muted' : 'bg-card hover:bg-muted/50'}`}
       >
         <div className="flex items-center gap-3">
           <span className="text-xl">{icon}</span>
-          <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</span>
+          <span className="font-semibold text-foreground">{title}</span>
         </div>
         <svg
-          className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          style={{ color: 'var(--text-muted)' }}
+          className={`w-5 h-5 transition-transform duration-200 text-muted-foreground ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -465,7 +463,7 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
         </svg>
       </button>
       {isOpen && (
-        <div className="px-5 py-4" style={{ backgroundColor: 'var(--bg-card)', borderTop: '1px solid var(--border-color)' }}>
+        <div className="px-5 py-4 bg-card border-t border-border">
           {children}
         </div>
       )}
@@ -477,15 +475,15 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
 function AboutView(){
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-      <div className="rounded-xl shadow-sm border p-8" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-        <h2 className="text-4xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>About RebalanceKit</h2>
+      <div className="bg-card rounded-xl border border-border p-8">
+        <h2 className="text-4xl font-bold mb-8 text-foreground">About RebalanceKit</h2>
 
-        <div className="space-y-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+        <div className="space-y-4 leading-relaxed text-muted-foreground">
           <p>
             RebalanceKit helps investors calculate exact rebalancing trades to maintain their target portfolio allocations.
           </p>
 
-          <h3 className="text-2xl font-semibold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>Key Features</h3>
+          <h3 className="text-2xl font-semibold mt-8 mb-4 text-foreground">Key Features</h3>
           <ul className="list-disc list-inside space-y-2 ml-4">
             <li><strong>Add-Only Mode:</strong> Only buy positions, never sell. Useful for avoiding capital gains taxes.</li>
             <li><strong>Health Score:</strong> Measures portfolio concentration and drift risk (0-100).</li>
@@ -495,7 +493,7 @@ function AboutView(){
             <li><strong>Multiple Modes:</strong> Standard rebalancing, contributions, withdrawals, add-only, or sell-only.</li>
           </ul>
 
-          <h3 className="text-2xl font-semibold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>Example Portfolio</h3>
+          <h3 className="text-2xl font-semibold mt-8 mb-4 text-foreground">Example Portfolio</h3>
           <p>
             Try the calculator with our example portfolio to see how it works:
           </p>
@@ -505,7 +503,7 @@ function AboutView(){
             <li>CASH - $3,500 / 10% target</li>
           </ul>
 
-          <h3 className="text-2xl font-semibold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>Privacy & Security</h3>
+          <h3 className="text-2xl font-semibold mt-8 mb-4 text-foreground">Privacy & Security</h3>
           <p>
             Your portfolio data is stored locally in your browser. We don't collect or store your financial information on our servers.
           </p>
@@ -513,16 +511,16 @@ function AboutView(){
       </div>
 
       {/* How It Works Section */}
-      <div className="rounded-xl shadow-sm border p-8" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-        <h2 className="text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>How It Works</h2>
-        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
+      <div className="bg-card rounded-xl border border-border p-8">
+        <h2 className="text-3xl font-bold mb-6 text-foreground">How It Works</h2>
+        <p className="mb-6 text-muted-foreground">
           Learn about the methodology behind RebalanceKit's calculations and features.
         </p>
 
         <div className="space-y-4">
           {/* How We Calculate Rebalancing */}
           <CollapsibleSection title="How We Calculate Rebalancing" icon="🧮" defaultOpen={true}>
-            <div className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+            <div className="space-y-3 text-muted-foreground">
               <p>
                 Our rebalancing algorithm follows a straightforward process to help you reach your target allocation:
               </p>
@@ -532,7 +530,7 @@ function AboutView(){
                 <li><strong>Calculate trades:</strong> We determine the minimum dollar amounts to buy or sell for each position to reach your targets.</li>
                 <li><strong>Apply your mode:</strong> Depending on your choice (standard, add-only, contribution, or withdrawal), we adjust recommendations accordingly.</li>
               </ol>
-              <p className="text-sm pt-2" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-sm pt-2 text-muted-foreground">
                 Add-only mode only suggests purchases, helping you avoid selling and triggering capital gains taxes.
               </p>
             </div>
@@ -540,26 +538,26 @@ function AboutView(){
 
           {/* Understanding Your Health Score */}
           <CollapsibleSection title="Understanding Your Health Score" icon="💯">
-            <div className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+            <div className="space-y-3 text-muted-foreground">
               <p>
                 Your portfolio health score (0-100) measures how well-balanced and diversified your portfolio is:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
-                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--success-bg)', border: '1px solid var(--success-border)' }}>
-                  <div className="font-semibold" style={{ color: 'var(--success)' }}>80-100: Excellent</div>
-                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Well-diversified, close to targets</div>
+                <div className="p-3 rounded-lg bg-gain-bg border border-gain/30">
+                  <div className="font-semibold text-gain">80-100: Excellent</div>
+                  <div className="text-sm text-muted-foreground">Well-diversified, close to targets</div>
                 </div>
-                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--info-bg)', border: '1px solid var(--info-border)' }}>
-                  <div className="font-semibold" style={{ color: 'var(--info)' }}>60-79: Good</div>
-                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Minor drift, consider rebalancing</div>
+                <div className="p-3 rounded-lg bg-muted border border-border">
+                  <div className="font-semibold text-foreground">60-79: Good</div>
+                  <div className="text-sm text-muted-foreground">Minor drift, consider rebalancing</div>
                 </div>
-                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--warning-bg)', border: '1px solid var(--warning-border)' }}>
-                  <div className="font-semibold" style={{ color: 'var(--warning)' }}>40-59: Fair</div>
-                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Noticeable drift, rebalancing recommended</div>
+                <div className="p-3 rounded-lg bg-muted border border-border">
+                  <div className="font-semibold text-muted-foreground">40-59: Fair</div>
+                  <div className="text-sm text-muted-foreground">Noticeable drift, rebalancing recommended</div>
                 </div>
-                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--error-bg)', border: '1px solid var(--error-border)' }}>
-                  <div className="font-semibold" style={{ color: 'var(--error)' }}>0-39: Needs Attention</div>
-                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Significant drift or concentration risk</div>
+                <div className="p-3 rounded-lg bg-loss-bg border border-loss/30">
+                  <div className="font-semibold text-loss">0-39: Needs Attention</div>
+                  <div className="text-sm text-muted-foreground">Significant drift or concentration risk</div>
                 </div>
               </div>
               <p><strong>Factors that affect your score:</strong></p>
@@ -568,7 +566,7 @@ function AboutView(){
                 <li><strong>Concentration risk:</strong> Penalty if any single holding exceeds 40% of portfolio</li>
                 <li><strong>Diversification:</strong> More holdings generally improve your score</li>
               </ul>
-              <p className="text-sm pt-2" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-sm pt-2 text-muted-foreground">
                 Improve your score by rebalancing to reduce drift and avoiding over-concentration in any single position.
               </p>
             </div>
@@ -576,7 +574,7 @@ function AboutView(){
 
           {/* AI Analysis */}
           <CollapsibleSection title="AI Analysis" icon="🤖">
-            <div className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+            <div className="space-y-3 text-muted-foreground">
               <p>
                 RebalanceKit uses Claude, Anthropic's AI assistant, to provide personalized insights about your portfolio:
               </p>
@@ -586,13 +584,13 @@ function AboutView(){
                 <li><strong>Actionable suggestions:</strong> Clear recommendations based on your specific situation</li>
                 <li><strong>Educational context:</strong> Explanations to help you understand the reasoning</li>
               </ul>
-              <div className="mt-4 p-3 rounded-lg flex items-start gap-3" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--success)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mt-4 p-3 rounded-lg flex items-start gap-3 bg-muted border border-border">
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-gain" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 <div>
-                  <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>Privacy Note</div>
-                  <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  <div className="font-semibold text-foreground">Privacy Note</div>
+                  <div className="text-sm text-muted-foreground">
                     Your portfolio data is only used for this analysis and is not stored. Each analysis is independent and your financial information is never retained.
                   </div>
                 </div>
@@ -759,7 +757,7 @@ function MainApp(){
   }
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen flex bg-background text-foreground">
       {/* Keyboard Shortcuts Modal */}
       <KeyboardShortcutsModal
         isOpen={showShortcutsModal}

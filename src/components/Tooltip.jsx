@@ -39,14 +39,14 @@ function Tooltip({ text, position = 'top', className = '' }) {
     switch (position) {
       case 'bottom':
       case 'bottom-end':
-        return 'border-4 border-transparent border-b-slate-900';
+        return 'border-4 border-transparent border-b-foreground';
       case 'left':
-        return 'border-4 border-transparent border-l-slate-900';
+        return 'border-4 border-transparent border-l-foreground';
       case 'right':
-        return 'border-4 border-transparent border-r-slate-900';
+        return 'border-4 border-transparent border-r-foreground';
       case 'top':
       default:
-        return 'border-4 border-transparent border-t-slate-900';
+        return 'border-4 border-transparent border-t-foreground';
     }
   };
 
@@ -74,7 +74,7 @@ function Tooltip({ text, position = 'top', className = '' }) {
             setShow(!show);
           }
         }}
-        className={`ml-1 transition-colors inline-flex items-center focus:outline-none cursor-pointer ${className || 'text-slate-500 hover:text-slate-700'}`}
+        className={`ml-1 transition-colors inline-flex items-center focus:outline-none cursor-pointer ${className || 'text-muted-foreground hover:text-foreground'}`}
         aria-label="More information"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -82,7 +82,7 @@ function Tooltip({ text, position = 'top', className = '' }) {
         </svg>
       </span>
       {show && (
-        <div className={`absolute z-50 min-w-[200px] max-w-[250px] bg-slate-900 text-white text-xs leading-relaxed rounded-lg px-4 py-3 shadow-xl pointer-events-none whitespace-normal break-words ${getPositionClasses()}`}>
+        <div className={`absolute z-50 min-w-[200px] max-w-[250px] bg-foreground text-background text-xs leading-relaxed rounded-lg px-4 py-3 shadow-xl pointer-events-none whitespace-normal break-words ${getPositionClasses()}`}>
           {text}
           <div className={`absolute ${getArrowClasses()}`}>
             <div className={getArrowBorder()}></div>

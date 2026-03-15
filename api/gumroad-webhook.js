@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY?.trim())
 
 // Log webhook event to Supabase for debugging
 async function logWebhookEvent(email, eventType, data) {
@@ -287,7 +287,7 @@ const emailTemplates = {
                 <li>AI-powered analysis</li>
                 <li>Interactive charts</li>
                 <li>Tax-efficient "Add Only" mode</li>
-                <li>Save up to 3 portfolios</li>
+                <li>Save up to 5 portfolios</li>
               </ul>
               <h3 style="margin: 30px 0 16px 0; color: #0f172a; font-size: 20px; font-weight: 600;">Want to Resubscribe?</h3>
               <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">You can resubscribe anytime to regain access to all Pro features:</p>
@@ -369,6 +369,13 @@ export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  // Validate shared secret if configured
+  const expectedSecret = process.env.GUMROAD_WEBHOOK_SECRET
+  if (expectedSecret && req.query.secret !== expectedSecret) {
+    console.warn('[Gumroad Webhook] Invalid secret')
+    return res.status(401).json({ error: 'Unauthorized' })
   }
 
   try {

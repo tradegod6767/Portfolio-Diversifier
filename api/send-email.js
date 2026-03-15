@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 import { handleCors } from './_cors.js'
 import { applyRateLimit } from './_ratelimit.js'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY?.trim())
 
 // Email templates
 const templates = {

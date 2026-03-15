@@ -58,7 +58,7 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
   if (loading && !showTimeout) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
       </div>
     );
   }
@@ -78,43 +78,43 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
         </div>
 
         {/* Upgrade overlay */}
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm z-10 py-8">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/90 backdrop-blur-sm z-10 py-8">
           <div className="max-w-md text-center p-8">
             {/* Lock icon */}
             <div className="mb-4 flex justify-center">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-                <svg className="w-8 h-8 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-muted border border-border rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
             </div>
 
             {/* Feature info */}
-            <h3 className="text-2xl font-bold text-white mb-2">
+            <h3 className="text-2xl font-bold text-foreground mb-2">
               {featureName}
             </h3>
-            <p className="text-slate-200 mb-6">
+            <p className="text-muted-foreground mb-6">
               {description || 'Upgrade to Pro to unlock this feature'}
             </p>
 
             {/* Pricing */}
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 mb-6 border border-white/20">
+            <div className="bg-card border border-border rounded-lg p-4 mb-6">
               <div className="flex items-baseline justify-center gap-2">
-                <span className="text-4xl font-bold text-white">$9.99</span>
-                <span className="text-slate-300">/month</span>
+                <span className="text-4xl font-bold text-foreground">$9.99</span>
+                <span className="text-muted-foreground">/month</span>
               </div>
-              <p className="text-sm text-slate-300 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 All premium features included
               </p>
             </div>
 
             {/* Email notice - shows which email to use */}
             {user?.email && (
-              <div className="bg-emerald-500/20 border border-emerald-400/30 rounded-lg p-3 mb-4">
-                <p className="text-xs text-emerald-100 font-semibold mb-1">
-                  ✓ Use this email when checking out:
+              <div className="bg-gain-bg border border-gain/30 rounded-lg p-3 mb-4">
+                <p className="text-xs text-gain font-semibold mb-1">
+                  Use this email when checking out:
                 </p>
-                <p className="text-sm text-white font-mono">
+                <p className="text-sm text-foreground font-mono">
                   {user.email}
                 </p>
               </div>
@@ -124,51 +124,23 @@ function PaywallWrapper({ user, isPro, loading, featureName, description, childr
             <a
               href={user ? `https://rebalancekit.gumroad.com/l/fvdfk?wanted=true&email=${encodeURIComponent(user.email)}` : '#'}
               onClick={handleUpgradeClick}
-              className={`${user ? 'gumroad-button' : ''} w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg text-center block`}
+              className={`${user ? 'gumroad-button' : ''} w-full bg-primary text-primary-foreground hover:opacity-90 font-bold py-3 px-6 rounded-lg transition-opacity text-center block`}
             >
               {user ? 'Upgrade to Pro - $9.99/month' : 'Sign Up to Unlock Pro'}
             </a>
 
             {/* Feature list */}
             <div className="mt-6 text-left">
-              <p className="text-xs text-slate-300 font-semibold mb-2">PRO INCLUDES:</p>
-              <ul className="space-y-1 text-sm text-slate-200">
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  100 AI analyses per hour (vs 5 free)
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Tax impact estimates
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  PDF report generation
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Portfolio health scoring
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Model portfolio comparison
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Unlimited portfolios
-                </li>
+              <p className="text-xs text-muted-foreground font-semibold mb-2 uppercase tracking-wide">Pro includes:</p>
+              <ul className="space-y-1.5 text-sm text-foreground">
+                {['100 AI analyses per hour (vs 5 free)', 'Tax impact estimates', 'PDF report generation', 'Portfolio health scoring', 'Model portfolio comparison', 'Unlimited portfolios'].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-gain flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>

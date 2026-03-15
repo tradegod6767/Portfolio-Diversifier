@@ -20,11 +20,11 @@ export default function AIAnalysisDisplay({ content, isPro = false, user = null 
   if (!content) return null;
 
   return (
-    <div className="ai-analysis-container">
+    <div className="bg-card border border-border rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="ai-header">
-        <div className="ai-header-left">
-          <div className="ai-icon">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 bg-muted border-b border-border">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground flex-shrink-0">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z" strokeLinecap="round" strokeLinejoin="round"/>
               <circle cx="9" cy="13" r="1" fill="currentColor"/>
@@ -33,18 +33,18 @@ export default function AIAnalysisDisplay({ content, isPro = false, user = null 
             </svg>
           </div>
           <div>
-            <h3 className="ai-title">AI Portfolio Analysis</h3>
-            <p className="ai-subtitle">Personalized insights based on your holdings</p>
+            <h3 className="text-base font-semibold text-foreground">AI Portfolio Analysis</h3>
+            <p className="text-xs text-muted-foreground">Personalized insights based on your holdings</p>
           </div>
         </div>
-        <span className="ai-badge">
-          <span className="ai-badge-dot"></span>
-          AI-Powered
-        </span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-background border border-border rounded-md self-start sm:self-auto">
+          <span className="w-1.5 h-1.5 bg-gain rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+          <span className="text-xs font-medium text-muted-foreground">AI-Powered</span>
+        </div>
       </div>
 
       {/* Content Sections */}
-      <div className="ai-sections">
+      <div className="p-4 flex flex-col gap-3">
         {sections.map((section, index) => (
           <AISection
             key={index}
@@ -57,11 +57,11 @@ export default function AIAnalysisDisplay({ content, isPro = false, user = null 
       </div>
 
       {/* Rate Limit Notice */}
-      <div className="ai-rate-notice">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex items-center justify-center gap-2 px-4 py-3 bg-muted border-t border-border">
+        <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span>
+        <span className="text-xs text-muted-foreground">
           {isPro
             ? 'Pro: 100 analyses/hour'
             : user
@@ -84,19 +84,19 @@ function AISection({ section, isExpanded, onToggle }) {
   const colorClasses = getSectionColors(color);
 
   return (
-    <div className={`ai-section ${colorClasses.wrapper}`}>
+    <div className={`bg-background border rounded-xl overflow-hidden transition-colors ${colorClasses.border}`}>
       {/* Section Header */}
       <button
-        className="ai-section-header"
+        className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
         onClick={onToggle}
         aria-expanded={isExpanded}
       >
-        <div className={`ai-section-icon ${colorClasses.icon}`}>
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClasses.icon}`}>
           {iconSvg}
         </div>
-        <h4 className="ai-section-title">{title}</h4>
+        <h4 className="flex-1 text-sm font-semibold text-foreground">{title}</h4>
         <svg
-          className={`ai-section-chevron ${isExpanded ? 'expanded' : ''}`}
+          className={`w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -107,47 +107,49 @@ function AISection({ section, isExpanded, onToggle }) {
 
       {/* Section Content */}
       {isExpanded && (
-        <div className="ai-section-content">
+        <div className="px-4 pb-4 pl-[52px]">
           {type === 'bullets' && items && (
-            <ul className="ai-bullet-list">
+            <ul className="space-y-2.5">
               {items.map((item, i) => (
-                <li key={i} className="ai-bullet-item">
-                  <span className={`ai-bullet-marker ${colorClasses.marker}`}>
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className={`flex-shrink-0 mt-0.5 ${colorClasses.marker}`}>
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </span>
-                  <span className="ai-bullet-text">{item}</span>
+                  <span className="text-sm text-muted-foreground leading-relaxed">{item}</span>
                 </li>
               ))}
             </ul>
           )}
 
           {type === 'numbered' && items && (
-            <ol className="ai-numbered-list">
+            <ol className="space-y-3">
               {items.map((item, i) => (
-                <li key={i} className="ai-numbered-item">
-                  <span className={`ai-number ${colorClasses.number}`}>{i + 1}</span>
-                  <span className="ai-numbered-text">{item}</span>
+                <li key={i} className="flex items-start gap-3">
+                  <span className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold flex-shrink-0 ${colorClasses.number}`}>{i + 1}</span>
+                  <span className="text-sm text-muted-foreground leading-relaxed pt-0.5">{item}</span>
                 </li>
               ))}
             </ol>
           )}
 
           {type === 'callout' && content && (
-            <div className={`ai-callout ${colorClasses.callout}`}>
-              <p>{content}</p>
+            <div className={`px-4 py-3 rounded-lg border ${colorClasses.callout}`}>
+              <p className="text-sm leading-relaxed">{content}</p>
             </div>
           )}
 
           {type === 'paragraph' && content && (
-            <p className="ai-paragraph">{content}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{content}</p>
           )}
 
           {type === 'keyInsight' && content && (
-            <div className="ai-key-insight">
-              <div className="ai-key-insight-label">Key Insight</div>
-              <p className="ai-key-insight-text">{content}</p>
+            <div className="bg-muted border border-border rounded-lg p-4">
+              <div className="inline-flex items-center px-2.5 py-1 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wide rounded-md mb-3">
+                Key Insight
+              </div>
+              <p className="text-sm text-foreground leading-relaxed font-medium">{content}</p>
             </div>
           )}
         </div>
@@ -212,7 +214,7 @@ function parseAIContent(text) {
     // Detect bullet points
     if (line.match(/^[-•*]\s+/)) {
       if (!currentSection) {
-        currentSection = { type: 'bullets', title: 'Insights', icon: 'lightbulb', color: 'blue' };
+        currentSection = { type: 'bullets', title: 'Insights', icon: 'lightbulb', color: 'neutral' };
       }
       currentSection.type = 'bullets';
       currentItems.push(line.replace(/^[-•*]\s+/, '').trim());
@@ -222,7 +224,7 @@ function parseAIContent(text) {
     // Detect numbered items
     if (line.match(/^\d+[.)]\s+/)) {
       if (!currentSection) {
-        currentSection = { type: 'numbered', title: 'Recommendations', icon: 'list', color: 'emerald' };
+        currentSection = { type: 'numbered', title: 'Recommendations', icon: 'list', color: 'gain' };
       }
       currentSection.type = 'numbered';
       currentItems.push(line.replace(/^\d+[.)]\s+/, '').trim());
@@ -234,7 +236,7 @@ function parseAIContent(text) {
       currentContent.push(line);
     } else {
       // Create default section for orphan content
-      currentSection = { type: 'paragraph', title: 'Overview', icon: 'overview', color: 'slate' };
+      currentSection = { type: 'paragraph', title: 'Overview', icon: 'overview', color: 'neutral' };
       currentContent.push(line);
     }
   }
@@ -247,7 +249,7 @@ function parseAIContent(text) {
       type: 'paragraph',
       title: 'Analysis Summary',
       icon: 'overview',
-      color: 'blue',
+      color: 'neutral',
       content: text.trim()
     });
   }
@@ -269,28 +271,28 @@ function detectSectionType(title) {
   const lower = title.toLowerCase();
 
   if (lower.includes('risk') || lower.includes('concern') || lower.includes('warning')) {
-    return { icon: 'warning', color: 'amber', type: 'bullets' };
+    return { icon: 'warning', color: 'loss', type: 'bullets' };
   }
   if (lower.includes('recommend') || lower.includes('action') || lower.includes('step') || lower.includes('suggestion')) {
-    return { icon: 'list', color: 'emerald', type: 'numbered' };
+    return { icon: 'list', color: 'gain', type: 'numbered' };
   }
   if (lower.includes('tax') || lower.includes('cost') || lower.includes('fee')) {
-    return { icon: 'dollar', color: 'slate', type: 'bullets' };
+    return { icon: 'dollar', color: 'neutral', type: 'bullets' };
   }
   if (lower.includes('diversif') || lower.includes('allocation') || lower.includes('balance')) {
-    return { icon: 'chart', color: 'blue', type: 'bullets' };
+    return { icon: 'chart', color: 'neutral', type: 'bullets' };
   }
   if (lower.includes('strength') || lower.includes('positive') || lower.includes('good')) {
-    return { icon: 'check', color: 'emerald', type: 'bullets' };
+    return { icon: 'check', color: 'gain', type: 'bullets' };
   }
   if (lower.includes('overview') || lower.includes('summary') || lower.includes('current')) {
-    return { icon: 'overview', color: 'slate', type: 'paragraph' };
+    return { icon: 'overview', color: 'neutral', type: 'paragraph' };
   }
   if (lower.includes('consider') || lower.includes('note') || lower.includes('important')) {
-    return { icon: 'info', color: 'blue', type: 'callout' };
+    return { icon: 'info', color: 'neutral', type: 'callout' };
   }
 
-  return { icon: 'lightbulb', color: 'blue', type: 'bullets' };
+  return { icon: 'lightbulb', color: 'neutral', type: 'bullets' };
 }
 
 /**
@@ -349,35 +351,28 @@ function getSectionIcon(iconType) {
  */
 function getSectionColors(color) {
   const colors = {
-    emerald: {
-      wrapper: 'ai-section-emerald',
-      icon: 'bg-emerald-900/50 text-emerald-400',
-      marker: 'text-emerald-400',
-      number: 'bg-emerald-900/50 text-emerald-400',
-      callout: 'bg-emerald-900/20 border-emerald-700 text-emerald-300'
+    gain: {
+      border: 'border-gain/30',
+      icon: 'bg-gain-bg text-gain',
+      marker: 'text-gain',
+      number: 'bg-gain-bg text-gain',
+      callout: 'bg-gain-bg border-gain/30 text-gain'
     },
-    amber: {
-      wrapper: 'ai-section-amber',
-      icon: 'bg-amber-900/50 text-amber-400',
-      marker: 'text-amber-400',
-      number: 'bg-amber-900/50 text-amber-400',
-      callout: 'bg-amber-900/20 border-amber-700 text-amber-300'
+    loss: {
+      border: 'border-loss/30',
+      icon: 'bg-loss-bg text-loss',
+      marker: 'text-loss',
+      number: 'bg-loss-bg text-loss',
+      callout: 'bg-loss-bg border-loss/30 text-loss'
     },
-    blue: {
-      wrapper: 'ai-section-blue',
-      icon: 'bg-blue-900/50 text-blue-400',
-      marker: 'text-blue-400',
-      number: 'bg-blue-900/50 text-blue-400',
-      callout: 'bg-blue-900/20 border-blue-700 text-blue-300'
-    },
-    slate: {
-      wrapper: 'ai-section-slate',
-      icon: 'bg-slate-700 text-slate-400',
-      marker: 'text-slate-400',
-      number: 'bg-slate-700 text-slate-300',
-      callout: 'bg-slate-800 border-slate-600 text-slate-300'
+    neutral: {
+      border: 'border-border',
+      icon: 'bg-muted text-muted-foreground',
+      marker: 'text-muted-foreground',
+      number: 'bg-muted text-foreground',
+      callout: 'bg-muted border-border text-muted-foreground'
     }
   };
 
-  return colors[color] || colors.blue;
+  return colors[color] || colors.neutral;
 }

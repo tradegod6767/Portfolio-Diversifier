@@ -1,7 +1,5 @@
 /**
- * EmptyState - A reusable component for displaying helpful empty states
- *
- * Used when there's no data to display, providing context and next actions
+ * EmptyState — Minimal Fintech design system
  */
 
 function EmptyState({
@@ -14,34 +12,28 @@ function EmptyState({
 }) {
   return (
     <div className={`text-center py-12 px-6 ${className}`}>
-      {/* Icon */}
       {icon && (
         <div className="mb-6 flex justify-center">
-          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
             {icon}
           </div>
         </div>
       )}
 
-      {/* Title */}
-      <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-        {title}
-      </h3>
+      <h3 className="text-base font-semibold text-foreground mb-2">{title}</h3>
 
-      {/* Description */}
       {description && (
-        <p className="text-base mb-6 max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto leading-relaxed">
           {description}
         </p>
       )}
 
-      {/* Actions */}
       {(primaryAction || secondaryAction) && (
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           {primaryAction && (
             <button
               onClick={primaryAction.onClick}
-              className="px-6 py-3 bg-[#0A2540] hover:bg-[#0D2F52] text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 min-w-[160px]"
+              className="h-9 px-4 text-sm font-medium bg-primary text-primary-foreground rounded-md transition-opacity hover:opacity-90 min-w-[140px]"
             >
               {primaryAction.icon && <span className="mr-2">{primaryAction.icon}</span>}
               {primaryAction.label}
@@ -50,12 +42,7 @@ function EmptyState({
           {secondaryAction && (
             <button
               onClick={secondaryAction.onClick}
-              className="px-6 py-3 font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md min-w-[160px]"
-              style={{
-                backgroundColor: 'var(--bg-card)',
-                border: '2px solid var(--border-color)',
-                color: 'var(--text-secondary)'
-              }}
+              className="h-9 px-4 text-sm font-medium bg-muted text-foreground border border-border rounded-md transition-colors hover:bg-accent min-w-[140px]"
             >
               {secondaryAction.icon && <span className="mr-2">{secondaryAction.icon}</span>}
               {secondaryAction.label}

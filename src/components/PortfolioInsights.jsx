@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { formatCurrency, formatPercent } from '../utils/calculations';
-import './PortfolioInsights.css';
 
 function PortfolioInsights({ results, groupedPositions }) {
   const { totalValue, positions } = results;
@@ -27,7 +26,6 @@ function PortfolioInsights({ results, groupedPositions }) {
     Math.abs(p.currentPercent - p.targetPercent)
   ));
 
-  // Get stock allocation (simplified - you may want to enhance this)
   const stocksPercent = groupedPositions?.find(g =>
     g.assetClass === 'US Stocks' || g.assetClass === 'Stocks'
   )?.currentPercent || 0;
@@ -40,9 +38,7 @@ function PortfolioInsights({ results, groupedPositions }) {
     g.assetClass === 'Cash'
   )?.currentPercent || 0;
 
-  // Determine if rebalancing is needed
   const needsRebalancing = maxDrift > 5;
-  // Calculate next review date (3 months from now)
   const nextReviewDate = new Date();
   nextReviewDate.setMonth(nextReviewDate.getMonth() + 3);
   const reviewDateStr = nextReviewDate.toLocaleDateString('en-US', {
@@ -51,39 +47,41 @@ function PortfolioInsights({ results, groupedPositions }) {
     day: 'numeric'
   });
 
+  const sections = [
+    { key: 'situation', icon: '📊', title: 'Current Situation' },
+    { key: 'risk', icon: '⚖️', title: 'Risk Assessment' },
+    { key: 'tax', icon: '💰', title: 'Tax Considerations' },
+    { key: 'recommendations', icon: '💡', title: 'Recommendations' },
+    { key: 'schedule', icon: '📅', title: 'Review Schedule' },
+  ];
+
+  const ChevronIcon = ({ expanded }) => (
+    <svg
+      className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+      viewBox="0 0 20 20"
+      fill="none"
+    >
+      <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+
   return (
-    <div className="portfolio-insights">
+    <div className="flex flex-col gap-4 my-8">
       {/* Current Situation */}
-      <div className="insight-card" style={{ animationDelay: '0ms' }}>
-        <div
-          className="insight-card-header"
+      <div className="bg-card border border-border rounded-lg overflow-hidden" style={{ animation: 'fadeInUp 400ms ease both', animationDelay: '0ms' }}>
+        <button
+          className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/50 transition-colors"
           onClick={() => toggleSection('situation')}
         >
-          <div className="insight-card-title-group">
-            <span className="insight-icon">📊</span>
-            <h3 className="insight-card-title">Current Situation</h3>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl leading-none">📊</span>
+            <h3 className="text-base font-semibold text-foreground">Current Situation</h3>
           </div>
-          <button className="insight-toggle-btn" aria-label="Toggle section">
-            <svg
-              className={`insight-chevron ${expandedSections.situation ? 'expanded' : ''}`}
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M5 7.5L10 12.5L15 7.5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+          <ChevronIcon expanded={expandedSections.situation} />
+        </button>
         {expandedSections.situation && (
-          <div className="insight-card-content">
-            <p className="insight-paragraph">
+          <div className="px-6 pb-6" style={{ animation: 'fadeIn 200ms ease' }}>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Your {formatCurrency(totalValue)} portfolio demonstrates{' '}
               {totalDrift < 2 ? 'excellent' : totalDrift < 5 ? 'good' : 'moderate'} alignment
               with your target allocation. The portfolio shows{' '}
@@ -98,36 +96,20 @@ function PortfolioInsights({ results, groupedPositions }) {
       </div>
 
       {/* Risk Assessment */}
-      <div className="insight-card" style={{ animationDelay: '100ms' }}>
-        <div
-          className="insight-card-header"
+      <div className="bg-card border border-border rounded-lg overflow-hidden" style={{ animation: 'fadeInUp 400ms ease both', animationDelay: '100ms' }}>
+        <button
+          className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/50 transition-colors"
           onClick={() => toggleSection('risk')}
         >
-          <div className="insight-card-title-group">
-            <span className="insight-icon">⚖️</span>
-            <h3 className="insight-card-title">Risk Assessment</h3>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl leading-none">⚖️</span>
+            <h3 className="text-base font-semibold text-foreground">Risk Assessment</h3>
           </div>
-          <button className="insight-toggle-btn" aria-label="Toggle section">
-            <svg
-              className={`insight-chevron ${expandedSections.risk ? 'expanded' : ''}`}
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M5 7.5L10 12.5L15 7.5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+          <ChevronIcon expanded={expandedSections.risk} />
+        </button>
         {expandedSections.risk && (
-          <div className="insight-card-content">
-            <p className="insight-paragraph">
+          <div className="px-6 pb-6" style={{ animation: 'fadeIn 200ms ease' }}>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {stocksPercent > 0 && (
                 <>
                   With {formatPercent(stocksPercent)} in stocks, your portfolio carries{' '}
@@ -136,14 +118,10 @@ function PortfolioInsights({ results, groupedPositions }) {
                 </>
               )}
               {bondsPercent > 0 && (
-                <>
-                  The {formatPercent(bondsPercent)} bond allocation provides stability and income generation.{' '}
-                </>
+                <>The {formatPercent(bondsPercent)} bond allocation provides stability and income generation.{' '}</>
               )}
               {cashPercent > 0 && (
-                <>
-                  Your {formatPercent(cashPercent)} cash position offers liquidity for opportunities or emergencies.
-                </>
+                <>Your {formatPercent(cashPercent)} cash position offers liquidity for opportunities or emergencies.</>
               )}
             </p>
           </div>
@@ -151,36 +129,20 @@ function PortfolioInsights({ results, groupedPositions }) {
       </div>
 
       {/* Tax Considerations */}
-      <div className="insight-card" style={{ animationDelay: '200ms' }}>
-        <div
-          className="insight-card-header"
+      <div className="bg-card border border-border rounded-lg overflow-hidden" style={{ animation: 'fadeInUp 400ms ease both', animationDelay: '200ms' }}>
+        <button
+          className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/50 transition-colors"
           onClick={() => toggleSection('tax')}
         >
-          <div className="insight-card-title-group">
-            <span className="insight-icon">💰</span>
-            <h3 className="insight-card-title">Tax Considerations</h3>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl leading-none">💰</span>
+            <h3 className="text-base font-semibold text-foreground">Tax Considerations</h3>
           </div>
-          <button className="insight-toggle-btn" aria-label="Toggle section">
-            <svg
-              className={`insight-chevron ${expandedSections.tax ? 'expanded' : ''}`}
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M5 7.5L10 12.5L15 7.5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+          <ChevronIcon expanded={expandedSections.tax} />
+        </button>
         {expandedSections.tax && (
-          <div className="insight-card-content">
-            <p className="insight-paragraph">
+          <div className="px-6 pb-6" style={{ animation: 'fadeIn 200ms ease' }}>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {!needsRebalancing ? (
                 <>
                   Since no rebalancing transactions are currently required, you face zero immediate tax consequences.
@@ -200,114 +162,69 @@ function PortfolioInsights({ results, groupedPositions }) {
       </div>
 
       {/* Recommendations */}
-      <div className="insight-card" style={{ animationDelay: '300ms' }}>
-        <div
-          className="insight-card-header"
+      <div className="bg-card border border-border rounded-lg overflow-hidden" style={{ animation: 'fadeInUp 400ms ease both', animationDelay: '300ms' }}>
+        <button
+          className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/50 transition-colors"
           onClick={() => toggleSection('recommendations')}
         >
-          <div className="insight-card-title-group">
-            <span className="insight-icon">💡</span>
-            <h3 className="insight-card-title">Recommendations</h3>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl leading-none">💡</span>
+            <h3 className="text-base font-semibold text-foreground">Recommendations</h3>
           </div>
-          <button className="insight-toggle-btn" aria-label="Toggle section">
-            <svg
-              className={`insight-chevron ${expandedSections.recommendations ? 'expanded' : ''}`}
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M5 7.5L10 12.5L15 7.5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+          <ChevronIcon expanded={expandedSections.recommendations} />
+        </button>
         {expandedSections.recommendations && (
-          <div className="insight-card-content">
-            <div className="insight-recommendation-list">
-              <div className="insight-recommendation-item">
-                <span className="insight-check">✓</span>
-                <span>Monitor quarterly for drift above 5% threshold</span>
-              </div>
-              {positions.some(p => p.ticker && (p.ticker.includes('VTI') || p.ticker.includes('SPY'))) && (
-                <div className="insight-recommendation-item">
-                  <span className="insight-check">✓</span>
-                  <span>Consider tax-loss harvesting if stock positions drop below your cost basis</span>
+          <div className="px-6 pb-6" style={{ animation: 'fadeIn 200ms ease' }}>
+            <div className="flex flex-col gap-3">
+              {[
+                'Monitor quarterly for drift above 5% threshold',
+                positions.some(p => p.ticker && (p.ticker.includes('VTI') || p.ticker.includes('SPY')))
+                  ? 'Consider tax-loss harvesting if stock positions drop below your cost basis'
+                  : null,
+                cashPercent > 0 ? `Maintain ${formatPercent(cashPercent)} cash for rebalancing opportunities` : null,
+                'Review allocation annually as your risk tolerance or time horizon changes',
+                needsRebalancing ? 'Consider add-only rebalancing to avoid triggering capital gains' : null,
+              ].filter(Boolean).map((rec, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span className="text-gain font-bold text-base mt-0.5 flex-shrink-0">✓</span>
+                  <span className="text-sm text-muted-foreground leading-relaxed">{rec}</span>
                 </div>
-              )}
-              {cashPercent > 0 && (
-                <div className="insight-recommendation-item">
-                  <span className="insight-check">✓</span>
-                  <span>Maintain {formatPercent(cashPercent)} cash for rebalancing opportunities</span>
-                </div>
-              )}
-              <div className="insight-recommendation-item">
-                <span className="insight-check">✓</span>
-                <span>Review allocation annually as your risk tolerance or time horizon changes</span>
-              </div>
-              {needsRebalancing && (
-                <div className="insight-recommendation-item">
-                  <span className="insight-check">✓</span>
-                  <span>Consider add-only rebalancing to avoid triggering capital gains</span>
-                </div>
-              )}
+              ))}
             </div>
           </div>
         )}
       </div>
 
       {/* Review Schedule */}
-      <div className="insight-card" style={{ animationDelay: '400ms' }}>
-        <div
-          className="insight-card-header"
+      <div className="bg-card border border-border rounded-lg overflow-hidden" style={{ animation: 'fadeInUp 400ms ease both', animationDelay: '400ms' }}>
+        <button
+          className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/50 transition-colors"
           onClick={() => toggleSection('schedule')}
         >
-          <div className="insight-card-title-group">
-            <span className="insight-icon">📅</span>
-            <h3 className="insight-card-title">Review Schedule</h3>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl leading-none">📅</span>
+            <h3 className="text-base font-semibold text-foreground">Review Schedule</h3>
           </div>
-          <button className="insight-toggle-btn" aria-label="Toggle section">
-            <svg
-              className={`insight-chevron ${expandedSections.schedule ? 'expanded' : ''}`}
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M5 7.5L10 12.5L15 7.5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+          <ChevronIcon expanded={expandedSections.schedule} />
+        </button>
         {expandedSections.schedule && (
-          <div className="insight-card-content">
-            <div className="insight-schedule-grid">
-              <div className="insight-schedule-item">
-                <span className="insight-schedule-label">Review Frequency</span>
-                <span className="insight-schedule-value">Quarterly (Every 3 months)</span>
-              </div>
-              <div className="insight-schedule-item">
-                <span className="insight-schedule-label">Rebalance Threshold</span>
-                <span className="insight-schedule-value">5% drift from target</span>
-              </div>
-              <div className="insight-schedule-item">
-                <span className="insight-schedule-label">Next Review Date</span>
-                <span className="insight-schedule-value">{reviewDateStr}</span>
-              </div>
+          <div className="px-6 pb-6" style={{ animation: 'fadeIn 200ms ease' }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              {[
+                { label: 'Review Frequency', value: 'Quarterly (Every 3 months)' },
+                { label: 'Rebalance Threshold', value: '5% drift from target' },
+                { label: 'Next Review Date', value: reviewDateStr },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex flex-col gap-1 px-3 py-3 bg-muted border border-border rounded-md">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</span>
+                  <span className="text-sm font-semibold text-foreground">{value}</span>
+                </div>
+              ))}
             </div>
-            <div className="insight-schedule-explanation">
-              <p>
-                <strong>Why This Schedule?</strong> Your portfolio has{' '}
+            <div className="px-4 py-3 bg-muted/50 border border-border rounded-md">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                <strong className="text-foreground font-semibold">Why This Schedule?</strong>{' '}
+                Your portfolio has{' '}
                 {stocksPercent >= 60 ? 'moderate' : 'low'} volatility
                 ({formatPercent(stocksPercent)} stocks). Quarterly reviews balance monitoring costs with tax
                 efficiency. The 5% threshold minimizes unnecessary trades while preventing significant drift.
