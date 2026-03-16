@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import DeleteAccountModal from './DeleteAccountModal';
 import { Button, Badge } from './ui';
 
 /**
@@ -11,6 +12,7 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
   const { user, isPro } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
   const handleSignOut = () => {
     localStorage.clear();
@@ -62,6 +64,14 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
                   <span className="hidden sm:inline">Sign Out</span>
                   <span className="sm:hidden">Out</span>
                 </Button>
+                <Button
+                  onClick={() => setShowDeleteAccount(true)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-loss hover:bg-loss-bg hidden sm:inline-flex"
+                >
+                  Delete Account
+                </Button>
               </div>
             )}
           </div>
@@ -79,6 +89,10 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
       <ForgotPasswordModal
         isOpen={showForgotPassword}
         onClose={() => setShowForgotPassword(false)}
+      />
+      <DeleteAccountModal
+        isOpen={showDeleteAccount}
+        onClose={() => setShowDeleteAccount(false)}
       />
     </>
   );

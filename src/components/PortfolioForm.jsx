@@ -399,20 +399,22 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
     try {
       // SECURITY FIX: Send auth token instead of client-controlled isPro flag
       // The server will verify the actual subscription status from the database
-      const headers = {};
 
-      // Get Supabase session token if user is logged in
-      if (user) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-          headers.Authorization = `Bearer ${session.access_token}`;
-        }
-      }
+      // getUser() validates against the server (unlike getSession() which can return stale local storage tokens)
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      // getSession() provides the access_token to attach to the request
+      const { data: { session } } = await supabase.auth.getSession();
+
+      console.log('[AI Explain] user:', currentUser?.id, 'token present:', !!session?.access_token);
 
       const response = await axios.post(
         `${API_BASE_URL}/api/explain`,
         { rebalancingData: data },
-        { headers }
+        {
+          headers: {
+            ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+          },
+        }
       );
       return response.data.explanation;
     } catch {

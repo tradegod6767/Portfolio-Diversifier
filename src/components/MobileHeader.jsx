@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import DeleteAccountModal from './DeleteAccountModal';
 import { Badge } from './ui';
 
 export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
@@ -13,6 +14,7 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -127,6 +129,12 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
                   >
                     Sign Out
                   </button>
+                  <button
+                    onClick={() => { setMenuOpen(false); setShowDeleteAccount(true); }}
+                    className="w-full py-2 px-3 text-sm font-medium text-muted-foreground hover:text-loss hover:bg-loss-bg rounded-md transition-colors text-left"
+                  >
+                    Delete Account
+                  </button>
                 </div>
               ) : (
                 <button
@@ -177,6 +185,10 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
       <ForgotPasswordModal
         isOpen={showForgotPassword}
         onClose={() => setShowForgotPassword(false)}
+      />
+      <DeleteAccountModal
+        isOpen={showDeleteAccount}
+        onClose={() => setShowDeleteAccount(false)}
       />
     </>
   );
