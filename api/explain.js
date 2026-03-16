@@ -98,9 +98,9 @@ ${taxSection}
 Write in clear, professional language that a non-expert investor can understand. Be specific and reference actual ticker symbols and dollar amounts from the data above.`;
 
     // Call Claude API with increased tokens for Pro users
-    console.log('[AI Explain] Calling Claude API with model claude-sonnet-4-6...');
+    console.log('[AI Explain] Calling Claude API with model claude-sonnet-4-20250514...');
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: isProUser ? 1500 : 800, // More tokens for detailed Pro analysis
       messages: [
         {
@@ -134,8 +134,8 @@ Write in clear, professional language that a non-expert investor can understand.
     return res.status(500).json({
       error: 'Failed to generate AI analysis',
       explanation: 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.',
-      // Only in development: include sanitized hint (no stack traces)
-      ...(process.env.NODE_ENV === 'development' && { hint: error.message?.substring(0, 100) })
+      // Include error details for debugging (no stack traces)
+      debug: { message: error.message?.substring(0, 200), type: error.type, code: error.code }
     });
   }
 }

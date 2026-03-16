@@ -195,26 +195,10 @@ export async function checkRateLimit(req, res, options = {}) {
     // Get rate limiter
     const rateLimiter = getRateLimiter(selectedTier)
 
-    // SECURITY FIX: Fail-safe - if Redis is not configured, BLOCK expensive endpoints
-    // This prevents cost overruns if rate limiting infrastructure fails
+    // If Redis is not configured, allow all requests through with a warning.
+    // Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in Vercel to enable rate limiting.
     if (!rateLimiter) {
-      // Allow low-risk endpoints to continue, block high-risk (AI, payment) endpoints
-      const allowedTypesWithoutRateLimit = ['GENERAL', 'WEBHOOK'];
-      const isHighRisk = !allowedTypesWithoutRateLimit.includes(endpointType);
-
-      if (isHighRisk) {
-        console.error('[Rate Limit] CRITICAL: Redis not configured for high-risk endpoint');
-        console.error('[Rate Limit] Blocking request to prevent abuse/cost overrun');
-        res.status(503).json({
-          error: 'Service temporarily unavailable',
-          message: 'Rate limiting service unavailable. Please try again later.',
-          retryAfter: 60 // Try again in 60 seconds
-        });
-        return { success: false, blocked: true };
-      }
-
-      // Low-risk endpoints can continue with warning
-      console.warn('[Rate Limit] Rate limiting bypassed for low-risk endpoint - Redis not configured')
+      console.warn('[Rate Limit] Redis not configured - rate limiting disabled for', endpointType)
       return {
         success: true,
         limit: selectedTier.requests,
@@ -275,25 +259,8 @@ export async function checkRateLimit(req, res, options = {}) {
     }
 
   } catch (error) {
-    // SECURITY FIX: Fail-safe on error - block high-risk endpoints if rate limiter fails
-    console.error('[Rate Limit] Error checking rate limit:', error)
-
-    const allowedTypesWithoutRateLimit = ['GENERAL', 'WEBHOOK'];
-    const isHighRisk = !allowedTypesWithoutRateLimit.includes(endpointType);
-
-    if (isHighRisk) {
-      console.error('[Rate Limit] CRITICAL: Rate limit check failed for high-risk endpoint');
-      console.error('[Rate Limit] Blocking request to prevent abuse/cost overrun');
-      res.status(503).json({
-        error: 'Service temporarily unavailable',
-        message: 'Rate limiting service error. Please try again later.',
-        retryAfter: 60
-      });
-      return { success: false, error: error.message, blocked: true };
-    }
-
-    // Low-risk endpoints can continue with warning
-    console.error('[Rate Limit] Allowing low-risk request despite rate limit check failure')
+    // If rate limit check errors (e.g. Redis connection issue), allow through with warning
+    console.error('[Rate Limit] Error checking rate limit, allowing request through:', error.message)
     return {
       success: true,
       error: error.message,

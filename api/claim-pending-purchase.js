@@ -110,7 +110,7 @@ export default async function handler(req, res) {
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (findError && findError.code !== 'PGRST116') {
       // PGRST116 = no rows found, which is fine
