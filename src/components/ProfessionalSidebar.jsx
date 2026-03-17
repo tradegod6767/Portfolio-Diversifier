@@ -130,9 +130,9 @@ export default function ProfessionalSidebar({
       {/* Sidebar */}
       <aside
         className={`
-          fixed md:static inset-y-0 left-0 z-50
+          fixed md:sticky md:top-0 inset-y-0 left-0 z-50
           flex flex-col bg-card border-r border-border
-          h-screen md:h-auto md:min-h-screen
+          h-screen
           transition-[width] duration-300 ease-in-out
           shadow-lg md:shadow-none overflow-hidden
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
