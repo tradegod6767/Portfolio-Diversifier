@@ -101,6 +101,7 @@ export default function ProfessionalSidebar({
   isPro,
   user,
 }) {
+  console.log('[Sidebar] isPro:', isPro, 'user:', user?.email);
   const ChevronIcon = collapsed ? Icons.chevronRight : Icons.chevronLeft;
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
