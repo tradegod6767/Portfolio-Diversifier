@@ -751,11 +751,11 @@ function MainApp(){
   }
 
   function handleLoadExample() {
-    // Load example portfolio
+    // Load example portfolio — beginner 3-fund with realistic drift
     const examplePositions = [
-      { id: 1, ticker: 'VTI', amount: '38000', targetPercent: '60' },
-      { id: 2, ticker: 'BND', amount: '8500', targetPercent: '30' },
-      { id: 3, ticker: 'CASH', amount: '3500', targetPercent: '10' }
+      { id: 1, ticker: 'VTI', amount: '34000', targetPercent: '60' },
+      { id: 2, ticker: 'VXUS', amount: '9000', targetPercent: '20' },
+      { id: 3, ticker: 'BND', amount: '7000', targetPercent: '20' }
     ];
     setLoadedPositions(examplePositions);
 

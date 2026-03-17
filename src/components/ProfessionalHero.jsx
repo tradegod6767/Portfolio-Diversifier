@@ -72,9 +72,9 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
               {/* Mock portfolio rows */}
               <div className="space-y-3">
                 {[
-                  { ticker: 'VTI', name: 'US Stocks', current: '68%', target: '60%', action: 'SELL', amount: '$2,340' },
-                  { ticker: 'VXUS', name: 'Intl Stocks', current: '18%', target: '30%', action: 'BUY', amount: '$4,120' },
-                  { ticker: 'BND', name: 'Bonds', current: '14%', target: '10%', action: 'SELL', amount: '$1,080' },
+                  { ticker: 'VTI', name: 'US Stocks', current: '68%', target: '60%', action: 'SELL', amount: '$4,000' },
+                  { ticker: 'VXUS', name: 'Intl Stocks', current: '18%', target: '20%', action: 'BUY', amount: '$1,000' },
+                  { ticker: 'BND', name: 'Bonds', current: '14%', target: '20%', action: 'BUY', amount: '$3,000' },
                 ].map((row) => (
                   <div key={row.ticker} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
                     <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export default function ProfessionalHero({ onNavigate, onLoadExample }) {
 
               <div className="pt-1 flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">3 trades needed</span>
-                <span className="text-xs font-semibold text-foreground">Portfolio: $124,500</span>
+                <span className="text-xs font-semibold text-foreground">Portfolio: $50,000</span>
               </div>
             </div>
           </div>
