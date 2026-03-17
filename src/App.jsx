@@ -12,8 +12,8 @@ Notes:
 - The layout is responsive: collapsible sidebar on small screens.
 */
 
-import React, {useState, useCallback, Suspense} from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, {useState, useCallback, useEffect, Suspense} from 'react';
+import { BrowserRouter, Routes, Route, useSearchParams } from 'react-router-dom';
 import ImportPortfolioPage from "./components/ImportPortfolioPage";
 import LoadPortfolioPage from "./components/LoadPortfolioPage";
 import PortfolioForm from "./components/PortfolioForm";
@@ -29,6 +29,7 @@ import { ToastProvider, useToast } from "./context/ToastContext";
 import AuthModal from "./components/AuthModal";
 import ForgotPasswordModal from "./components/ForgotPasswordModal";
 import { useAuth } from "./hooks/useAuth";
+import { supabase } from "./lib/supabase";
 import { calculateRebalancing } from "./utils/calculations";
 import ProfessionalTopbar from "./components/ProfessionalTopbar";
 import ProfessionalSidebar from "./components/ProfessionalSidebar";
@@ -610,10 +611,63 @@ function MainApp(){
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Auth state
-  const { user, isPro, loading } = useAuth();
+  const { user, isPro, loading, proJustActivated, clearProActivated } = useAuth();
 
   // Toast notifications
   const { addToast } = useToast();
+
+  // Pro upgrade banner (shown when redirected back from Gumroad with ?upgraded=true)
+  const [searchParams] = useSearchParams();
+  const [showUpgradedBanner, setShowUpgradedBanner] = useState(false);
+  // Shown instead of the sign-out banner once the session is auto-refreshed with Pro
+  const [showSessionRefreshedBanner, setShowSessionRefreshedBanner] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('upgraded') === 'true') {
+      setShowUpgradedBanner(true);
+      window.history.replaceState({}, '', '/');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scenario 1: user was already logged in at purchase time.
+  // The webhook will update user_metadata server-side, so we poll refreshSession()
+  // every 3 seconds (up to 30s) until the new JWT contains is_pro: true.
+  // When TOKEN_REFRESHED fires with the updated metadata, proJustActivated → true.
+  useEffect(() => {
+    if (!showUpgradedBanner || !user || isPro) return;
+
+    let attempts = 0;
+    const maxAttempts = 10;
+    const interval = setInterval(async () => {
+      attempts++;
+      await supabase.auth.refreshSession();
+      if (attempts >= maxAttempts) clearInterval(interval);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [showUpgradedBanner, user?.id, isPro]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When proJustActivated fires while the upgrade banner is visible (either scenario),
+  // swap to the "session refreshed" banner — no sign out needed.
+  useEffect(() => {
+    if (proJustActivated && showUpgradedBanner) {
+      setShowUpgradedBanner(false);
+      setShowSessionRefreshedBanner(true);
+      clearProActivated();
+    }
+  }, [proJustActivated]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleProSignOut = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/';
+  };
+
+  const handleDismissUpgradedBanner = () => {
+    if (window.confirm('Pro features may not be active until you sign back in. Dismiss anyway?')) {
+      setShowUpgradedBanner(false);
+    }
+  };
 
   // Portfolio state management
   const [rebalanceResults, setRebalanceResults] = useState(null);
@@ -781,9 +835,63 @@ function MainApp(){
         onToggle={() => setSidebarCollapsed(s => !s)}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
+        isPro={isPro}
+        user={user}
       />
 
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Pro Upgrade Banner - shown after redirect from Gumroad purchase */}
+        {showUpgradedBanner && (
+          <div className="bg-gain-bg border-b border-border px-4 py-3 flex items-center justify-between gap-4 flex-shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-gain flex-shrink-0 text-base">🎉</span>
+              <p className="text-sm text-foreground">
+                <span className="font-semibold">You're now a Pro member!</span>{' '}
+                Sign out and back in to refresh your session and unlock all Pro features.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={handleProSignOut}
+                className="bg-primary text-primary-foreground rounded-md h-8 px-3 text-xs font-medium whitespace-nowrap"
+              >
+                Sign Out Now
+              </button>
+              <button
+                onClick={handleDismissUpgradedBanner}
+                className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-accent"
+                aria-label="Dismiss banner"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Session Refreshed Banner - shown after auto-refresh detects Pro activation */}
+        {showSessionRefreshedBanner && (
+          <div className="bg-gain-bg border-b border-border px-4 py-3 flex items-center justify-between gap-4 flex-shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-gain flex-shrink-0 text-base">🎉</span>
+              <p className="text-sm text-foreground">
+                <span className="font-semibold">You're now a Pro member!</span>{' '}
+                Your session has been refreshed — Pro features are now active.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowSessionRefreshedBanner(false)}
+              className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-accent flex-shrink-0"
+              aria-label="Dismiss banner"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Mobile Header - only visible on mobile */}
         <MobileHeader
           title={NAV_ITEMS.find(n => n.key === active)?.label || 'RebalanceKit'}

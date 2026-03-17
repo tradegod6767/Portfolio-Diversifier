@@ -123,6 +123,22 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
                       <p className="text-xs text-muted-foreground">{isPro ? 'Pro Account' : 'Free Account'}</p>
                     </div>
                   </div>
+                  {!isPro && (
+                    <a
+                      href={user?.email
+                        ? `https://rebalancekit.gumroad.com/l/fvdfk?wanted=true&email=${encodeURIComponent(user.email)}`
+                        : 'https://rebalancekit.gumroad.com/l/fvdfk?wanted=true'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full py-2 px-3 text-sm font-semibold rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 transition-colors"
+                    >
+                      <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                      </svg>
+                      Upgrade to Pro
+                    </a>
+                  )}
                   <button
                     onClick={handleSignOut}
                     className="w-full py-2 px-3 text-sm font-medium text-loss bg-loss-bg hover:opacity-80 rounded-md transition-opacity"
@@ -137,12 +153,23 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => { setMenuOpen(false); setShowAuthModal(true); }}
-                  className="w-full h-9 bg-primary text-primary-foreground text-sm font-medium rounded-md transition-opacity hover:opacity-90"
-                >
-                  Sign In
-                </button>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => { setMenuOpen(false); setShowAuthModal(true); }}
+                    className="w-full h-9 bg-primary text-primary-foreground text-sm font-medium rounded-md transition-opacity hover:opacity-90"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => { setMenuOpen(false); setShowAuthModal(true); }}
+                    className="flex items-center justify-center gap-2 w-full h-9 text-sm font-semibold rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 transition-colors"
+                  >
+                    <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                    Upgrade to Pro
+                  </button>
+                </div>
               )}
             </div>
 

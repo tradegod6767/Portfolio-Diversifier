@@ -2,6 +2,10 @@
  * ProfessionalSidebar — Minimal Fintech design system
  */
 
+import { useState, useEffect } from 'react';
+import AuthModal from './AuthModal';
+import ForgotPasswordModal from './ForgotPasswordModal';
+
 const NAV_ITEMS = [
   { key: 'home', label: 'Home', icon: 'home' },
   { key: 'calculator', label: 'Calculator', icon: 'calculator' },
@@ -61,15 +65,55 @@ function NavItem({ item, active, onClick, collapsed }) {
   );
 }
 
+function buildGumroadUrl(user) {
+  const base = 'https://rebalancekit.gumroad.com/l/fvdfk?wanted=true';
+  return user?.email ? `${base}&email=${encodeURIComponent(user.email)}` : base;
+}
+
+/** Renders an <a> to Gumroad for signed-in users, or a <button> that opens auth for guests. */
+function UpgradeButton({ user, onOpenAuth, className, children }) {
+  if (user) {
+    return (
+      <a
+        href={buildGumroadUrl(user)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button onClick={onOpenAuth} className={className}>
+      {children}
+    </button>
+  );
+}
+
 export default function ProfessionalSidebar({
   activeKey,
   onNavigate,
   collapsed,
   onToggle,
   mobileOpen,
-  onMobileClose
+  onMobileClose,
+  isPro,
+  user,
 }) {
   const ChevronIcon = collapsed ? Icons.chevronRight : Icons.chevronLeft;
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [pendingUpgrade, setPendingUpgrade] = useState(false);
+
+  // When a guest clicked "Upgrade to Pro" and then signed in, send them to Gumroad
+  useEffect(() => {
+    if (pendingUpgrade && user) {
+      setPendingUpgrade(false);
+      const gumroadUrl = `https://rebalancekit.gumroad.com/l/fvdfk?wanted=true&email=${encodeURIComponent(user.email)}`;
+      window.open(gumroadUrl, '_blank');
+    }
+  }, [user, pendingUpgrade]);
 
   return (
     <>
@@ -152,6 +196,19 @@ export default function ProfessionalSidebar({
                 }}
               />
             ))}
+            {/* Upgrade to Pro — collapsed icon button */}
+            {!isPro && (
+              <UpgradeButton
+                user={user}
+                onOpenAuth={() => { setPendingUpgrade(true); setShowAuthModal(true); }}
+                title="Upgrade to Pro"
+                className="flex items-center justify-center w-full py-2.5 mt-1 rounded-md text-amber-500 hover:bg-amber-500/10 transition-colors"
+              >
+                <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+              </UpgradeButton>
+            )}
             {/* Expand button — immediately after nav items */}
             <button
               onClick={onToggle}
@@ -184,19 +241,37 @@ export default function ProfessionalSidebar({
               ))}
             </nav>
 
-            <div className="p-4 border-t border-border flex-shrink-0">
-              <div className="px-3 py-2 bg-muted rounded-md">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                  Upgrade to Pro
-                </div>
-                <div className="text-xs text-muted-foreground leading-relaxed">
-                  Unlock AI analysis, PDF reports, and more
-                </div>
+            {!isPro && (
+              <div className="p-3 border-t border-border flex-shrink-0">
+                <UpgradeButton
+                  user={user}
+                  onOpenAuth={() => { setPendingUpgrade(true); setShowAuthModal(true); }}
+                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 transition-colors"
+                >
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold truncate">Upgrade to Pro</div>
+                    <div className="text-xs opacity-70 truncate">AI · PDF · Health scoring</div>
+                  </div>
+                </UpgradeButton>
               </div>
-            </div>
+            )}
           </>
         )}
       </aside>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => { setShowAuthModal(false); setPendingUpgrade(false); }}
+        onForgotPassword={() => { setShowAuthModal(false); setShowForgotPassword(true); }}
+      />
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        onBackToLogin={() => { setShowForgotPassword(false); setShowAuthModal(true); }}
+      />
     </>
   );
 }
