@@ -142,7 +142,7 @@ export default async function handler(req, res) {
 
   // Validate shared secret with timing-safe comparison
   const expectedSecret = process.env.GUMROAD_WEBHOOK_SECRET
-  const testKey = process.env.WEBHOOK_TEST_KEY
+  const testKey = process.env.WEBHOOK_TEST_KEY?.trim()
   const providedTestKey = req.headers['x-test-key'] || ''
   const isAuthorizedTest =
     req.body?.test === true &&
