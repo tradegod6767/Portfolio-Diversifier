@@ -122,6 +122,12 @@ async function sendEmail(type, email, userName = null, accessEnds = null) {
 export default async function handler(req, res) {
   // SECURITY: Never log req.query or req.url — they contain the webhook secret
   console.log('[Gumroad Webhook] Received request')
+  console.log('[Webhook Test Debug]', {
+    hasTestBody: req.body?.test,
+    testKeyHeader: req.headers['x-test-key']?.slice(0, 8) + '...',
+    envKeyExists: !!process.env.WEBHOOK_TEST_KEY,
+    envKeyPrefix: process.env.WEBHOOK_TEST_KEY?.slice(0, 8) + '...',
+  })
 
   // Webhooks are server-to-server — no CORS headers needed
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
