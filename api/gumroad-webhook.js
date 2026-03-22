@@ -136,9 +136,15 @@ export default async function handler(req, res) {
 
   // Validate shared secret with timing-safe comparison
   const expectedSecret = process.env.GUMROAD_WEBHOOK_SECRET
-  const isDevTest = process.env.NODE_ENV !== 'production' && req.body?.test === true
+  const testKey = process.env.WEBHOOK_TEST_KEY
+  const providedTestKey = req.headers['x-test-key'] || ''
+  const isAuthorizedTest =
+    req.body?.test === true &&
+    testKey &&
+    providedTestKey.length === testKey.length &&
+    crypto.timingSafeEqual(Buffer.from(providedTestKey), Buffer.from(testKey))
 
-  if (!isDevTest) {
+  if (!isAuthorizedTest) {
     if (!expectedSecret) {
       console.error('[Webhook] GUMROAD_WEBHOOK_SECRET not configured')
       return res.status(500).json({ error: 'Server misconfiguration' })
@@ -153,7 +159,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' })
     }
   } else {
-    console.warn('[Gumroad Webhook] Dev test mode — secret check bypassed')
+    console.warn('[Gumroad Webhook] Authorized test mode — secret check bypassed')
   }
 
   try {

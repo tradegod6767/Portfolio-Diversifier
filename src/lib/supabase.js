@@ -71,7 +71,7 @@ export const subscriptions = {
     const { data, error } = await supabase
       .from('user_subscriptions')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
     return { data, error };
   },

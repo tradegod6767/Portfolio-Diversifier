@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     const { error: subscriptionsError } = await supabase
       .from('user_subscriptions')
       .delete()
-      .eq('id', user.id)
+      .eq('user_id', user.id)
 
     if (subscriptionsError) {
       console.error('[Delete Account] Failed to delete subscription:', subscriptionsError.message)
