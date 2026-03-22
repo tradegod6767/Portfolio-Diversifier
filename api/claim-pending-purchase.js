@@ -2,8 +2,10 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { handleCors } from './_cors.js'
 import { authenticateRequest } from './_auth.js'
+import { retryQuery } from './_retry-utils.js'
+import { Sentry } from './_sentry.js'
 
-const supabase = createClient(
+const supabaseAdmin = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
@@ -36,7 +38,7 @@ async function sendProUpgradeEmail(email, userName) {
         <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <tr>
             <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px; text-align: center;">
-              <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
+              <div style="font-size: 48px; margin-bottom: 16px;">&#127881;</div>
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Pro Activated!</h1>
             </td>
           </tr>
@@ -102,15 +104,18 @@ export default async function handler(req, res) {
     console.log(`[Claim Purchase] Checking for pending purchase: ${email}`)
 
     // Find pending purchase for this email
-    const { data: pendingPurchase, error: findError } = await supabase
-      .from('pending_purchases')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .eq('status', 'pending')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    // Use retryQuery to handle webhook race condition where user claims before webhook processes
+    const result = await retryQuery(() =>
+      supabaseAdmin
+        .from('pending_purchases')
+        .select('*')
+        .eq('email', email.toLowerCase())
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    )
+    const { data: pendingPurchase, error: findError } = result
 
     if (findError && findError.code !== 'PGRST116') {
       // PGRST116 = no rows found, which is fine
@@ -125,11 +130,10 @@ export default async function handler(req, res) {
     console.log(`[Claim Purchase] Found pending purchase: ${pendingPurchase.id}`)
 
     // Mark pending purchase as claimed
-    const { error: updatePendingError } = await supabase
+    const { error: updatePendingError } = await supabaseAdmin
       .from('pending_purchases')
       .update({
         status: 'claimed',
-        claimed_at: new Date().toISOString(),
         claimed_by_user_id: userId
       })
       .eq('id', pendingPurchase.id)
@@ -138,14 +142,31 @@ export default async function handler(req, res) {
       console.error('[Claim Purchase] Error updating pending purchase:', updatePendingError)
     }
 
-    // Activate Pro for the user
-    const { error: activateError } = await supabase.auth.admin.updateUserById(
+    // Primary: upsert into user_subscriptions table
+    const { error: subError } = await supabaseAdmin
+      .from('user_subscriptions')
+      .upsert({
+        user_id: userId,
+        is_pro: true,
+        subscription_status: 'active',
+        gumroad_subscription_id: pendingPurchase.gumroad_subscription_id || pendingPurchase.sale_id,
+        gumroad_product_id: pendingPurchase.gumroad_product_id,
+        gumroad_email: email,
+      }, { onConflict: 'user_id' })
+
+    if (subError) {
+      console.error('[Claim Purchase] Error upserting user_subscriptions:', subError)
+      return res.status(500).json({ error: 'Failed to activate Pro subscription' })
+    }
+
+    // Secondary: backward compat — update user_metadata
+    const { error: activateError } = await supabaseAdmin.auth.admin.updateUserById(
       userId,
       {
         user_metadata: {
           is_pro: true,
           subscription_status: 'active',
-          gumroad_subscription_id: pendingPurchase.gumroad_subscription_id || pendingPurchase.gumroad_sale_id,
+          gumroad_subscription_id: pendingPurchase.gumroad_subscription_id || pendingPurchase.sale_id,
           subscribed_at: pendingPurchase.created_at,
           cancelled_at: null,
           product_name: pendingPurchase.product_name || 'Pro Subscription',
@@ -155,11 +176,11 @@ export default async function handler(req, res) {
     )
 
     if (activateError) {
-      console.error('[Claim Purchase] Error activating Pro:', activateError)
-      return res.status(500).json({ error: 'Failed to activate Pro subscription' })
+      console.error('[Claim Purchase] Error updating user metadata:', activateError)
+      // Non-fatal: user_subscriptions is the source of truth
     }
 
-    console.log(`[Claim Purchase] ✅ Pro activated for ${email} (claimed from pending)`)
+    console.log(`[Claim Purchase] Pro activated for ${email} (claimed from pending)`)
 
     // Send confirmation email
     const userName = email.split('@')[0]
@@ -174,6 +195,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('[Claim Purchase] Error:', error)
+    Sentry.captureException(error)
     return res.status(500).json({ error: error.message })
   }
 }

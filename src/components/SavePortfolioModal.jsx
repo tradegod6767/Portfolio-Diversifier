@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { LoadingSpinner, SuccessCheckmark } from './ui';
 
@@ -47,6 +47,14 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
     onClose();
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && onClose && !saving) onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, saving]);
+
   if (!isOpen) return null;
 
   const isExisting = existingNames.includes(name.trim());
@@ -57,6 +65,9 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
       style={{ backgroundColor: 'rgba(0,0,0,0.6)', animation: 'fadeIn 200ms ease' }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="save-modal-title"
         className="relative w-full max-w-[440px] bg-card border border-border rounded-xl shadow-lg overflow-y-auto max-h-[90vh]"
         style={{ animation: 'slideUp 250ms ease' }}
       >
@@ -74,7 +85,7 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
         <div className="p-8">
           {/* Header */}
           <div className="text-center mb-6">
-            <h3 className="text-2xl font-bold tracking-tight text-foreground mb-2">Save Portfolio</h3>
+            <h3 id="save-modal-title" className="text-2xl font-bold tracking-tight text-foreground mb-2">Save Portfolio</h3>
             <p className="text-sm text-muted-foreground">Give your portfolio a name to save it for later</p>
           </div>
 

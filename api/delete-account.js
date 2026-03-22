@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { handleCors } from './_cors.js'
 import { authenticateRequest } from './_auth.js'
+import { Sentry } from './_sentry.js'
 
 export default async function handler(req, res) {
   if (handleCors(req, res, { methods: ['DELETE', 'OPTIONS'] })) return
@@ -61,6 +62,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true })
   } catch (error) {
     console.error('[Delete Account] Unexpected error:', error.message)
+    Sentry.captureException(error)
     return res.status(500).json({ error: 'An unexpected error occurred' })
   }
 }

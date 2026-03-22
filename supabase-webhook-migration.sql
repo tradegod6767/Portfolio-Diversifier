@@ -1,3 +1,4 @@
+-- DEPRECATED: See supabase/migrations/ for current versions
 -- Migration: Add webhook logging and subscription tracking
 -- This migration adds webhook event logging and enhances user subscription tracking
 

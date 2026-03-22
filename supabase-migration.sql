@@ -1,3 +1,4 @@
+-- DEPRECATED: See supabase/migrations/ for current versions
 -- Migration: Create user_subscriptions table with RLS
 -- Run this in your Supabase SQL Editor
 

@@ -6,6 +6,19 @@
  * @returns {Object} Rebalancing data with current and target allocations
  */
 export function calculateRebalancing(positions, mode = 'standard', modeAmount = 0) {
+  // Filter out invalid positions
+  const validPositions = positions.filter(pos => {
+    const amount = parseFloat(pos.amount);
+    return !isNaN(amount) && amount >= 0;
+  });
+
+  if (validPositions.length === 0) {
+    return { positions: [], totalValue: 0 };
+  }
+
+  // Use only valid positions going forward
+  positions = validPositions;
+
   // Calculate total portfolio value
   const totalValue = positions.reduce((sum, pos) => sum + parseFloat(pos.amount), 0);
 
@@ -16,6 +29,9 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
 
   // Handle withdrawal mode
   if (mode === 'withdrawal' && modeAmount > 0) {
+    if (modeAmount >= totalValue) {
+      throw new Error('Withdrawal amount cannot exceed total portfolio value');
+    }
     return calculateWithdrawal(positions, totalValue, modeAmount);
   }
 

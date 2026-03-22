@@ -74,18 +74,27 @@ export async function signup(email, password) {
   if (data.user) {
     const userName = email.split('@')[0]
 
-    // Send welcome email
-    fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'welcome',
-        email: email,
-        userName: userName
-      })
-    }).catch(() => {
-      // Silently fail - don't block signup if welcome email fails
-    })
+    // Send welcome email (include auth token if available)
+    ;(async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession()
+        const headers = { 'Content-Type': 'application/json' }
+        if (currentSession?.access_token) {
+          headers.Authorization = `Bearer ${currentSession.access_token}`
+        }
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            type: 'welcome',
+            email: email,
+            userName: userName
+          })
+        })
+      } catch {
+        // Silently fail - don't block signup if welcome email fails
+      }
+    })()
 
     // Check for pending Pro purchases (from pre-signup Gumroad purchases)
     claimPendingPurchase(email, data.user.id).catch(() => {})
@@ -104,21 +113,23 @@ export async function getCurrentUser() {
   return user
 }
 
-export async function checkIfPro() {
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser()
+export async function checkIfPro(userId) {
+  if (!userId) return { isPro: false, subscriptionStatus: 'free' };
 
-    if (error || !user) return false
+  const { data, error } = await supabase
+    .from('user_subscriptions')
+    .select('is_pro, subscription_status')
+    .eq('user_id', userId)
+    .single();
 
-    const metadata = user.user_metadata || {}
-    const isPro = metadata.is_pro === true
-    const subscriptionStatus = metadata.subscription_status
-
-    // User must have is_pro = true AND subscription_status must not be 'cancelled'
-    return isPro && subscriptionStatus === 'active'
-  } catch {
-    return false
+  if (error || !data) {
+    return { isPro: false, subscriptionStatus: 'free' };
   }
+
+  return {
+    isPro: data.is_pro === true && data.subscription_status === 'active',
+    subscriptionStatus: data.subscription_status || 'free',
+  };
 }
 
 export async function resetPasswordForEmail(email) {

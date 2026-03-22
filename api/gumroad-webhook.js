@@ -1,7 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import crypto from 'crypto'
+import { getProUpgradeEmailHtml, getSubscriptionCancelledEmailHtml, getPendingPurchaseEmailHtml } from './_email-templates.js'
+import { Sentry } from './_sentry.js'
 
-const supabase = createClient(
+const supabaseAdmin = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
@@ -11,7 +14,7 @@ const resend = new Resend(process.env.RESEND_API_KEY?.trim())
 // Log webhook event to Supabase for debugging
 async function logWebhookEvent(email, eventType, data) {
   try {
-    await supabase.from('webhook_logs').insert({
+    await supabaseAdmin.from('webhook_logs').insert({
       email,
       event_type: eventType,
       payload: data,
@@ -27,18 +30,15 @@ async function storePendingPurchase(email, payload) {
   try {
     const { sale_id, subscription_id, product_name, price, currency } = payload
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('pending_purchases')
       .insert({
         email: email.toLowerCase(),
-        gumroad_sale_id: sale_id,
+        sale_id: sale_id,
         gumroad_subscription_id: subscription_id,
-        product_name: product_name || 'Pro Subscription',
-        amount_cents: price ? Math.round(parseFloat(price) * 100) : null,
-        currency: currency || 'USD',
-        payload: payload,
+        gumroad_product_id: payload.product_id,
+        purchase_data: payload,
         status: 'pending',
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
       })
       .select()
       .single()
@@ -56,265 +56,27 @@ async function storePendingPurchase(email, payload) {
   }
 }
 
-// Email templates
+// Email template wrappers — HTML sourced from _email-templates.js
 const emailTemplates = {
   pendingPurchase: (email) => ({
     from: 'RebalanceKit <hello@rebalancekit.com>',
     to: email,
     subject: 'Complete your RebalanceKit Pro signup',
-    html: `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Complete Your Pro Signup</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <tr>
-            <td style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 40px; text-align: center;">
-              <div style="display: inline-block; background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin-bottom: 16px;">
-                <span style="font-size: 40px;">⏳</span>
-              </div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">One More Step!</h1>
-              <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">Your Pro purchase is waiting</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 40px;">
-              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">Hi there,</p>
-              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                Thank you for purchasing RebalanceKit Pro! We received your payment, but we noticed you don't have an account yet.
-              </p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
-                <tr>
-                  <td style="padding: 16px;">
-                    <p style="margin: 0; color: #92400e; font-size: 15px; line-height: 1.6;">
-                      <strong>Action Required:</strong> Create an account with this email address (${email}) to activate your Pro subscription.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                Your Pro features will be automatically activated as soon as you sign up. No need to purchase again!
-              </p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="https://rebalancekit.com" style="display: inline-block; padding: 14px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Create Your Account</a>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">
-                <strong>Important:</strong> Use this exact email when signing up:
-              </p>
-              <p style="margin: 0 0 24px 0; color: #0f172a; font-size: 16px; font-weight: 600; font-family: monospace; background-color: #f1f5f9; padding: 12px; border-radius: 6px; text-align: center;">
-                ${email}
-              </p>
-              <p style="margin: 24px 0 0 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                Your purchase will be held for 30 days. If you have any questions, just reply to this email.
-              </p>
-              <p style="margin: 24px 0 0 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                Cheers,<br><strong>The RebalanceKit Team</strong>
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="margin: 0; color: #64748b; font-size: 14px;">RebalanceKit Pro - $9.99/month</p>
-              <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 12px;">Questions? Reply to this email</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-    `,
+    html: getPendingPurchaseEmailHtml(email),
   }),
 
   proUpgrade: (email, userName) => ({
     from: 'RebalanceKit <hello@rebalancekit.com>',
     to: email,
-    subject: 'Welcome to RebalanceKit Pro! 🎉',
-    html: `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to RebalanceKit Pro</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <tr>
-            <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px; text-align: center;">
-              <div style="display: inline-block; background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin-bottom: 16px;">
-                <span style="font-size: 40px;">⭐</span>
-              </div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">Welcome to Pro!</h1>
-              <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 18px;">Your upgrade is active</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 40px;">
-              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">Hi${userName ? ` ${userName}` : ''},</p>
-              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">Thank you for upgrading to RebalanceKit Pro! Your subscription is now active and you have full access to all premium features.</p>
-              <h3 style="margin: 30px 0 16px 0; color: #0f172a; font-size: 20px; font-weight: 600;">✨ What You Now Have Access To:</h3>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
-                <tr>
-                  <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
-                    <span style="color: #10b981; font-size: 18px; margin-right: 8px;">✓</span>
-                    <strong style="color: #0f172a;">Tax Impact Estimates</strong>
-                    <p style="margin: 4px 0 0 26px; color: #64748b; font-size: 14px;">See estimated capital gains before you rebalance</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
-                    <span style="color: #10b981; font-size: 18px; margin-right: 8px;">✓</span>
-                    <strong style="color: #0f172a;">PDF Report Generation</strong>
-                    <p style="margin: 4px 0 0 26px; color: #64748b; font-size: 14px;">Export professional reports with charts and analysis</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
-                    <span style="color: #10b981; font-size: 18px; margin-right: 8px;">✓</span>
-                    <strong style="color: #0f172a;">Portfolio Health Scoring</strong>
-                    <p style="margin: 4px 0 0 26px; color: #64748b; font-size: 14px;">Track your portfolio's overall health and risk level</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
-                    <span style="color: #10b981; font-size: 18px; margin-right: 8px;">✓</span>
-                    <strong style="color: #0f172a;">Model Portfolio Comparison</strong>
-                    <p style="margin: 4px 0 0 26px; color: #64748b; font-size: 14px;">Compare your allocation to popular strategies</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0;">
-                    <span style="color: #10b981; font-size: 18px; margin-right: 8px;">✓</span>
-                    <strong style="color: #0f172a;">Unlimited Portfolios</strong>
-                    <p style="margin: 4px 0 0 26px; color: #64748b; font-size: 14px;">Save and manage multiple portfolios</p>
-                  </td>
-                </tr>
-              </table>
-              <h3 style="margin: 30px 0 16px 0; color: #0f172a; font-size: 20px; font-weight: 600;">🚀 Next Steps:</h3>
-              <ol style="margin: 0 0 24px 0; padding-left: 24px; color: #475569; font-size: 16px; line-height: 1.8;">
-                <li>Sign in to your account</li>
-                <li>Try the portfolio calculator</li>
-                <li>Explore the tax impact estimates</li>
-                <li>Export your first PDF report</li>
-              </ol>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="https://rebalancekit.com" style="display: inline-block; padding: 14px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Start Using Pro Features</a>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin: 24px 0 0 0; color: #475569; font-size: 16px; line-height: 1.6;">Need help? Just reply to this email and we'll assist you.</p>
-              <p style="margin: 24px 0 0 0; color: #475569; font-size: 16px; line-height: 1.6;">Cheers,<br><strong>The RebalanceKit Team</strong></p>
-            </td>
-          </tr>
-          <tr>
-            <td style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="margin: 0; color: #64748b; font-size: 14px;">RebalanceKit Pro - $9.99/month</p>
-              <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 12px;">Manage your subscription at <a href="https://gumroad.com/library" style="color: #10b981; text-decoration: none;">Gumroad</a></p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-    `,
+    subject: 'Welcome to RebalanceKit Pro!',
+    html: getProUpgradeEmailHtml(userName),
   }),
 
   subscriptionCancelled: (email, userName, accessEnds) => ({
     from: 'RebalanceKit <hello@rebalancekit.com>',
     to: email,
     subject: 'Your RebalanceKit Pro subscription has been cancelled',
-    html: `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subscription Cancelled</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <tr>
-            <td style="background-color: #0f172a; padding: 40px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Subscription Cancelled</h1>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 40px;">
-              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">Hi${userName ? ` ${userName}` : ''},</p>
-              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">We've received confirmation that your RebalanceKit Pro subscription has been cancelled.</p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
-                <tr>
-                  <td style="padding: 16px;">
-                    <p style="margin: 0; color: #92400e; font-size: 15px; line-height: 1.6;">
-                      <strong>Your Pro access has ended</strong><br>
-                      ${accessEnds || 'Your subscription is now inactive'}
-                    </p>
-                  </td>
-                </tr>
-              </table>
-              <h3 style="margin: 30px 0 16px 0; color: #0f172a; font-size: 20px; font-weight: 600;">What This Means:</h3>
-              <ul style="margin: 0 0 24px 0; padding-left: 24px; color: #475569; font-size: 16px; line-height: 1.8;">
-                <li>You've switched to the free plan</li>
-                <li>All your saved portfolios are preserved</li>
-                <li>You can resubscribe anytime to regain Pro access</li>
-              </ul>
-              <h3 style="margin: 30px 0 16px 0; color: #0f172a; font-size: 20px; font-weight: 600;">Free Plan Includes:</h3>
-              <ul style="margin: 0 0 24px 0; padding-left: 24px; color: #475569; font-size: 16px; line-height: 1.8;">
-                <li>Portfolio rebalancing calculator</li>
-                <li>AI-powered analysis</li>
-                <li>Interactive charts</li>
-                <li>Tax-efficient "Add Only" mode</li>
-                <li>Save up to 5 portfolios</li>
-              </ul>
-              <h3 style="margin: 30px 0 16px 0; color: #0f172a; font-size: 20px; font-weight: 600;">Want to Resubscribe?</h3>
-              <p style="margin: 0 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">You can resubscribe anytime to regain access to all Pro features:</p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="https://rebalancekit.gumroad.com/l/fvdfk?email=${encodeURIComponent(email)}" style="display: inline-block; padding: 14px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Resubscribe to Pro</a>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin: 30px 0 16px 0; color: #475569; font-size: 16px; line-height: 1.6;">We're sorry to see you go! If there's anything we could improve, please let us know by replying to this email.</p>
-              <p style="margin: 24px 0 0 0; color: #475569; font-size: 16px; line-height: 1.6;">Best regards,<br><strong>The RebalanceKit Team</strong></p>
-            </td>
-          </tr>
-          <tr>
-            <td style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="margin: 0; color: #64748b; font-size: 14px;">RebalanceKit - Tax-Smart Portfolio Rebalancing</p>
-              <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 12px;">Questions? Reply to this email or visit <a href="https://rebalancekit.com" style="color: #10b981; text-decoration: none;">rebalancekit.com</a></p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-    `,
+    html: getSubscriptionCancelledEmailHtml(userName, accessEnds),
   }),
 }
 
@@ -349,7 +111,7 @@ async function sendEmail(type, email, userName = null, accessEnds = null) {
       return { success: false, error: error.message }
     }
 
-    console.log(`[Gumroad Webhook] ✅ Email sent (${type}) to ${email}:`, data.id)
+    console.log(`[Gumroad Webhook] Email sent (${type}) to ${email}:`, data.id)
     return { success: true, messageId: data.id }
   } catch (error) {
     console.error('[Gumroad Webhook] Email send exception:', error)
@@ -358,9 +120,10 @@ async function sendEmail(type, email, userName = null, accessEnds = null) {
 }
 
 export default async function handler(req, res) {
+  // SECURITY: Never log req.query or req.url — they contain the webhook secret
   console.log('[Gumroad Webhook] Received request')
 
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  // Webhooks are server-to-server — no CORS headers needed
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
 
   if (req.method === 'OPTIONS') {
@@ -371,16 +134,45 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Validate shared secret if configured
+  // Validate shared secret with timing-safe comparison
   const expectedSecret = process.env.GUMROAD_WEBHOOK_SECRET
-  if (expectedSecret && req.query.secret !== expectedSecret) {
-    console.warn('[Gumroad Webhook] Invalid secret')
-    return res.status(401).json({ error: 'Unauthorized' })
+  const isDevTest = process.env.NODE_ENV !== 'production' && req.body?.test === true
+
+  if (!isDevTest) {
+    if (!expectedSecret) {
+      console.error('[Webhook] GUMROAD_WEBHOOK_SECRET not configured')
+      return res.status(500).json({ error: 'Server misconfiguration' })
+    }
+
+    const providedSecret = req.query.secret || ''
+    const expectedBuf = Buffer.from(expectedSecret)
+    const providedBuf = Buffer.from(providedSecret)
+
+    if (expectedBuf.length !== providedBuf.length || !crypto.timingSafeEqual(expectedBuf, providedBuf)) {
+      console.error('[Webhook] Invalid secret')
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+  } else {
+    console.warn('[Gumroad Webhook] Dev test mode — secret check bypassed')
   }
 
   try {
     const payload = req.body
-    console.log('[Gumroad Webhook] Payload received:', JSON.stringify(payload, null, 2))
+
+    // Idempotency check — skip duplicate sale_id events
+    const saleId = req.body.sale_id
+    if (saleId) {
+      const { data: existingLog } = await supabaseAdmin
+        .from('webhook_logs')
+        .select('id')
+        .eq('sale_id', saleId)
+        .single()
+
+      if (existingLog) {
+        console.log(`[Webhook] Duplicate sale_id: ${saleId}, skipping`)
+        return res.status(200).json({ action: 'already_processed', sale_id: saleId })
+      }
+    }
 
     // Extract data from Gumroad webhook
     const {
@@ -388,8 +180,7 @@ export default async function handler(req, res) {
       sale_id,
       subscription_id,
       product_name,
-      // Gumroad sends different event types in different formats
-      // Check for the event field or infer from the data
+      product_id,
     } = payload
 
     if (!email) {
@@ -397,18 +188,46 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'No email provided' })
     }
 
-    // Determine event type from payload
-    let eventType = 'sale' // default
+    // Determine event type — prefer alert_name (Gumroad's canonical field) over legacy booleans
+    let eventType
 
-    // Gumroad sends different fields for different events
-    if (payload.cancelled === true || payload.cancelled === 'true') {
-      eventType = 'subscription_cancelled'
-    } else if (payload.ended === true || payload.ended === 'true') {
-      eventType = 'subscription_ended'
-    } else if (payload.refunded === true || payload.refunded === 'true') {
-      eventType = 'sale_refunded'
-    } else if (payload.subscription_id || subscription_id) {
-      eventType = 'subscription_created'
+    const alertName = payload.alert_name
+
+    if (alertName) {
+      // Gumroad alert_name values
+      switch (alertName) {
+        case 'sale':
+        case 'subscription_sale':
+          eventType = 'sale'
+          break
+        case 'subscription_cancelled':
+          eventType = 'subscription_cancelled'
+          break
+        case 'subscription_ended':
+          eventType = 'subscription_ended'
+          break
+        case 'subscription_failed':
+          eventType = 'subscription_failed'
+          break
+        case 'subscription_restarted':
+          eventType = 'subscription_restarted'
+          break
+        default:
+          eventType = alertName
+      }
+    } else {
+      // Legacy fallback: derive from boolean fields for older webhook formats
+      if (payload.cancelled === true || payload.cancelled === 'true') {
+        eventType = 'subscription_cancelled'
+      } else if (payload.ended === true || payload.ended === 'true') {
+        eventType = 'subscription_ended'
+      } else if (payload.refunded === true || payload.refunded === 'true') {
+        eventType = 'sale_refunded'
+      } else if (payload.subscription_id || subscription_id) {
+        eventType = 'subscription_created'
+      } else {
+        eventType = 'sale'
+      }
     }
 
     console.log(`[Gumroad Webhook] Event type: ${eventType}`)
@@ -424,7 +243,7 @@ export default async function handler(req, res) {
     let listError = null
 
     while (!user) {
-      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage })
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage })
 
       if (error) {
         listError = error
@@ -474,9 +293,26 @@ export default async function handler(req, res) {
     // Handle different event types
     switch (eventType) {
       case 'subscription_created':
-      case 'sale':
-        // Activate Pro subscription
-        const { error: activateError } = await supabase.auth.admin.updateUserById(
+      case 'sale': {
+        // Primary: update user_subscriptions table
+        const { error: subError } = await supabaseAdmin
+          .from('user_subscriptions')
+          .upsert({
+            user_id: user.id,
+            is_pro: true,
+            subscription_status: 'active',
+            gumroad_subscription_id: subscription_id || sale_id,
+            gumroad_product_id: product_id,
+            gumroad_email: email,
+          }, { onConflict: 'user_id' })
+
+        if (subError) {
+          console.error('[Gumroad Webhook] Error upserting user_subscriptions:', subError)
+          return res.status(500).json({ error: 'Failed to activate subscription' })
+        }
+
+        // Secondary: backward compat
+        await supabaseAdmin.auth.admin.updateUserById(
           user.id,
           {
             user_metadata: {
@@ -490,12 +326,7 @@ export default async function handler(req, res) {
           }
         )
 
-        if (activateError) {
-          console.error('[Gumroad Webhook] Error activating subscription:', activateError)
-          return res.status(500).json({ error: 'Failed to activate subscription' })
-        }
-
-        console.log(`[Gumroad Webhook] ✅ Subscription activated for ${email}`)
+        console.log(`[Gumroad Webhook] Subscription activated for ${email}`)
 
         // Send Pro upgrade email
         await sendEmail('proUpgrade', email, user.email?.split('@')[0])
@@ -505,12 +336,29 @@ export default async function handler(req, res) {
           userId: user.id,
           action: 'subscription_activated'
         })
+      }
 
       case 'subscription_cancelled':
       case 'subscription_ended':
-      case 'sale_refunded':
-        // Revoke Pro access
-        const { error: revokeError } = await supabase.auth.admin.updateUserById(
+      case 'subscription_failed':
+      case 'sale_refunded': {
+        // Primary: update user_subscriptions table
+        const { error: subError } = await supabaseAdmin
+          .from('user_subscriptions')
+          .update({
+            is_pro: false,
+            subscription_status: 'cancelled',
+            cancelled_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+
+        if (subError) {
+          console.error('[Gumroad Webhook] Error updating user_subscriptions:', subError)
+          return res.status(500).json({ error: 'Failed to revoke subscription' })
+        }
+
+        // Secondary: backward compat
+        await supabaseAdmin.auth.admin.updateUserById(
           user.id,
           {
             user_metadata: {
@@ -523,12 +371,7 @@ export default async function handler(req, res) {
           }
         )
 
-        if (revokeError) {
-          console.error('[Gumroad Webhook] Error revoking subscription:', revokeError)
-          return res.status(500).json({ error: 'Failed to revoke subscription' })
-        }
-
-        console.log(`[Gumroad Webhook] ✅ Subscription revoked for ${email} (reason: ${eventType})`)
+        console.log(`[Gumroad Webhook] Subscription revoked for ${email} (reason: ${eventType})`)
 
         // Send cancellation email
         await sendEmail('subscriptionCancelled', email, user.email?.split('@')[0])
@@ -539,6 +382,45 @@ export default async function handler(req, res) {
           action: 'subscription_revoked',
           reason: eventType
         })
+      }
+
+      case 'subscription_restarted': {
+        // User reactivated after cancelling — restore Pro access
+        const { error: subError } = await supabaseAdmin
+          .from('user_subscriptions')
+          .update({
+            is_pro: true,
+            subscription_status: 'active',
+            cancelled_at: null,
+          })
+          .eq('user_id', user.id)
+
+        if (subError) {
+          console.error('[Gumroad Webhook] Error updating user_subscriptions:', subError)
+          return res.status(500).json({ error: 'Failed to reactivate subscription' })
+        }
+
+        await supabaseAdmin.auth.admin.updateUserById(
+          user.id,
+          {
+            user_metadata: {
+              is_pro: true,
+              subscription_status: 'active',
+              cancelled_at: null,
+            }
+          }
+        )
+
+        console.log(`[Gumroad Webhook] Subscription reactivated for ${email}`)
+
+        await sendEmail('proUpgrade', email, user.email?.split('@')[0])
+
+        return res.status(200).json({
+          success: true,
+          userId: user.id,
+          action: 'subscription_reactivated'
+        })
+      }
 
       default:
         console.log(`[Gumroad Webhook] Unknown event type: ${eventType}, logging only`)
@@ -551,6 +433,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('[Gumroad Webhook] Error:', error)
+    Sentry.captureException(error)
     // Still return 200 to prevent Gumroad from retrying
     // But log the error
     return res.status(200).json({

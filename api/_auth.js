@@ -6,6 +6,12 @@
 
 import { createClient } from '@supabase/supabase-js'
 
+// Service-role admin client — used for all server-side DB operations
+const supabaseAdmin = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
 /**
  * Get authenticated user from request headers
  * Extracts the Supabase access token from Authorization header
@@ -30,14 +36,8 @@ export async function getAuthenticatedUser(req) {
       return { user: null, error: new Error('Supabase not configured') }
     }
 
-    // Create Supabase client with service role key
-    const supabase = createClient(
-      process.env.VITE_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
-
     // Verify the JWT token and get user
-    const { data: { user }, error } = await supabase.auth.getUser(token)
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
 
     if (error || !user) {
       return { user: null, error: error || new Error('Invalid token') }
@@ -52,29 +52,29 @@ export async function getAuthenticatedUser(req) {
 
 /**
  * Verify if a user has active Pro subscription
- * Checks both is_pro flag AND subscription_status in user metadata
+ * Queries the user_subscriptions table via service role client.
  *
  * SECURITY: This queries the database directly using service role key
  * to prevent client-side manipulation
  *
- * @param {Object} user - Supabase user object
- * @returns {boolean} True if user has active Pro subscription
+ * @param {string} userId - Supabase user ID
+ * @returns {Promise<{isPro: boolean, subscriptionStatus: string}>}
  */
-export function verifyProStatus(user) {
-  if (!user) {
-    return false
+export async function verifyProStatus(userId) {
+  const { data, error } = await supabaseAdmin
+    .from('user_subscriptions')
+    .select('is_pro, subscription_status')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data) {
+    return { isPro: false, subscriptionStatus: 'free' };
   }
 
-  const metadata = user.user_metadata || {}
-  const isPro = metadata.is_pro === true
-  const subscriptionStatus = metadata.subscription_status
-
-  // User must have both:
-  // 1. is_pro = true
-  // 2. subscription_status != 'cancelled'
-  const hasActiveSubscription = isPro && subscriptionStatus === 'active'
-
-  return hasActiveSubscription
+  return {
+    isPro: data.is_pro === true && data.subscription_status === 'active',
+    subscriptionStatus: data.subscription_status || 'free',
+  };
 }
 
 /**
@@ -97,7 +97,7 @@ export async function authenticateRequest(req) {
     return { user: null, isPro: false, error: error || new Error('Authentication failed') }
   }
 
-  const isPro = verifyProStatus(user)
+  const { isPro } = await verifyProStatus(user.id)
 
   return { user, isPro, error: null }
 }
@@ -111,41 +111,42 @@ export async function authenticateRequest(req) {
  */
 export async function getUserByEmail(email) {
   try {
-    // Check if environment variables are set
-    if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('[Auth] Missing Supabase environment variables')
-      return { user: null, error: new Error('Supabase not configured') }
+    // Direct O(1) lookup via service role query on auth.users
+    // This avoids paginating through all users (was O(n) with perPage=50)
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('auth.users')
+        .select('id, email, user_metadata, raw_app_meta_data')
+        .eq('email', email.toLowerCase())
+        .single()
+
+      if (!error && data) {
+        return { user: data, error: null }
+      }
+    } catch (e) {
+      // Fall through to paginated fallback
     }
 
-    const supabase = createClient(
-      process.env.VITE_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
-
-    // Paginated search to handle >50 users
-    let user = null
+    // Fallback: paginate with large page size and early exit once found
     let page = 1
-    const perPage = 50
+    const perPage = 1000
 
-    while (!user) {
-      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage })
+    while (true) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage })
 
       if (error) {
         return { user: null, error }
       }
 
-      user = data.users.find(u => u.email?.toLowerCase() === email.toLowerCase())
+      const user = data.users.find(u => u.email?.toLowerCase() === email.toLowerCase())
+      if (user) return { user, error: null }
 
       // No more pages to search
       if (data.users.length < perPage) break
       page++
     }
 
-    if (!user) {
-      return { user: null, error: new Error('User not found') }
-    }
-
-    return { user, error: null }
+    return { user: null, error: new Error('User not found') }
   } catch (error) {
     console.error('[Auth] Error in getUserByEmail:', error)
     return { user: null, error }

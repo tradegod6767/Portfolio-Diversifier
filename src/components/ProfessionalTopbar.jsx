@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import DeleteAccountModal from './DeleteAccountModal';
+import UnsubscribeModal from './UnsubscribeModal';
 import { Button, Badge } from './ui';
 
 /**
@@ -13,6 +14,7 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [showUnsubscribe, setShowUnsubscribe] = useState(false);
 
   const handleSignOut = () => {
     localStorage.clear();
@@ -64,6 +66,16 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
                   <span className="hidden sm:inline">Sign Out</span>
                   <span className="sm:hidden">Out</span>
                 </Button>
+                {isPro && (
+                  <Button
+                    onClick={() => setShowUnsubscribe(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground hidden sm:inline-flex"
+                  >
+                    Unsubscribe
+                  </Button>
+                )}
                 <Button
                   onClick={() => setShowDeleteAccount(true)}
                   variant="ghost"
@@ -93,6 +105,10 @@ export default function ProfessionalTopbar({ onToggleSidebar, title }) {
       <DeleteAccountModal
         isOpen={showDeleteAccount}
         onClose={() => setShowDeleteAccount(false)}
+      />
+      <UnsubscribeModal
+        isOpen={showUnsubscribe}
+        onClose={() => setShowUnsubscribe(false)}
       />
     </>
   );

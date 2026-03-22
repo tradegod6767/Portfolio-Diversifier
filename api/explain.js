@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { handleCors } from './_cors.js';
 import { applyRateLimit } from './_ratelimit.js';
 import { authenticateRequest } from './_auth.js';
+import { Sentry } from './_sentry.js';
 
 export default async function handler(req, res) {
   // SECURITY: Apply CORS with origin whitelist (no wildcards)
@@ -57,6 +58,7 @@ export default async function handler(req, res) {
 
     const anthropic = new Anthropic({
       apiKey: apiKey,
+      timeout: 25000,
     });
 
     // Create conditional tax section based on subscription status
@@ -130,6 +132,7 @@ Write in clear, professional language that a non-expert investor can understand.
       type: error.type,
       code: error.code
     });
+    Sentry.captureException(error);
 
     return res.status(500).json({
       error: 'Failed to generate AI analysis',

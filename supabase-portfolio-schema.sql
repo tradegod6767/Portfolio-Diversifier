@@ -1,3 +1,4 @@
+-- DEPRECATED: See supabase/migrations/ for current versions
 -- Cloud Portfolio Storage for Pro Users
 -- Run this in your Supabase SQL Editor
 

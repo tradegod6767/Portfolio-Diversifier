@@ -4,6 +4,7 @@ import { exportHoldingsCSV, exportTradesCSV } from '../utils/csvExport';
 import { generatePDF } from '../utils/pdfGenerator';
 import { LoadingSpinner, ProgressBar, SuccessCheckmark } from './ui';
 import { useToast } from '../context/ToastContext';
+import { supabase } from '../lib/supabase';
 
 function ExportButtons({ results, isPro = false, userEmail = null }) {
   const { addToast } = useToast();
@@ -50,6 +51,36 @@ function ExportButtons({ results, isPro = false, userEmail = null }) {
     setExportSuccess(false);
 
     try {
+      // Server-side Pro gate: verify authorization before generating PDF
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          // Show upgrade prompt
+          addToast('PDF export requires a Pro subscription. Please upgrade to access this feature.', 'error');
+          setGenerating(false);
+          setGeneratingProgress(0);
+          setGeneratingMessage('');
+          return;
+        }
+        if (response.status === 401) {
+          addToast('Please sign in to export PDF reports.', 'error');
+          setGenerating(false);
+          setGeneratingProgress(0);
+          setGeneratingMessage('');
+          return;
+        }
+        throw new Error('PDF authorization failed');
+      }
+
+      // Authorization confirmed — proceed with PDF generation
       await generatePDF(
         {
           totalValue: results.totalValue,

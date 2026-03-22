@@ -5,43 +5,16 @@
 
 export const CHANGELOG = [
   {
-    version: "1.3.0",
-    date: "2025-01-14",
-    changes: [
-      { type: "feature", text: "What's New changelog to track updates" },
-      { type: "feature", text: "How It Works section explaining methodology" },
-      { type: "improvement", text: "Better dark mode support for all components" },
-    ]
-  },
-  {
-    version: "1.2.0",
-    date: "2025-01-13",
-    changes: [
-      { type: "feature", text: "Dark mode support with system preference detection" },
-      { type: "feature", text: "Keyboard shortcuts for power users" },
-      { type: "feature", text: "CSV export for holdings and trades" },
-      { type: "improvement", text: "Smoother theme transitions" },
-    ]
-  },
-  {
-    version: "1.1.0",
-    date: "2025-01-12",
-    changes: [
-      { type: "feature", text: "Undo/redo for portfolio edits" },
-      { type: "feature", text: "What-If Simulator for market scenarios" },
-      { type: "improvement", text: "Improved chart tooltips" },
-      { type: "fix", text: "Fixed mobile layout issues on small screens" },
-    ]
-  },
-  {
     version: "1.0.0",
-    date: "2025-01-10",
+    date: "2026-03-16",
     changes: [
-      { type: "feature", text: "Portfolio rebalancing calculator" },
-      { type: "feature", text: "Health score with drift analysis" },
-      { type: "feature", text: "AI-powered portfolio insights" },
-      { type: "feature", text: "PDF export with charts" },
+      { type: "feature", text: "Portfolio rebalancing calculator with 5 rebalancing modes" },
+      { type: "feature", text: "Portfolio health score with drift and concentration analysis" },
+      { type: "feature", text: "AI-powered portfolio analysis via Claude" },
+      { type: "feature", text: "PDF report export (Pro)" },
       { type: "feature", text: "Model portfolio comparisons" },
+      { type: "feature", text: "CSV export for holdings and trades" },
+      { type: "feature", text: "Cloud portfolio storage (Pro) and local storage (Free)" },
     ]
   },
 ];

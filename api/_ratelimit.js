@@ -244,12 +244,14 @@ export async function checkRateLimit(req, res, options = {}) {
     }
 
     // Rate limit check passed
-    console.log('[Rate Limit] Check passed:', {
-      identifier,
-      tier: selectedTier.description,
-      remaining: `${remaining}/${limit}`,
-      reset: new Date(reset)
-    })
+    if (process.env.DEBUG_RATE_LIMIT) {
+      console.log('[Rate Limit] Check passed:', {
+        identifier,
+        tier: selectedTier.description,
+        remaining: `${remaining}/${limit}`,
+        reset: new Date(reset)
+      })
+    }
 
     return {
       success: true,

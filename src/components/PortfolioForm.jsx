@@ -159,6 +159,14 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
     return cleanTicker
   }
 
+  const validateAmount = (value) => {
+    const num = parseFloat(value);
+    if (isNaN(num) || num < 0) {
+      return 'Amount must be a positive number';
+    }
+    return null;
+  };
+
   const updatePosition = (id, field, value) => {
     // Clear sample state when user manually edits
     if (loadedSample) {
@@ -174,6 +182,15 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
       }
       setError('') // Clear error if valid
       value = validated
+    }
+
+    if (field === 'amount' && value !== '') {
+      const amountError = validateAmount(value);
+      if (amountError) {
+        setError(amountError);
+      } else {
+        setError('');
+      }
     }
 
     // Update livePositions for immediate feedback
@@ -918,9 +935,14 @@ function PortfolioForm({ onCalculate, onCalculateStart, onImportClick, onLoadCli
                   }}
                   onFocus={handleFieldFocus}
                   onBlur={() => handleFieldBlur('amount')}
-                  className="w-full px-3 min-h-[48px] border border-input bg-background rounded-lg focus:ring-2 focus:ring-ring focus:outline-none text-base font-mono text-foreground"
+                  className={`w-full px-3 min-h-[48px] border bg-background rounded-lg focus:ring-2 focus:ring-ring focus:outline-none text-base font-mono text-foreground ${
+                    position.amount !== '' && validateAmount(position.amount) ? 'border-loss' : 'border-input'
+                  }`}
                   required
                 />
+                {position.amount !== '' && validateAmount(position.amount) && (
+                  <p className="mt-1 text-xs text-loss">{validateAmount(position.amount)}</p>
+                )}
               </div>
 
               {/* Target Allocation with Slider */}

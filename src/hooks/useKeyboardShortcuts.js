@@ -21,7 +21,6 @@ export const SHORTCUTS = [
   { key: 'n', description: 'Add new holding', category: 'Navigation' },
   { key: 'r', description: 'Run rebalance calculation', category: 'Actions' },
   { key: 's', description: 'Save portfolio', category: 'Actions' },
-  { key: 'd', description: 'Toggle dark mode', category: 'Display' },
   { key: '?', description: 'Show keyboard shortcuts', category: 'Help' },
   { key: 'Escape', description: 'Close modal/dropdown', category: 'Navigation' },
   { key: 'Ctrl/Cmd + Z', description: 'Undo last action', category: 'Edit' },
@@ -54,7 +53,6 @@ export function useKeyboardShortcuts(handlers, enabled = true) {
       'n': 'onAddHolding',
       'r': 'onRunRebalance',
       's': 'onSavePortfolio',
-      'd': 'onToggleDarkMode',
       '?': 'onShowShortcuts',
       'Escape': 'onEscape',
     };
