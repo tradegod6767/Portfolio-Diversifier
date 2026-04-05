@@ -116,19 +116,13 @@ export async function getCurrentUser() {
 export async function checkIfPro(userId) {
   if (!userId) return { isPro: false, subscriptionStatus: 'free' };
 
-  const { data, error } = await supabase
-    .from('user_subscriptions')
-    .select('is_pro, subscription_status')
-    .eq('user_id', userId)
-    .single();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (error || !data) {
-    return { isPro: false, subscriptionStatus: 'free' };
-  }
+  if (!user) return { isPro: false, subscriptionStatus: 'free' };
 
   return {
-    isPro: data.is_pro === true && data.subscription_status === 'active',
-    subscriptionStatus: data.subscription_status || 'free',
+    isPro: user.user_metadata?.is_pro === true,
+    subscriptionStatus: user.user_metadata?.subscription_status || 'free',
   };
 }
 

@@ -67,22 +67,13 @@ export const auth = {
 
 // Helper functions for subscription data
 export const subscriptions = {
-  getSubscription: async (userId) => {
-    const { data, error } = await supabase
-      .from('user_subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    return { data, error };
+  getSubscription: async () => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    return { data: user?.user_metadata ?? null, error };
   },
 
-  isPro: (subscription) => {
-    if (!subscription) return false;
-    if (subscription.subscription_status !== 'active') return false;
-    if (!subscription.current_period_end) return false;
-
-    const endDate = new Date(subscription.current_period_end);
-    const now = new Date();
-    return endDate > now;
+  isPro: (user) => {
+    if (!user) return false;
+    return user.user_metadata?.is_pro === true;
   },
 };

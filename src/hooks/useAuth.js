@@ -72,15 +72,13 @@ export function useAuth() {
         setUser(currentUser)
 
         if (currentUser) {
-          const { isPro: hasActiveSub } = await checkIfPro(currentUser.id)
-
           // DEV ONLY: localStorage override for testing Pro features without a real subscription.
           // Open the browser console and run: localStorage.setItem('dev_force_pro', 'true')
           // Then refresh. Remove with: localStorage.removeItem('dev_force_pro')
           const devForcePro = import.meta.env.DEV &&
             localStorage.getItem('dev_force_pro') === 'true'
 
-          const currentIsPro = hasActiveSub || devForcePro
+          const currentIsPro = currentUser.user_metadata?.is_pro === true || devForcePro
 
           if (mounted) {
             setIsPro(currentIsPro)
@@ -102,19 +100,17 @@ export function useAuth() {
     initAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return
 
         const newUser = session?.user ?? null
         setUser(newUser)
 
         if (newUser) {
-          const { isPro: hasActiveSub } = await checkIfPro(newUser.id)
-
           const devForcePro = import.meta.env.DEV &&
             localStorage.getItem('dev_force_pro') === 'true'
 
-          const newIsPro = hasActiveSub || devForcePro
+          const newIsPro = newUser.user_metadata?.is_pro === true || devForcePro
 
           if (mounted) {
             setIsPro(newIsPro)
