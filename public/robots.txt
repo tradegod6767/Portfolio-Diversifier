@@ -1,7 +1,39 @@
+# robots.txt for RebalanceKit (rebalancekit.com)
+
 User-agent: *
 Allow: /
+Allow: /calculator
+Allow: /pricing
+Allow: /features
+Allow: /about
+Allow: /blog
+Allow: /changelog
+Allow: /guides/
+Allow: /compare/
+Allow: /portfolios/
+Allow: /use-cases/
+Allow: /terms
+Allow: /privacy
+
+Disallow: /app
 Disallow: /api/
 Disallow: /auth/callback
 Disallow: /reset-password
+Disallow: /success
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
 
 Sitemap: https://rebalancekit.com/sitemap.xml

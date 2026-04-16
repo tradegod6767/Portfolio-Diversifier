@@ -53,6 +53,34 @@ const TermsOfServicePage = React.lazy(() => import("./pages/TermsOfServicePage")
 const PrivacyPolicyPage = React.lazy(() => import("./pages/PrivacyPolicyPage"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
 
+// Marketing layout (static import — lightweight, used at route level)
+import MarketingLayout from "./layouts/MarketingLayout";
+const HomePage = React.lazy(() => import("./pages/Home"));
+const CalculatorPage = React.lazy(() => import("./pages/Calculator"));
+const PricingPage = React.lazy(() => import("./pages/Pricing"));
+const FeaturesPage = React.lazy(() => import("./pages/Features"));
+const AboutPage = React.lazy(() => import("./pages/About"));
+const BlogPage = React.lazy(() => import("./pages/Blog"));
+const BlogPostPage = React.lazy(() => import("./pages/BlogPost"));
+const ChangelogPage = React.lazy(() => import("./pages/Changelog"));
+const HowToRebalancePage = React.lazy(() => import("./pages/guides/HowToRebalance"));
+const RebalancingStrategiesPage = React.lazy(() => import("./pages/guides/RebalancingStrategies"));
+const HowOftenToRebalancePage = React.lazy(() => import("./pages/guides/HowOftenToRebalance"));
+const BestRebalancingToolsPage = React.lazy(() => import("./pages/compare/BestRebalancingTools"));
+const PortfolioVisualizerAltPage = React.lazy(() => import("./pages/compare/PortfolioVisualizerAlternative"));
+const PassivAltPage = React.lazy(() => import("./pages/compare/PassivAlternative"));
+const M1FinanceAltPage = React.lazy(() => import("./pages/compare/M1FinanceAlternative"));
+const RoboAdvisorAltPage = React.lazy(() => import("./pages/compare/RoboAdvisorAlternative"));
+const ThreeFundPortfolioPage = React.lazy(() => import("./pages/portfolios/ThreeFundPortfolio"));
+const SixtyFortyPortfolioPage = React.lazy(() => import("./pages/portfolios/SixtyFortyPortfolio"));
+const LazyPortfolioPage = React.lazy(() => import("./pages/portfolios/LazyPortfolio"));
+const FourOhOneKPage = React.lazy(() => import("./pages/use-cases/FourOhOneKRebalancing"));
+const IRARebalancingPage = React.lazy(() => import("./pages/use-cases/IRARebalancing"));
+const TaxSmartPage = React.lazy(() => import("./pages/features/TaxSmartRebalancing"));
+const DriftTrackingPage = React.lazy(() => import("./pages/features/DriftTracking"));
+const MultiAccountPage = React.lazy(() => import("./pages/features/MultiAccount"));
+const AutomaticRebalancingPage = React.lazy(() => import("./pages/features/AutomaticRebalancing"));
+
 /* ---------- Sidebar nav items ---------- */
 const NAV_ITEMS = [
   {key: 'home', label: 'Home'},
@@ -625,7 +653,7 @@ function MainApp(){
   useEffect(() => {
     if (searchParams.get('upgraded') === 'true') {
       setShowUpgradedBanner(true);
-      window.history.replaceState({}, '', '/');
+      window.history.replaceState({}, '', '/app');
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -934,6 +962,14 @@ function MainApp(){
     </div>
   );
 }
+/* Dispatch prerender-ready event after mount (used by vite-plugin-prerender) */
+function PrerenderReady() {
+  useEffect(() => {
+    document.dispatchEvent(new Event('prerender-ready'))
+  }, [])
+  return null
+}
+
 /* ---------- App with Router ---------- */
 export default function App(){
   return (
@@ -941,13 +977,57 @@ export default function App(){
       <ToastProvider>
         <ErrorBoundary>
           <Suspense fallback={<AppLoadingSkeleton />}>
+            <PrerenderReady />
             <Routes>
+              {/* Utility routes */}
               <Route path="/success" element={<SuccessPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
-              <Route path="/terms" element={<TermsOfServicePage />} />
-              <Route path="/privacy" element={<PrivacyPolicyPage />} />
-              <Route path="/" element={<MainApp />} />
+
+              {/* SPA app shell (original /) */}
+              <Route path="/app" element={<MainApp />} />
+
+              {/* Marketing pages — wrapped in shared layout */}
+              <Route element={<MarketingLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/calculator" element={<CalculatorPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/features" element={<FeaturesPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:slug" element={<BlogPostPage />} />
+                <Route path="/changelog" element={<ChangelogPage />} />
+                <Route path="/terms" element={<TermsOfServicePage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+
+                {/* Guide pages */}
+                <Route path="/guides/how-to-rebalance-portfolio" element={<HowToRebalancePage />} />
+                <Route path="/guides/rebalancing-strategies" element={<RebalancingStrategiesPage />} />
+                <Route path="/guides/how-often-to-rebalance" element={<HowOftenToRebalancePage />} />
+
+                {/* Comparison pages */}
+                <Route path="/compare/best-rebalancing-tools" element={<BestRebalancingToolsPage />} />
+                <Route path="/compare/portfolio-visualizer-alternative" element={<PortfolioVisualizerAltPage />} />
+                <Route path="/compare/passiv-alternative" element={<PassivAltPage />} />
+                <Route path="/compare/m1-finance-alternative" element={<M1FinanceAltPage />} />
+                <Route path="/compare/robo-advisor-alternative" element={<RoboAdvisorAltPage />} />
+
+                {/* Portfolio template pages */}
+                <Route path="/portfolios/three-fund-portfolio" element={<ThreeFundPortfolioPage />} />
+                <Route path="/portfolios/60-40-portfolio" element={<SixtyFortyPortfolioPage />} />
+                <Route path="/portfolios/lazy-portfolio" element={<LazyPortfolioPage />} />
+
+                {/* Use-case pages */}
+                <Route path="/use-cases/401k-rebalancing" element={<FourOhOneKPage />} />
+                <Route path="/use-cases/ira-rebalancing" element={<IRARebalancingPage />} />
+
+                {/* Feature detail pages */}
+                <Route path="/features/tax-smart-rebalancing" element={<TaxSmartPage />} />
+                <Route path="/features/drift-tracking" element={<DriftTrackingPage />} />
+                <Route path="/features/multi-account" element={<MultiAccountPage />} />
+                <Route path="/features/automatic-rebalancing" element={<AutomaticRebalancingPage />} />
+              </Route>
+
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>

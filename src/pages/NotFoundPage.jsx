@@ -1,7 +1,10 @@
 import { EmptyState } from '../components/ui';
+import SEO from '../components/SEO';
 
 export default function NotFoundPage() {
   return (
+    <>
+    <SEO title="Page Not Found — RebalanceKit" description="" path="/404" noindex={true} />
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <EmptyState
         icon={
@@ -17,5 +20,6 @@ export default function NotFoundPage() {
         }}
       />
     </div>
+    </>
   );
 }

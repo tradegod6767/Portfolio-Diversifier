@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import SEO from '../components/SEO';
 
 function SuccessPage() {
   const navigate = useNavigate();
@@ -33,6 +34,8 @@ function SuccessPage() {
   }, [navigate, refetch]);
 
   return (
+    <>
+    <SEO title="Upgrade Successful — RebalanceKit" description="" path="/success" noindex={true} />
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-card border border-border rounded-2xl p-12 text-center">
         {/* Success icon */}
@@ -81,6 +84,7 @@ function SuccessPage() {
         </button>
       </div>
     </div>
+    </>
   );
 }
 

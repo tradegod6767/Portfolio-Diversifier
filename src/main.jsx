@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async'
 import { inject } from '@vercel/analytics'
 import './index.css'
 import App from './App.jsx'
@@ -8,6 +9,14 @@ inject()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
   </StrictMode>,
 )
+
+if (import.meta.env.DEV) {
+  import('./lib/web-vitals').then(({ initWebVitalsDev }) => initWebVitalsDev())
+} else {
+  import('./lib/web-vitals').then(({ initWebVitals }) => initWebVitals())
+}

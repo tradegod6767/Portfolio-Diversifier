@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
+import SEO from '../components/SEO';
 
 function AuthCallbackPage() {
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,8 @@ function AuthCallbackPage() {
   }, [user, navigate, addToast]);
 
   return (
+    <>
+    <SEO title="Signing In — RebalanceKit" description="" path="/auth/callback" noindex={true} />
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Brand */}
@@ -130,6 +133,7 @@ function AuthCallbackPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updatePassword } from '../lib/auth';
+import SEO from '../components/SEO';
 
 function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -42,6 +43,8 @@ function ResetPasswordPage() {
   };
 
   return (
+    <>
+    <SEO title="Reset Password — RebalanceKit" description="" path="/reset-password" noindex={true} />
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
@@ -169,6 +172,7 @@ function ResetPasswordPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
 
