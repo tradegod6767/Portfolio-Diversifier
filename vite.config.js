@@ -90,8 +90,12 @@ export default defineConfig(({ mode }) => {
         avif: { quality: 65, lossless: false },
       }),
 
-      // Prerender marketing pages at build time (skip during dev and analyze runs)
-      ...(mode === 'production' && !process.env.ANALYZE
+      // Prerender marketing pages at build time.
+      // Skipped on Vercel (VERCEL=1): their Amazon Linux 2 build container lacks
+      // libnss3.so, which Chrome 77 (bundled in puppeteer@1.x) requires to start.
+      // Run `npm run build` locally to generate prerendered HTML for deployment,
+      // or commit the dist/ output directly when prerendering is needed.
+      ...(mode === 'production' && !process.env.ANALYZE && !process.env.VERCEL
         ? [
             vitePrerender({
               staticDir: path.join(process.cwd(), 'dist'),
