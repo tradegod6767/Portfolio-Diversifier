@@ -1,90 +1,93 @@
-import { useState, useEffect, useRef } from 'react'
-import { getCurrentUser, checkIfPro } from '../lib/auth'
-import { supabase } from '../lib/supabase'
-import { useProPolling } from './useProPolling'
+import { useState, useEffect, useRef } from 'react';
+import { getCurrentUser, checkIfPro } from '../lib/auth';
+import { supabase } from '../lib/supabase';
+import { useProPolling } from './useProPolling';
 
 export function useAuth() {
-  const [user, setUser] = useState(null)
-  const [isPro, setIsPro] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [proJustActivated, setProJustActivated] = useState(false)
+  const [user, setUser] = useState(null);
+  const [isPro, setIsPro] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [proJustActivated, setProJustActivated] = useState(false);
   // Tracks the last known isPro value so we can detect false → true transitions
-  const prevIsProRef = useRef(false)
+  const prevIsProRef = useRef(false);
   // Tracks the background Pro polling interval so we can cancel it
-  const proPollingRef = useRef(null)
+  const proPollingRef = useRef(null);
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
 
     // Poll the user_subscriptions table every 5s for up to 60s to detect Pro upgrades.
     // Guards against double-start — only one polling loop runs at a time.
     function startProPolling(userId) {
-      if (proPollingRef.current) return
+      if (proPollingRef.current) return;
 
-      let attempts = 0
-      const maxAttempts = 12 // 12 × 5s = 60s
+      let attempts = 0;
+      const maxAttempts = 12; // 12 × 5s = 60s
 
       proPollingRef.current = setInterval(async () => {
         if (!mounted) {
-          clearInterval(proPollingRef.current)
-          proPollingRef.current = null
-          return
+          clearInterval(proPollingRef.current);
+          proPollingRef.current = null;
+          return;
         }
 
-        attempts++
-        console.log('[Pro Poll] checking... isPro: false')
+        attempts++;
+        console.log('[Pro Poll] checking... isPro: false');
 
         if (attempts > maxAttempts) {
-          clearInterval(proPollingRef.current)
-          proPollingRef.current = null
-          return
+          clearInterval(proPollingRef.current);
+          proPollingRef.current = null;
+          return;
         }
 
         try {
-          const { isPro: hasActiveSub } = await checkIfPro(userId)
+          const { isPro: hasActiveSub } = await checkIfPro(userId);
 
           if (!mounted) {
-            clearInterval(proPollingRef.current)
-            proPollingRef.current = null
-            return
+            clearInterval(proPollingRef.current);
+            proPollingRef.current = null;
+            return;
           }
 
           if (hasActiveSub) {
-            console.log('[Pro Poll] detected Pro upgrade!')
-            clearInterval(proPollingRef.current)
-            proPollingRef.current = null
-            setIsPro(true)
-            setProJustActivated(true)
-            prevIsProRef.current = true
+            console.log('[Pro Poll] detected Pro upgrade!');
+            clearInterval(proPollingRef.current);
+            proPollingRef.current = null;
+            setIsPro(true);
+            setProJustActivated(true);
+            prevIsProRef.current = true;
           }
         } catch {
           // Silently ignore polling errors
         }
-      }, 5000)
+      }, 5000);
     }
 
     async function initAuth() {
       try {
-        const currentUser = await getCurrentUser()
+        const currentUser = await getCurrentUser();
 
-        if (!mounted) return
+        if (!mounted) return;
 
-        setUser(currentUser)
+        setUser(currentUser);
 
         if (currentUser) {
           // DEV ONLY: localStorage override for testing Pro features without a real subscription.
           // Open the browser console and run: localStorage.setItem('dev_force_pro', 'true')
           // Then refresh. Remove with: localStorage.removeItem('dev_force_pro')
-          const devForcePro = import.meta.env.DEV &&
-            localStorage.getItem('dev_force_pro') === 'true'
+          const devForcePro =
+            import.meta.env.DEV && localStorage.getItem('dev_force_pro') === 'true';
 
-          const currentIsPro = currentUser.user_metadata?.is_pro === true || devForcePro
+          // Always check subscription table — user_metadata can be stale
+          const { isPro: currentIsPro } = devForcePro
+            ? { isPro: true }
+            : await checkIfPro(currentUser.id);
 
           if (mounted) {
-            setIsPro(currentIsPro)
-            prevIsProRef.current = currentIsPro
+            setIsPro(currentIsPro);
+            prevIsProRef.current = currentIsPro;
             if (!currentIsPro) {
-              startProPolling(currentUser.id)
+              startProPolling(currentUser.id);
             }
           }
         }
@@ -92,84 +95,93 @@ export function useAuth() {
         // Auth initialization failed silently
       } finally {
         if (mounted) {
-          setLoading(false)
+          setLoading(false);
         }
       }
     }
 
-    initAuth()
+    initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!mounted) return
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
 
-        const newUser = session?.user ?? null
-        setUser(newUser)
+      const newUser = session?.user ?? null;
+      setUser(newUser);
 
-        if (newUser) {
-          const devForcePro = import.meta.env.DEV &&
-            localStorage.getItem('dev_force_pro') === 'true'
+      if (newUser) {
+        const devForcePro = import.meta.env.DEV && localStorage.getItem('dev_force_pro') === 'true';
 
-          const newIsPro = newUser.user_metadata?.is_pro === true || devForcePro
-
-          if (mounted) {
-            setIsPro(newIsPro)
-
-            // Detect Pro activation on an active session:
-            // - TOKEN_REFRESHED: webhook updated subscription, polling detected it
-            // - SIGNED_IN: user just logged in with is_pro already true (fresh purchase)
-            // Skip INITIAL_SESSION to avoid false positives on page load for existing Pro users
-            if (
-              (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') &&
-              !prevIsProRef.current &&
-              newIsPro
-            ) {
-              setProJustActivated(true)
-            }
-
-            prevIsProRef.current = newIsPro
-
-            // Start background polling on any tab where user is logged in but not yet Pro
-            if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && !newIsPro) {
-              startProPolling(newUser.id)
-            }
-
-            // Stop polling as soon as Pro is confirmed
-            if (newIsPro && proPollingRef.current) {
-              clearInterval(proPollingRef.current)
-              proPollingRef.current = null
-            }
-          }
-        } else {
-          setIsPro(false)
-          prevIsProRef.current = false
-          if (proPollingRef.current) {
-            clearInterval(proPollingRef.current)
-            proPollingRef.current = null
+        // For auth events that indicate a real status change, re-check the subscription table.
+        // For INITIAL_SESSION, initAuth() already did the check — avoid a duplicate query.
+        let newIsPro = devForcePro;
+        if (!devForcePro) {
+          if (event === 'INITIAL_SESSION') {
+            // initAuth already set isPro via checkIfPro; keep prevIsProRef as-is
+            newIsPro = prevIsProRef.current;
+          } else {
+            const { isPro: fresh } = await checkIfPro(newUser.id);
+            newIsPro = fresh;
           }
         }
+
+        if (mounted) {
+          setIsPro(newIsPro);
+
+          // Detect Pro activation on an active session:
+          // - TOKEN_REFRESHED: webhook updated subscription, polling detected it
+          // - SIGNED_IN: user just logged in with is_pro already true (fresh purchase)
+          if (
+            (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') &&
+            !prevIsProRef.current &&
+            newIsPro
+          ) {
+            setProJustActivated(true);
+          }
+
+          prevIsProRef.current = newIsPro;
+
+          // Start background polling on any tab where user is logged in but not yet Pro
+          if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && !newIsPro) {
+            startProPolling(newUser.id);
+          }
+
+          // Stop polling as soon as Pro is confirmed
+          if (newIsPro && proPollingRef.current) {
+            clearInterval(proPollingRef.current);
+            proPollingRef.current = null;
+          }
+        }
+      } else {
+        setIsPro(false);
+        prevIsProRef.current = false;
+        if (proPollingRef.current) {
+          clearInterval(proPollingRef.current);
+          proPollingRef.current = null;
+        }
       }
-    )
+    });
 
     return () => {
-      mounted = false
-      subscription.unsubscribe()
+      mounted = false;
+      subscription.unsubscribe();
       if (proPollingRef.current) {
-        clearInterval(proPollingRef.current)
-        proPollingRef.current = null
+        clearInterval(proPollingRef.current);
+        proPollingRef.current = null;
       }
-    }
-  }, [])
+    };
+  }, []);
 
   async function refetch() {
     if (user) {
-      const { isPro: proStatus } = await checkIfPro(user.id)
-      setIsPro(proStatus)
+      const { isPro: proStatus } = await checkIfPro(user.id);
+      setIsPro(proStatus);
     }
   }
 
   function clearProActivated() {
-    setProJustActivated(false)
+    setProJustActivated(false);
   }
 
   // Wire up polling only when user just returned from Gumroad checkout (?upgraded=true)
@@ -177,14 +189,14 @@ export function useAuth() {
     // Refresh pro status when polling detects activation
     if (user?.id) {
       checkIfPro(user.id).then(({ isPro: activatedPro }) => {
-        setIsPro(activatedPro)
+        setIsPro(activatedPro);
         if (activatedPro) {
-          setProJustActivated(true)
-          prevIsProRef.current = true
+          setProJustActivated(true);
+          prevIsProRef.current = true;
         }
-      })
+      });
     }
-  })
+  });
 
-  return { user, isPro, loading, refetch, proJustActivated, clearProActivated }
+  return { user, isPro, loading, refetch, proJustActivated, clearProActivated };
 }

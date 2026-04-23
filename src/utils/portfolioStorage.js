@@ -31,7 +31,7 @@ async function getCloudPortfolios(userId) {
 
   if (error) throw error;
 
-  return data.map(row => ({
+  return data.map((row) => ({
     id: row.id,
     name: row.name,
     positions: row.positions,
@@ -82,7 +82,7 @@ async function migrateLocalToCloud(userId) {
   migrationPromise = (async () => {
     try {
       const results = await Promise.allSettled(
-        local.map(p => upsertCloudPortfolio(userId, p.name, p.positions))
+        local.map((p) => upsertCloudPortfolio(userId, p.name, p.positions))
       );
 
       const failed = results
@@ -94,7 +94,7 @@ async function migrateLocalToCloud(userId) {
       }
 
       // Only clear localStorage when ALL portfolios uploaded successfully
-      const allSucceeded = results.every(r => r.status === 'fulfilled');
+      const allSucceeded = results.every((r) => r.status === 'fulfilled');
       if (allSucceeded) {
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -109,20 +109,33 @@ async function migrateLocalToCloud(userId) {
 // --- Public API ---
 
 export const savePortfolio = async (name, positions, user = null, isPro = false) => {
-  const cleanPositions = positions.map(p => ({
+  const cleanPositions = positions.map((p) => ({
     ticker: p.ticker,
     amount: p.amount,
     targetPercent: p.targetPercent,
   }));
 
   if (user && isPro) {
-    await upsertCloudPortfolio(user.id, name, cleanPositions);
-    return { name, positions: cleanPositions, savedAt: new Date().toISOString(), isLocal: false };
+    if (!user.id) {
+      throw new Error('Your session is not ready yet. Please wait a moment and try again.');
+    }
+    try {
+      const data = await upsertCloudPortfolio(user.id, name, cleanPositions);
+      if (!data || !data.id || data.name !== name || !Array.isArray(data.positions)) {
+        throw new Error(
+          'Save appeared to succeed but the returned record is incomplete. Please try again.'
+        );
+      }
+      return { name, positions: cleanPositions, savedAt: new Date().toISOString(), isLocal: false };
+    } catch (err) {
+      console.error('[portfolioStorage] Cloud save failed:', err);
+      throw err;
+    }
   }
 
   // Free / anonymous — use localStorage
   const portfolios = getLocalPortfolios();
-  const existingIndex = portfolios.findIndex(p => p.name === name);
+  const existingIndex = portfolios.findIndex((p) => p.name === name);
 
   const portfolio = {
     name,
@@ -135,12 +148,19 @@ export const savePortfolio = async (name, positions, user = null, isPro = false)
     portfolios[existingIndex] = portfolio;
   } else {
     if (portfolios.length >= MAX_FREE_PORTFOLIOS) {
-      throw new Error(`Maximum of ${MAX_FREE_PORTFOLIOS} portfolios can be saved. Upgrade to Pro for unlimited cloud storage.`);
+      throw new Error(
+        `Maximum of ${MAX_FREE_PORTFOLIOS} portfolios can be saved. Upgrade to Pro for unlimited cloud storage.`
+      );
     }
     portfolios.push(portfolio);
   }
 
-  setLocalPortfolios(portfolios);
+  try {
+    setLocalPortfolios(portfolios);
+  } catch (err) {
+    console.error('[portfolioStorage] Local save failed:', err);
+    throw new Error('Failed to save portfolio locally. Your browser storage may be full.');
+  }
   return portfolio;
 };
 
@@ -157,7 +177,7 @@ export const getSavedPortfolios = async (user = null, isPro = false) => {
   }
 
   // Free / anonymous / fallback
-  return getLocalPortfolios().map(p => ({ ...p, isLocal: true }));
+  return getLocalPortfolios().map((p) => ({ ...p, isLocal: true }));
 };
 
 export const deletePortfolio = async (name, user = null, isPro = false) => {
@@ -168,7 +188,7 @@ export const deletePortfolio = async (name, user = null, isPro = false) => {
 
   // Free / anonymous
   const portfolios = getLocalPortfolios();
-  const filtered = portfolios.filter(p => p.name !== name);
+  const filtered = portfolios.filter((p) => p.name !== name);
   setLocalPortfolios(filtered);
 };
 
@@ -191,10 +211,13 @@ export const getPortfolio = async (name, user = null, isPro = false) => {
         isLocal: false,
       };
     } catch (err) {
-      console.warn('[portfolioStorage] Cloud getPortfolio failed, falling back to local:', err.message);
+      console.warn(
+        '[portfolioStorage] Cloud getPortfolio failed, falling back to local:',
+        err.message
+      );
     }
   }
 
   const portfolios = getLocalPortfolios();
-  return portfolios.find(p => p.name === name) || null;
+  return portfolios.find((p) => p.name === name) || null;
 };

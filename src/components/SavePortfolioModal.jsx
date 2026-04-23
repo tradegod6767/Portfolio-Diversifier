@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { LoadingSpinner, SuccessCheckmark } from './ui';
 
-function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
+function SavePortfolioModal({ isOpen, onClose, onSave, existingNames, isPro }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -10,6 +10,7 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return; // guard: Enter key can fire onSubmit even on a disabled button
     setError('');
 
     if (!name.trim()) {
@@ -78,15 +79,27 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
           aria-label="Close"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
 
         <div className="p-8">
           {/* Header */}
           <div className="text-center mb-6">
-            <h3 id="save-modal-title" className="text-2xl font-bold tracking-tight text-foreground mb-2">Save Portfolio</h3>
-            <p className="text-sm text-muted-foreground">Give your portfolio a name to save it for later</p>
+            <h3
+              id="save-modal-title"
+              className="text-2xl font-bold tracking-tight text-foreground mb-2"
+            >
+              Save Portfolio
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Give your portfolio a name to save it for later
+            </p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -104,13 +117,40 @@ function SavePortfolioModal({ isOpen, onClose, onSave, existingNames }) {
               />
               {isExisting && (
                 <div className="flex items-start gap-2 mt-2 px-3 py-2 bg-loss-bg border border-loss/30 rounded-md text-xs text-loss">
-                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>A portfolio with this name already exists and will be overwritten</span>
                 </div>
               )}
             </div>
+
+            {!isPro && (
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-3">
+                <svg
+                  className="w-3.5 h-3.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Saved to this browser only — won't sync across devices or browsers.
+              </p>
+            )}
 
             {error && (
               <div className="mb-5 px-4 py-3 bg-loss-bg border border-loss/30 rounded-md">
