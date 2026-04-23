@@ -131,7 +131,10 @@ export async function checkIfPro(userId) {
     .eq('user_id', userId)
     .maybeSingle();
 
+  console.log('[checkIfPro] userId:', userId, '| data:', data, '| error:', error);
+
   if (!error && data) {
+    console.log('[checkIfPro] result from user_subscriptions → isPro:', data.is_pro);
     return {
       isPro: data.is_pro === true,
       subscriptionStatus: data.subscription_status || 'free',
@@ -139,11 +142,13 @@ export async function checkIfPro(userId) {
   }
 
   // Fallback: user_metadata (may be stale, but better than nothing)
+  console.log('[checkIfPro] falling back to user_metadata (no row or error above)');
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { isPro: false, subscriptionStatus: 'free' };
 
+  console.log('[checkIfPro] user_metadata.is_pro:', user.user_metadata?.is_pro);
   return {
     isPro: user.user_metadata?.is_pro === true,
     subscriptionStatus: user.user_metadata?.subscription_status || 'free',
