@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getCurrentUser, checkIfPro } from '../lib/auth';
+import { checkIfPro } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { useProPolling } from './useProPolling';
 
@@ -63,45 +63,11 @@ export function useAuth() {
       }, 5000);
     }
 
-    async function initAuth() {
-      try {
-        const currentUser = await getCurrentUser();
-
-        if (!mounted) return;
-
-        setUser(currentUser);
-
-        if (currentUser) {
-          // DEV ONLY: localStorage override for testing Pro features without a real subscription.
-          // Open the browser console and run: localStorage.setItem('dev_force_pro', 'true')
-          // Then refresh. Remove with: localStorage.removeItem('dev_force_pro')
-          const devForcePro =
-            import.meta.env.DEV && localStorage.getItem('dev_force_pro') === 'true';
-
-          // Always check subscription table — user_metadata can be stale
-          const { isPro: currentIsPro } = devForcePro
-            ? { isPro: true }
-            : await checkIfPro(currentUser.id);
-
-          if (mounted) {
-            setIsPro(currentIsPro);
-            prevIsProRef.current = currentIsPro;
-            if (!currentIsPro) {
-              startProPolling(currentUser.id);
-            }
-          }
-        }
-      } catch {
-        // Auth initialization failed silently
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    initAuth();
-
+    // Rely solely on onAuthStateChange for auth initialization.
+    // Do NOT call getCurrentUser() eagerly — on hard refresh the Supabase session
+    // is not yet restored from localStorage when the component mounts, so
+    // getCurrentUser() returns null and checkIfPro() never runs.
+    // INITIAL_SESSION is the guaranteed signal that session rehydration is done.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -111,19 +77,18 @@ export function useAuth() {
       setUser(newUser);
 
       if (newUser) {
+        // DEV ONLY: localStorage override for testing Pro features without a real subscription.
+        // Open the browser console and run: localStorage.setItem('dev_force_pro', 'true')
+        // Then refresh. Remove with: localStorage.removeItem('dev_force_pro')
         const devForcePro = import.meta.env.DEV && localStorage.getItem('dev_force_pro') === 'true';
 
-        // For auth events that indicate a real status change, re-check the subscription table.
-        // For INITIAL_SESSION, initAuth() already did the check — avoid a duplicate query.
+        // Always query the DB — never short-circuit with prevIsProRef on INITIAL_SESSION.
+        // The ref is still false at that point (no earlier check ran), so skipping the
+        // DB call is what caused the hard-refresh race condition.
         let newIsPro = devForcePro;
         if (!devForcePro) {
-          if (event === 'INITIAL_SESSION') {
-            // initAuth already set isPro via checkIfPro; keep prevIsProRef as-is
-            newIsPro = prevIsProRef.current;
-          } else {
-            const { isPro: fresh } = await checkIfPro(newUser.id);
-            newIsPro = fresh;
-          }
+          const { isPro: fresh } = await checkIfPro(newUser.id);
+          newIsPro = fresh;
         }
 
         if (mounted) {
@@ -160,6 +125,13 @@ export function useAuth() {
           clearInterval(proPollingRef.current);
           proPollingRef.current = null;
         }
+      }
+
+      // Resolve the loading spinner once auth state is definitively known.
+      // INITIAL_SESSION fires when session rehydration completes (logged in or out).
+      // SIGNED_OUT covers explicit logout after initial load.
+      if ((event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') && mounted) {
+        setLoading(false);
       }
     });
 
