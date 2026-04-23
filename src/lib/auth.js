@@ -124,6 +124,18 @@ export async function getCurrentUser() {
 export async function checkIfPro(userId) {
   if (!userId) return { isPro: false, subscriptionStatus: 'free' };
 
+  // Log whether the client already has a session token before querying.
+  // If session is null here, RLS will treat the request as anon and return no rows.
+  const {
+    data: { session: currentSession },
+  } = await supabase.auth.getSession();
+  console.log(
+    '[checkIfPro] session present:',
+    !!currentSession,
+    '| access_token prefix:',
+    currentSession?.access_token?.slice(0, 20) ?? 'none'
+  );
+
   // Primary source of truth: user_subscriptions table (written by webhook)
   const { data, error } = await supabase
     .from('user_subscriptions')
