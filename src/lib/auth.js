@@ -121,20 +121,23 @@ export async function getCurrentUser() {
   return user;
 }
 
-export async function checkIfPro(userId) {
+export async function checkIfPro(userId, knownSession = null) {
   if (!userId) return { isPro: false, subscriptionStatus: 'free' };
 
-  // Log whether the client already has a session token before querying.
-  // If session is null here, RLS will treat the request as anon and return no rows.
-  const {
-    data: { session: currentSession },
-  } = await supabase.auth.getSession();
-  console.log(
-    '[checkIfPro] session present:',
-    !!currentSession,
-    '| access_token prefix:',
-    currentSession?.access_token?.slice(0, 20) ?? 'none'
-  );
+  // Diagnostic: log full session state before querying DB.
+  // If session is null here, RLS treats request as anon and returns no rows.
+  // Accept a pre-resolved session (e.g. from onAuthStateChange) to avoid
+  // the timing gap where getSession() re-reads storage before it is written.
+  let session = knownSession;
+  let sessionError = null;
+  if (!session) {
+    const result = await supabase.auth.getSession();
+    session = result.data?.session ?? null;
+    sessionError = result.error ?? null;
+  }
+  console.log('[checkIfPro] session:', session);
+  console.log('[checkIfPro] session error:', sessionError);
+  console.log('[checkIfPro] session user id:', session?.user?.id);
 
   // Primary source of truth: user_subscriptions table (written by webhook)
   const { data, error } = await supabase
@@ -143,7 +146,8 @@ export async function checkIfPro(userId) {
     .eq('user_id', userId)
     .maybeSingle();
 
-  console.log('[checkIfPro] userId:', userId, '| data:', data, '| error:', error);
+  console.log('[checkIfPro] query data:', data);
+  console.log('[checkIfPro] query error:', error);
 
   if (!error && data) {
     console.log('[checkIfPro] result from user_subscriptions → isPro:', data.is_pro);

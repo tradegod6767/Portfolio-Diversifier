@@ -87,7 +87,7 @@ export function useAuth() {
         // DB call is what caused the hard-refresh race condition.
         let newIsPro = devForcePro;
         if (!devForcePro) {
-          const { isPro: fresh } = await checkIfPro(newUser.id);
+          const { isPro: fresh } = await checkIfPro(newUser.id, session);
           newIsPro = fresh;
         }
 
