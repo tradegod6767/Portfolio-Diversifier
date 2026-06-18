@@ -18,13 +18,15 @@ const resend = new Resend(process.env.RESEND_API_KEY?.trim());
 // Log webhook event to Supabase for debugging
 async function logWebhookEvent(email, eventType, data) {
   try {
-    await supabaseAdmin.from('webhook_logs').insert({
-      email,
+    const { error: insertError } = await supabaseAdmin.from('webhook_logs').insert({
+      sale_id: data?.sale_id || null,
       event_type: eventType,
       payload: data,
-      sale_id: data?.sale_id || null,
-      created_at: new Date().toISOString(),
+      processed_at: new Date().toISOString(),
     });
+    if (insertError) {
+      console.error('[Gumroad Webhook] Failed to log webhook event:', insertError);
+    }
   } catch (error) {
     console.error('Failed to log webhook event:', error);
   }
@@ -314,6 +316,7 @@ export default async function handler(req, res) {
         // Primary: update user_subscriptions table
         const { error: subError } = await supabaseAdmin.from('user_subscriptions').upsert(
           {
+            id: user.id,
             user_id: user.id,
             is_pro: true,
             subscription_status: 'active',
