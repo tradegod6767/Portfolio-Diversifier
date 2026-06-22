@@ -13,16 +13,22 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
 
-    // Get initial session immediately to set user state and clear loading.
-    // Pro status is intentionally NOT checked here — onAuthStateChange fires
-    // INITIAL_SESSION after the client auth is fully settled (including any token
-    // refresh), whereas getSession() can resolve before the client is ready,
-    // causing the RLS-gated user_subscriptions query to return no rows.
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // getUser() validates the JWT server-side and refreshes it if expired, so the
+    // Supabase client session is guaranteed live before checkIfPro queries the
+    // RLS-gated user_subscriptions table. getSession() only reads localStorage and
+    // was failing silently on refresh because the client session wasn't attached yet.
+    supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
-      const u = session?.user ?? null;
-      setUser(u);
-      if (!u) setLoading(false);
+      setUser(user ?? null);
+      setLoading(false);
+      if (user) {
+        checkIfPro(user.id).then(({ isPro: fresh }) => {
+          if (mounted) {
+            setIsPro(fresh);
+            prevIsProRef.current = fresh;
+          }
+        });
+      }
     });
 
     // Listen for auth changes (login, logout, token refresh)
