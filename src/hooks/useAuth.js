@@ -13,21 +13,16 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
 
-    // Get initial session immediately — clears loading without waiting for INITIAL_SESSION event,
-    // which may not fire in all flows (e.g. after a fresh login redirect).
+    // Get initial session immediately to set user state and clear loading.
+    // Pro status is intentionally NOT checked here — onAuthStateChange fires
+    // INITIAL_SESSION after the client auth is fully settled (including any token
+    // refresh), whereas getSession() can resolve before the client is ready,
+    // causing the RLS-gated user_subscriptions query to return no rows.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       const u = session?.user ?? null;
       setUser(u);
-      if (u) {
-        checkIfPro(u.id, session).then(({ isPro: fresh }) => {
-          if (mounted) {
-            setIsPro(fresh);
-            prevIsProRef.current = fresh;
-          }
-        });
-      }
-      setLoading(false); // always clear loading after initial check
+      if (!u) setLoading(false);
     });
 
     // Listen for auth changes (login, logout, token refresh)
@@ -47,7 +42,7 @@ export function useAuth() {
 
         let newIsPro = devForcePro;
         if (!devForcePro) {
-          const { isPro: fresh } = await checkIfPro(u.id, session);
+          const { isPro: fresh } = await checkIfPro(u.id);
           newIsPro = fresh;
         }
 

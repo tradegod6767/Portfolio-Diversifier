@@ -121,53 +121,23 @@ export async function getCurrentUser() {
   return user;
 }
 
-export async function checkIfPro(userId, knownSession = null) {
+export async function checkIfPro(userId) {
   if (!userId) return { isPro: false, subscriptionStatus: 'free' };
 
-  // Diagnostic: log full session state before querying DB.
-  // If session is null here, RLS treats request as anon and returns no rows.
-  // Accept a pre-resolved session (e.g. from onAuthStateChange) to avoid
-  // the timing gap where getSession() re-reads storage before it is written.
-  let session = knownSession;
-  let sessionError = null;
-  if (!session) {
-    const result = await supabase.auth.getSession();
-    session = result.data?.session ?? null;
-    sessionError = result.error ?? null;
-  }
-  console.log('[checkIfPro] session:', session);
-  console.log('[checkIfPro] session error:', sessionError);
-  console.log('[checkIfPro] session user id:', session?.user?.id);
-
-  // Primary source of truth: user_subscriptions table (written by webhook)
   const { data, error } = await supabase
     .from('user_subscriptions')
     .select('is_pro, subscription_status')
     .eq('user_id', userId)
     .maybeSingle();
 
-  console.log('[checkIfPro] query data:', data);
-  console.log('[checkIfPro] query error:', error);
-
-  if (!error && data) {
-    console.log('[checkIfPro] result from user_subscriptions → isPro:', data.is_pro);
-    return {
-      isPro: data.is_pro === true,
-      subscriptionStatus: data.subscription_status || 'free',
-    };
+  if (error) {
+    console.error('[checkIfPro] DB error:', error);
+    return { isPro: false, subscriptionStatus: 'free' };
   }
 
-  // Fallback: user_metadata (may be stale, but better than nothing)
-  console.log('[checkIfPro] falling back to user_metadata (no row or error above)');
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { isPro: false, subscriptionStatus: 'free' };
-
-  console.log('[checkIfPro] user_metadata.is_pro:', user.user_metadata?.is_pro);
   return {
-    isPro: user.user_metadata?.is_pro === true,
-    subscriptionStatus: user.user_metadata?.subscription_status || 'free',
+    isPro: data?.is_pro === true,
+    subscriptionStatus: data?.subscription_status || 'free',
   };
 }
 
