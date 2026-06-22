@@ -13,37 +13,47 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
 
-    // getUser() validates the JWT server-side and refreshes it if expired, so the
-    // Supabase client session is guaranteed live before checkIfPro queries the
-    // RLS-gated user_subscriptions table. getSession() only reads localStorage and
-    // was failing silently on refresh because the client session wasn't attached yet.
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!mounted) return;
-      setUser(user ?? null);
-      setLoading(false);
-      if (user) {
-        checkIfPro(user.id).then(({ isPro: fresh }) => {
-          if (mounted) {
-            setIsPro(fresh);
-            prevIsProRef.current = fresh;
-          }
-        });
-      }
-    });
+    // DIAGNOSTIC — remove once Pro status is confirmed working on refresh
+    console.log('[useAuth] effect running, setting up auth');
 
-    // Listen for auth changes (login, logout, token refresh)
+    // Primary path: getUser() hits the Supabase server, validates the JWT,
+    // and refreshes it if expired — guaranteeing the client session is live
+    // before checkIfPro queries the RLS-gated user_subscriptions table.
+    async function loadInitialAuth() {
+      const { data: { user: u }, error } = await supabase.auth.getUser();
+      console.log('[useAuth] getUser() →', u ? u.email : 'null', error ? error.message : 'no error');
+      if (!mounted) return;
+
+      setUser(u ?? null);
+      setLoading(false);
+
+      if (u) {
+        const { isPro: fresh, subscriptionStatus } = await checkIfPro(u.id);
+        console.log('[useAuth] initial checkIfPro →', { isPro: fresh, subscriptionStatus });
+        if (mounted) {
+          setIsPro(fresh);
+          prevIsProRef.current = fresh;
+        }
+      }
+    }
+
+    loadInitialAuth();
+
+    // Secondary path: keep Pro status in sync for the rest of the session
+    // (login, logout, token refresh). INITIAL_SESSION is handled by loadInitialAuth()
+    // above, but we still process it here to keep setUser/setLoading consistent.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-
       const u = session?.user ?? null;
+      console.log('[useAuth] onAuthStateChange:', event, u ? u.email : 'no user');
+
       setUser(u);
 
       if (u) {
-        // DEV ONLY: localStorage override for testing Pro features without a real subscription.
-        // Open the browser console and run: localStorage.setItem('dev_force_pro', 'true')
-        // Then refresh. Remove with: localStorage.removeItem('dev_force_pro')
+        // DEV ONLY: localStorage override for testing Pro without a real subscription.
+        // Browser console: localStorage.setItem('dev_force_pro', 'true') then refresh.
         const devForcePro = import.meta.env.DEV && localStorage.getItem('dev_force_pro') === 'true';
 
         let newIsPro = devForcePro;
@@ -52,14 +62,9 @@ export function useAuth() {
           newIsPro = fresh;
         }
 
-        // DIAGNOSTIC — remove once Pro status is confirmed working
-        console.log('[useAuth] onAuthStateChange event:', event, '| user:', u.email, '| isPro result:', newIsPro);
-
         if (mounted) {
           setIsPro(newIsPro);
 
-          // Detect Pro activation: TOKEN_REFRESHED (webhook updated subscription)
-          // or SIGNED_IN (user just logged in with is_pro already true)
           if (
             (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') &&
             !prevIsProRef.current &&
@@ -75,7 +80,7 @@ export function useAuth() {
         prevIsProRef.current = false;
       }
 
-      setLoading(false); // always clear loading on every auth event
+      setLoading(false);
     });
 
     return () => {
