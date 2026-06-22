@@ -46,6 +46,9 @@ export function useAuth() {
           newIsPro = fresh;
         }
 
+        // DIAGNOSTIC — remove once Pro status is confirmed working
+        console.log('[useAuth] onAuthStateChange event:', event, '| user:', u.email, '| isPro result:', newIsPro);
+
         if (mounted) {
           setIsPro(newIsPro);
 

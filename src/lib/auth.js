@@ -130,6 +130,9 @@ export async function checkIfPro(userId) {
     .eq('user_id', userId)
     .maybeSingle();
 
+  // DIAGNOSTIC — remove once Pro status is confirmed working
+  console.log('[checkIfPro] userId:', userId, '| data:', data, '| error:', error);
+
   if (error) {
     console.error('[checkIfPro] DB error:', error);
     return { isPro: false, subscriptionStatus: 'free' };
