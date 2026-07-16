@@ -236,6 +236,8 @@ function Sidebar({activeKey, onNavigate, collapsed, onToggle, mobileOpen, onMobi
 /* ---------- Topbar ---------- */
 function Topbar({onToggleSidebar, title}){
   const { user, isPro } = useAuth();
+  // DIAGNOSTIC — remove once useAuth call-site blast radius is confirmed
+  useEffect(() => { console.log('[mount] Topbar (App.jsx)'); }, []);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
@@ -640,6 +642,8 @@ function MainApp(){
 
   // Auth state
   const { user, isPro, loading, proJustActivated, clearProActivated } = useAuth();
+  // DIAGNOSTIC — remove once useAuth call-site blast radius is confirmed
+  useEffect(() => { console.log('[mount] MainApp (App.jsx)'); }, []);
 
   // Toast notifications
   const { addToast } = useToast();

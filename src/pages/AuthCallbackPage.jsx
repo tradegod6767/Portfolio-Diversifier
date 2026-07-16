@@ -11,6 +11,8 @@ function AuthCallbackPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToast } = useToast();
+  // DIAGNOSTIC — remove once useAuth call-site blast radius is confirmed
+  useEffect(() => { console.log('[mount] AuthCallbackPage'); }, []);
 
   useEffect(() => {
     let timeoutId;

@@ -11,6 +11,8 @@ import { Badge } from './ui';
 
 export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
   const { user, isPro } = useAuth();
+  // DIAGNOSTIC — remove once useAuth call-site blast radius is confirmed
+  useEffect(() => { console.log('[mount] MobileHeader'); }, []);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
@@ -11,6 +11,8 @@ import { Button, Badge } from './ui';
  */
 export default function ProfessionalTopbar({ onToggleSidebar, title }) {
   const { user, isPro } = useAuth();
+  // DIAGNOSTIC — remove once useAuth call-site blast radius is confirmed
+  useEffect(() => { console.log('[mount] ProfessionalTopbar'); }, []);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);

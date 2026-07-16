@@ -7,6 +7,8 @@ function SuccessPage() {
   const navigate = useNavigate();
   const { refetch } = useAuth();
   const [countdown, setCountdown] = useState(5);
+  // DIAGNOSTIC — remove once useAuth call-site blast radius is confirmed
+  useEffect(() => { console.log('[mount] SuccessPage'); }, []);
 
   useEffect(() => {
     // Refetch subscription status to get the updated pro status
