@@ -29,6 +29,7 @@ import { ToastProvider, useToast } from "./context/ToastContext";
 import AuthModal from "./components/AuthModal";
 import ForgotPasswordModal from "./components/ForgotPasswordModal";
 import { useAuth } from "./hooks/useAuth";
+import { AuthProvider } from "./context/AuthContext";
 import { supabase } from "./lib/supabase";
 import { calculateRebalancing } from "./utils/calculations";
 import ProfessionalTopbar from "./components/ProfessionalTopbar";
@@ -977,6 +978,7 @@ function PrerenderReady() {
 /* ---------- App with Router ---------- */
 export default function App(){
   return (
+    <AuthProvider>
     <BrowserRouter>
       <ToastProvider>
         <ErrorBoundary>
@@ -1039,5 +1041,6 @@ export default function App(){
         </ErrorBoundary>
       </ToastProvider>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
