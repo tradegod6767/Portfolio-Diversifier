@@ -59,7 +59,11 @@ export function useAuth() {
         let newIsPro = devForcePro;
         if (!devForcePro) {
           const { isPro: fresh } = await checkIfPro(u.id);
+          // DIAGNOSTIC — remove once Pro status is confirmed working on refresh
+          console.log('[useAuth] onAuthStateChange checkIfPro →', { event, isPro: fresh });
           newIsPro = fresh;
+        } else {
+          console.log('[useAuth] onAuthStateChange devForcePro active, skipping checkIfPro');
         }
 
         if (mounted) {
