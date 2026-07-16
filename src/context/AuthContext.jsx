@@ -65,9 +65,13 @@ export function AuthProvider({ children }) {
           // DIAGNOSTIC — remove once Pro status is confirmed working on refresh
           const callId = Math.random().toString(36).slice(2, 8);
           console.log('[useAuth] checkIfPro call START', callId, { event });
-          const { isPro: fresh } = await checkIfPro(u.id);
-          console.log('[useAuth] checkIfPro call END', callId, { event, isPro: fresh });
-          newIsPro = fresh;
+          try {
+            const { isPro: fresh } = await checkIfPro(u.id);
+            console.log('[useAuth] checkIfPro call END', callId, { event, isPro: fresh });
+            newIsPro = fresh;
+          } catch (err) {
+            console.error('[useAuth] checkIfPro call ERRORED', callId, err);
+          }
         } else {
           console.log('[useAuth] onAuthStateChange devForcePro active, skipping checkIfPro');
         }
