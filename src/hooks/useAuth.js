@@ -45,6 +45,8 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // DIAGNOSTIC — remove once Pro status is confirmed working on refresh
+      console.log('[useAuth] raw event:', event, 'session:', session);
       if (!mounted) return;
       const u = session?.user ?? null;
       console.log('[useAuth] onAuthStateChange:', event, u ? u.email : 'no user');
