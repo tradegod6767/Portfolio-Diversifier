@@ -100,9 +100,9 @@ ${taxSection}
 Write in clear, professional language that a non-expert investor can understand. Be specific and reference actual ticker symbols and dollar amounts from the data above.`;
 
     // Call Claude API with increased tokens for Pro users
-    console.log('[AI Explain] Calling Claude API with model claude-sonnet-4-20250514...');
+    console.log('[AI Explain] Calling Claude API with model claude-sonnet-5...');
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: isProUser ? 1500 : 800, // More tokens for detailed Pro analysis
       messages: [
         {
