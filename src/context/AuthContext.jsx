@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
     // above, but we still process it here to keep setUser/setLoading consistent.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       // DIAGNOSTIC — remove once Pro status is confirmed working on refresh
       console.log('[useAuth] raw event:', event, 'session:', session);
       if (!mounted) return;
@@ -54,8 +54,21 @@ export function AuthProvider({ children }) {
       console.log('[useAuth] onAuthStateChange:', event, u ? u.email : 'no user');
 
       setUser(u);
+      setLoading(false);
 
-      if (u) {
+      if (!u) {
+        setIsPro(false);
+        prevIsProRef.current = false;
+        return;
+      }
+
+      // supabase-js holds its internal auth lock while this callback runs, and
+      // checkIfPro's query needs that same lock to attach the access token —
+      // awaiting it here deadlocks forever (per Supabase docs). Defer past the
+      // callback so the lock is released before the query runs.
+      setTimeout(async () => {
+        if (!mounted) return;
+
         // DEV ONLY: localStorage override for testing Pro without a real subscription.
         // Browser console: localStorage.setItem('dev_force_pro', 'true') then refresh.
         const devForcePro = import.meta.env.DEV && localStorage.getItem('dev_force_pro') === 'true';
@@ -89,12 +102,7 @@ export function AuthProvider({ children }) {
 
           prevIsProRef.current = newIsPro;
         }
-      } else {
-        setIsPro(false);
-        prevIsProRef.current = false;
-      }
-
-      setLoading(false);
+      }, 0);
     });
 
     return () => {
