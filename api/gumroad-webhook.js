@@ -32,6 +32,32 @@ async function logWebhookEvent(email, eventType, data) {
   }
 }
 
+// Log a processing failure to webhook_logs so it's visible from the database,
+// not just Vercel runtime logs. sale_id stays null so these rows never trip
+// the duplicate-sale_id idempotency check.
+async function logWebhookError(context, eventType, email, error) {
+  try {
+    const { error: insertError } = await supabaseAdmin.from('webhook_logs').insert({
+      sale_id: null,
+      event_type: 'processing_error',
+      payload: {
+        context,
+        original_event_type: eventType,
+        email,
+        error_message: error?.message || String(error),
+        error_code: error?.code || null,
+        error_details: error?.details || null,
+      },
+      processed_at: new Date().toISOString(),
+    });
+    if (insertError) {
+      console.error('[Gumroad Webhook] Failed to log webhook error:', insertError);
+    }
+  } catch (err) {
+    console.error('[Gumroad Webhook] Exception logging webhook error:', err);
+  }
+}
+
 // Store orphaned purchase in pending_purchases table
 async function storePendingPurchase(email, payload) {
   try {
@@ -275,6 +301,7 @@ export default async function handler(req, res) {
 
     if (listError) {
       console.error('[Gumroad Webhook] Error listing users:', listError);
+      await logWebhookError('list_users', eventType, email, listError);
       try {
         Sentry.captureException(listError);
       } catch {}
@@ -318,6 +345,9 @@ export default async function handler(req, res) {
           {
             id: user.id,
             user_id: user.id,
+            // email is NOT NULL — Postgres validates the candidate insert row before
+            // ON CONFLICT resolution, so omitting it fails even when the row exists
+            email: user.email,
             is_pro: true,
             subscription_status: 'active',
             gumroad_subscription_id: subscription_id || sale_id,
@@ -329,6 +359,7 @@ export default async function handler(req, res) {
 
         if (subError) {
           console.error('[Gumroad Webhook] Error upserting user_subscriptions:', subError);
+          await logWebhookError('activate_upsert', eventType, email, subError);
           try {
             Sentry.captureException(new Error(`upsert failed: ${subError.message}`));
           } catch {}
@@ -375,6 +406,7 @@ export default async function handler(req, res) {
 
         if (subError) {
           console.error('[Gumroad Webhook] Error updating user_subscriptions:', subError);
+          await logWebhookError('revoke_update', eventType, email, subError);
           try {
             Sentry.captureException(new Error(`update failed: ${subError.message}`));
           } catch {}
@@ -418,6 +450,7 @@ export default async function handler(req, res) {
 
         if (subError) {
           console.error('[Gumroad Webhook] Error updating user_subscriptions:', subError);
+          await logWebhookError('reactivate_update', eventType, email, subError);
           try {
             Sentry.captureException(new Error(`reactivate failed: ${subError.message}`));
           } catch {}
@@ -453,6 +486,7 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('[Gumroad Webhook] Error:', error);
+    await logWebhookError('unhandled', req.body?.alert_name || null, req.body?.email || null, error);
     try {
       Sentry.captureException(error);
     } catch {}
