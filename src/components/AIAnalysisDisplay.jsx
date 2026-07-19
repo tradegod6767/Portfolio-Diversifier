@@ -108,6 +108,12 @@ function AISection({ section, isExpanded, onToggle }) {
       {/* Section Content */}
       {isExpanded && (
         <div className="px-4 pb-4 pl-[52px]">
+          {/* Prose under a list-typed header (models may write paragraphs where
+              the title keywords suggest a list) — render it so the body is never blank */}
+          {(type === 'bullets' || type === 'numbered') && content && (
+            <p className={`text-sm text-muted-foreground leading-relaxed whitespace-pre-line${items?.length ? ' mb-3' : ''}`}>{content}</p>
+          )}
+
           {type === 'bullets' && items && (
             <ul className="space-y-2.5">
               {items.map((item, i) => (
@@ -136,12 +142,12 @@ function AISection({ section, isExpanded, onToggle }) {
 
           {type === 'callout' && content && (
             <div className={`px-4 py-3 rounded-lg border ${colorClasses.callout}`}>
-              <p className="text-sm leading-relaxed">{content}</p>
+              <p className="text-sm leading-relaxed whitespace-pre-line">{content}</p>
             </div>
           )}
 
           {type === 'paragraph' && content && (
-            <p className="text-sm text-muted-foreground leading-relaxed">{content}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{content}</p>
           )}
 
           {type === 'keyInsight' && content && (
@@ -149,7 +155,7 @@ function AISection({ section, isExpanded, onToggle }) {
               <div className="inline-flex items-center px-2.5 py-1 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wide rounded-md mb-3">
                 Key Insight
               </div>
-              <p className="text-sm text-foreground leading-relaxed font-medium">{content}</p>
+              <p className="text-sm text-foreground leading-relaxed font-medium whitespace-pre-line">{content}</p>
             </div>
           )}
         </div>
@@ -177,7 +183,9 @@ function parseAIContent(text) {
         currentItems = [];
       }
       if (currentContent.length > 0) {
-        currentSection.content = currentContent.join(' ').trim();
+        currentSection.content = [currentSection.content, currentContent.join(' ').trim()]
+          .filter(Boolean)
+          .join('\n\n');
         currentContent = [];
       }
       if (currentSection.items?.length > 0 || currentSection.content) {
@@ -193,7 +201,9 @@ function parseAIContent(text) {
     // Skip empty lines
     if (!line) {
       if (currentContent.length > 0 && currentSection) {
-        currentSection.content = currentContent.join(' ').trim();
+        currentSection.content = [currentSection.content, currentContent.join(' ').trim()]
+          .filter(Boolean)
+          .join('\n\n');
         currentContent = [];
       }
       continue;
