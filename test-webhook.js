@@ -9,7 +9,11 @@
  * Examples:
  *   node test-webhook.js user@example.com sale
  *   node test-webhook.js user@example.com cancelled
+ *   node test-webhook.js user@example.com cancellation   (real Gumroad resource payload shape)
  *   node test-webhook.js user@example.com refunded https://your-app.vercel.app/api/gumroad-webhook
+ *
+ * Against production, pass the full URL including the secret:
+ *   node test-webhook.js user@example.com cancellation "https://rebalancekit.com/api/gumroad-webhook?secret=YOUR_SECRET"
  */
 
 const email = process.argv[2] || 'test@example.com';
@@ -32,6 +36,20 @@ const payloads = {
     subscription_id: `sub-${Date.now()}`,
     cancelled: true,
     product_name: 'Pro Subscription',
+  },
+  // Mirrors the REAL Gumroad "cancellation" resource-subscription payload:
+  // the buyer's email arrives as user_email (not email), there is no sale_id,
+  // and booleans arrive as strings because Gumroad posts form-encoded data
+  cancellation: {
+    user_email: email,
+    // SUB_ID env override lets you pin the subscription_id (e.g. to exercise the
+    // webhook's gumroad_subscription_id fallback match); defaults to a random id
+    subscription_id: process.env.SUB_ID || `sub-${Date.now()}`,
+    product_id: 'test-product-id',
+    product_name: 'Pro Subscription',
+    cancelled: 'true',
+    cancelled_at: new Date().toISOString(),
+    cancelled_by_buyer: 'true',
   },
   ended: {
     email,
@@ -82,7 +100,7 @@ fetch(webhookUrl, {
     if (status === 200) {
       console.log('✅ SUCCESS! Webhook processed successfully');
 
-      if (eventType === 'cancelled' || eventType === 'ended' || eventType === 'refunded') {
+      if (['cancelled', 'cancellation', 'ended', 'refunded'].includes(eventType)) {
         console.log('\n⚠️  Pro access should now be REVOKED for:', email);
         console.log('   Check: is_pro = false, subscription_status = cancelled');
       } else {

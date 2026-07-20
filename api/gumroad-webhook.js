@@ -222,8 +222,11 @@ export default async function handler(req, res) {
       }
     }
 
-    // Extract data from Gumroad webhook
-    const { email, sale_id, subscription_id, product_name, product_id } = payload;
+    // Extract data from Gumroad webhook. Sale Pings send the buyer's email as
+    // `email`; resource-subscription events (cancellation, subscription_ended,
+    // subscription_restarted) send it as `user_email` instead.
+    const { sale_id, subscription_id, product_name, product_id } = payload;
+    const email = payload.email || payload.user_email;
 
     if (!email) {
       console.error('[Gumroad Webhook] No email provided');
@@ -330,8 +333,48 @@ export default async function handler(req, res) {
         }
       }
 
+      // For revocation events, the Gumroad email may differ from the account
+      // email — fall back to matching user_subscriptions by the
+      // gumroad_subscription_id stored at activation time
+      if (
+        [
+          'subscription_cancelled',
+          'subscription_ended',
+          'subscription_failed',
+          'sale_refunded',
+        ].includes(eventType) &&
+        subscription_id
+      ) {
+        const { data: subRow, error: subLookupError } = await supabaseAdmin
+          .from('user_subscriptions')
+          .select('user_id')
+          .eq('gumroad_subscription_id', subscription_id)
+          .maybeSingle();
+
+        if (subLookupError) {
+          console.error('[Gumroad Webhook] Error looking up subscription:', subLookupError);
+          await logWebhookError('cancellation_sub_lookup', eventType, email, subLookupError);
+        } else if (subRow?.user_id) {
+          const { data: userData, error: getUserError } =
+            await supabaseAdmin.auth.admin.getUserById(subRow.user_id);
+          if (getUserError) {
+            console.error('[Gumroad Webhook] Error fetching user by id:', getUserError);
+            await logWebhookError('cancellation_get_user', eventType, email, getUserError);
+          } else {
+            user = userData?.user || null;
+            if (user) {
+              console.log(
+                `[Gumroad Webhook] Matched user ${user.id} via gumroad_subscription_id ${subscription_id}`
+              );
+            }
+          }
+        }
+      }
+
       // For cancellations/refunds of non-existent users, just log
-      return res.status(200).json({ message: 'User not found, event logged' });
+      if (!user) {
+        return res.status(200).json({ message: 'User not found, event logged' });
+      }
     }
 
     console.log(`[Gumroad Webhook] Found user: ${user.id}`);
@@ -486,7 +529,12 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('[Gumroad Webhook] Error:', error);
-    await logWebhookError('unhandled', req.body?.alert_name || null, req.body?.email || null, error);
+    await logWebhookError(
+      'unhandled',
+      req.body?.alert_name || null,
+      req.body?.email || null,
+      error
+    );
     try {
       Sentry.captureException(error);
     } catch {}
