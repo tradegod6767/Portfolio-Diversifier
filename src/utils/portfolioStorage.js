@@ -113,6 +113,8 @@ export const savePortfolio = async (name, positions, user = null, isPro = false)
     ticker: p.ticker,
     amount: p.amount,
     targetPercent: p.targetPercent,
+    costBasis: p.costBasis || null,
+    purchaseDate: p.purchaseDate || null,
   }));
 
   if (user && isPro) {

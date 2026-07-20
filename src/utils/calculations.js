@@ -7,7 +7,7 @@
  */
 export function calculateRebalancing(positions, mode = 'standard', modeAmount = 0) {
   // Filter out invalid positions
-  const validPositions = positions.filter(pos => {
+  const validPositions = positions.filter((pos) => {
     const amount = parseFloat(pos.amount);
     return !isNaN(amount) && amount >= 0;
   });
@@ -36,7 +36,7 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
   }
 
   // Calculate current allocations and rebalancing actions
-  const positionsWithCalcs = positions.map(pos => {
+  const positionsWithCalcs = positions.map((pos) => {
     const currentAmount = parseFloat(pos.amount);
     const currentPercent = totalValue > 0 ? (currentAmount / totalValue) * 100 : 0;
     const targetPercent = parseFloat(pos.targetPercent);
@@ -68,7 +68,9 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
       targetPercent: targetPercent,
       targetAmount: targetAmount,
       difference: displayDifference,
-      action: action
+      action: action,
+      costBasis: pos.costBasis ?? null,
+      purchaseDate: pos.purchaseDate ?? null,
     };
   });
 
@@ -80,7 +82,7 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
     }, 0);
     modeData = {
       totalToAdd,
-      newTotalValue: totalValue + totalToAdd
+      newTotalValue: totalValue + totalToAdd,
     };
   } else if (mode === 'sell-only') {
     const totalToSell = positionsWithCalcs.reduce((sum, pos) => {
@@ -88,7 +90,7 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
     }, 0);
     modeData = {
       totalToSell,
-      newTotalValue: totalValue - totalToSell
+      newTotalValue: totalValue - totalToSell,
     };
   }
 
@@ -96,8 +98,67 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
     totalValue,
     positions: positionsWithCalcs,
     mode,
-    modeData
+    modeData,
   };
+}
+
+// Fallback when the user hasn't entered a cost basis: assume basis is 80% of
+// the sale amount (i.e. a 20% gain), the app's original flat assumption.
+export const ASSUMED_COST_BASIS_RATIO = 0.8;
+// Flat rate applied to net gains. Real bracket/short-term rates are out of
+// scope until approved — purchase dates only classify the holding period.
+export const FLAT_CAPITAL_GAINS_RATE = 0.15;
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * Estimate the tax impact of the SELL actions in a rebalancing result.
+ *
+ * Positions with a user-entered cost basis use the real gain, prorated for
+ * partial sales: selling a fraction of a position realizes that same fraction
+ * of its total basis, so gain = sellAmount * (1 - costBasis / currentAmount).
+ * Positions without one fall back to the assumed 80% basis and are flagged
+ * `hasRealBasis: false` so the UI can mark them as estimated.
+ *
+ * @param {Array} positions - Positions from calculateRebalancing (with action,
+ *   difference, currentAmount, and optional costBasis/purchaseDate)
+ * @param {Date} [today] - Injectable for testing; defaults to now
+ * @returns {Object} { sellEstimates, totalCapitalGains, estimatedTaxes,
+ *   hasAssumedPositions } — sellEstimates entries carry { ticker, sellAmount,
+ *   gain, hasRealBasis, holdingPeriod: 'long'|'short'|null }
+ */
+export function estimateTaxImpact(positions, today = new Date()) {
+  const sellEstimates = positions
+    .filter((p) => p.action === 'SELL')
+    .map((p) => {
+      const sellAmount = Math.abs(p.difference);
+      const costBasis = parseFloat(p.costBasis);
+      const currentAmount = parseFloat(p.currentAmount);
+      const hasRealBasis = !isNaN(costBasis) && costBasis > 0 && currentAmount > 0;
+
+      const gain = hasRealBasis
+        ? sellAmount * (1 - costBasis / currentAmount)
+        : sellAmount * (1 - ASSUMED_COST_BASIS_RATIO);
+
+      let holdingPeriod = null;
+      if (p.purchaseDate) {
+        const purchased = new Date(`${p.purchaseDate}T00:00:00`);
+        if (!isNaN(purchased.getTime()) && purchased <= today) {
+          holdingPeriod = (today - purchased) / MS_PER_DAY > 365 ? 'long' : 'short';
+        }
+      }
+
+      return { ticker: p.ticker, sellAmount, gain, hasRealBasis, holdingPeriod };
+    });
+
+  const totalCapitalGains = sellEstimates.reduce((sum, e) => sum + e.gain, 0);
+  // Real basis data can produce losses; losses offset gains and no tax is
+  // owed on a net loss. The assumed-basis path always yields positive gains,
+  // so legacy behavior is unchanged.
+  const estimatedTaxes = Math.max(0, totalCapitalGains) * FLAT_CAPITAL_GAINS_RATE;
+  const hasAssumedPositions = sellEstimates.some((e) => !e.hasRealBasis);
+
+  return { sellEstimates, totalCapitalGains, estimatedTaxes, hasAssumedPositions };
 }
 
 /**
@@ -111,7 +172,7 @@ export function formatCurrency(value) {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(value);
 }
 
@@ -135,7 +196,7 @@ export function formatPercent(value) {
 function calculateContribution(positions, currentTotal, contribution) {
   const newTotal = currentTotal + contribution;
 
-  const positionsWithCalcs = positions.map(pos => {
+  const positionsWithCalcs = positions.map((pos) => {
     const currentAmount = parseFloat(pos.amount);
     const currentPercent = currentTotal > 0 ? (currentAmount / currentTotal) * 100 : 0;
     const targetPercent = parseFloat(pos.targetPercent);
@@ -157,7 +218,9 @@ function calculateContribution(positions, currentTotal, contribution) {
       difference: amountToAdd > 0 ? amountToAdd : 0,
       action: amountToAdd > 0 ? 'BUY' : 'HOLD',
       newAmount: newAmount,
-      newPercent: newPercent
+      newPercent: newPercent,
+      costBasis: pos.costBasis ?? null,
+      purchaseDate: pos.purchaseDate ?? null,
     };
   });
 
@@ -167,9 +230,12 @@ function calculateContribution(positions, currentTotal, contribution) {
   // If allocated less than contribution, distribute remainder proportionally to targets
   if (totalAllocated < contribution) {
     const remainder = contribution - totalAllocated;
-    const totalTargetPercent = positions.reduce((sum, pos) => sum + parseFloat(pos.targetPercent), 0);
+    const totalTargetPercent = positions.reduce(
+      (sum, pos) => sum + parseFloat(pos.targetPercent),
+      0
+    );
 
-    positionsWithCalcs.forEach(pos => {
+    positionsWithCalcs.forEach((pos) => {
       const additionalAllocation = (pos.targetPercent / totalTargetPercent) * remainder;
       pos.difference += additionalAllocation;
       pos.newAmount += additionalAllocation;
@@ -187,8 +253,8 @@ function calculateContribution(positions, currentTotal, contribution) {
     modeData: {
       contributionAmount: contribution,
       newTotalValue: newTotal,
-      totalAllocated: contribution
-    }
+      totalAllocated: contribution,
+    },
   };
 }
 
@@ -202,7 +268,7 @@ function calculateContribution(positions, currentTotal, contribution) {
 function calculateWithdrawal(positions, currentTotal, withdrawal) {
   const newTotal = currentTotal - withdrawal;
 
-  const positionsWithCalcs = positions.map(pos => {
+  const positionsWithCalcs = positions.map((pos) => {
     const currentAmount = parseFloat(pos.amount);
     const currentPercent = currentTotal > 0 ? (currentAmount / currentTotal) * 100 : 0;
     const targetPercent = parseFloat(pos.targetPercent);
@@ -224,7 +290,9 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
       difference: amountToSell > 0 ? -amountToSell : 0,
       action: amountToSell > 0 ? 'SELL' : 'HOLD',
       newAmount: newAmount,
-      newPercent: newPercent
+      newPercent: newPercent,
+      costBasis: pos.costBasis ?? null,
+      purchaseDate: pos.purchaseDate ?? null,
     };
   });
 
@@ -236,8 +304,9 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
     const remainder = withdrawal - totalSold;
     const totalCurrentAmount = positions.reduce((sum, pos) => sum + parseFloat(pos.amount), 0);
 
-    positionsWithCalcs.forEach(pos => {
-      const additionalSale = totalCurrentAmount > 0 ? (pos.currentAmount / totalCurrentAmount) * remainder : 0;
+    positionsWithCalcs.forEach((pos) => {
+      const additionalSale =
+        totalCurrentAmount > 0 ? (pos.currentAmount / totalCurrentAmount) * remainder : 0;
       pos.difference -= additionalSale;
       pos.newAmount -= additionalSale;
       pos.newPercent = newTotal > 0 ? (pos.newAmount / newTotal) * 100 : 0;
@@ -254,7 +323,7 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
     modeData: {
       withdrawalAmount: withdrawal,
       newTotalValue: newTotal,
-      totalSold: withdrawal
-    }
+      totalSold: withdrawal,
+    },
   };
 }

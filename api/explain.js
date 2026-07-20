@@ -6,9 +6,12 @@ import { Sentry } from './_sentry.js';
 
 export default async function handler(req, res) {
   // SECURITY: Apply CORS with origin whitelist (no wildcards)
-  if (handleCors(req, res, {
-    methods: ['POST', 'OPTIONS']
-  })) return;
+  if (
+    handleCors(req, res, {
+      methods: ['POST', 'OPTIONS'],
+    })
+  )
+    return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -18,7 +21,11 @@ export default async function handler(req, res) {
   console.log('[AI Explain] Starting request...');
   const { user, isPro, error: authError } = await authenticateRequest(req);
   const isAuthenticated = !authError && user;
-  console.log('[AI Explain] Auth result:', { isAuthenticated, isPro, authError: authError?.message });
+  console.log('[AI Explain] Auth result:', {
+    isAuthenticated,
+    isPro,
+    authError: authError?.message,
+  });
 
   try {
     const { rebalancingData } = req.body;
@@ -33,11 +40,13 @@ export default async function handler(req, res) {
 
     // SECURITY: Apply rate limiting for AI endpoints (5/20/100 requests per hour)
     console.log('[AI Explain] Checking rate limit...');
-    if (!await applyRateLimit(req, res, {
-      endpointType: 'AI',
-      user: user,
-      isPro: isProUser
-    })) {
+    if (
+      !(await applyRateLimit(req, res, {
+        endpointType: 'AI',
+        user: user,
+        isPro: isProUser,
+      }))
+    ) {
       console.log('[AI Explain] Rate limit blocked request');
       return; // Rate limit exceeded, response already sent
     }
@@ -49,8 +58,9 @@ export default async function handler(req, res) {
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY is not set in environment variables');
       return res.status(500).json({
-        error: 'API key not configured - please set ANTHROPIC_API_KEY in Vercel environment variables',
-        explanation: 'AI analysis unavailable - API key not configured.'
+        error:
+          'API key not configured - please set ANTHROPIC_API_KEY in Vercel environment variables',
+        explanation: 'AI analysis unavailable - API key not configured.',
       });
     }
 
@@ -61,19 +71,26 @@ export default async function handler(req, res) {
       timeout: 25000,
     });
 
+    // A position's tax figures are only "real" if the user entered a cost basis
+    const hasRealBasis = (p) => {
+      const basis = parseFloat(p.costBasis);
+      return !isNaN(basis) && basis > 0;
+    };
+
     // Create conditional tax section based on subscription status
     const taxSection = isProUser
       ? `**Paragraph 3 - Tax & Implementation Considerations:**
 Provide COMPREHENSIVE tax analysis including:
-- Calculate and specify exact capital gains/losses from any position sales (use the dollar amounts provided)
+- For sales of positions marked [REAL COST BASIS], calculate capital gains/losses from the provided cost basis (prorate the basis if only part of the position is being sold) and present those figures as exact
+- For sales of positions marked [NO COST BASIS — ESTIMATE ONLY], you do NOT have real purchase data: give only rough illustrative figures and explicitly label them as estimates based on an assumed cost basis — never present them as exact
 - Identify specific tax-loss harvesting opportunities if any positions are being sold at a loss
 - Discuss wash sale rule considerations if similar securities are involved
 - Recommend optimal timing for tax efficiency (end of year considerations, holding period strategies)
-- Break down long-term vs short-term capital gains implications based on typical holding periods
+- Break down long-term vs short-term capital gains implications using the purchase dates provided; where a purchase date is missing, say the holding period is unknown rather than assuming one
 - Suggest specific tax optimization strategies relevant to this portfolio
 - Provide actionable recommendations for minimizing tax liability
 
-Be detailed and specific - this is a Pro subscriber who paid for comprehensive tax guidance.`
+Be detailed and specific - this is a Pro subscriber who paid for comprehensive tax guidance. Accuracy about what is exact vs. estimated matters more than sounding precise.`
       : `**Paragraph 3 - Tax & Implementation Considerations:**
 Provide a brief 2-3 sentence teaser about tax implications. If the rebalancing only involves deploying cash (no selling positions), acknowledge there are no immediate tax implications. If selling positions is required, mention that it may trigger capital gains. Always end with: "Upgrade to Pro for detailed tax optimization strategies including tax-loss harvesting, capital gains minimization, and wash sale rule guidance."`;
 
@@ -83,9 +100,17 @@ Provide a brief 2-3 sentence teaser about tax implications. If the rebalancing o
 Portfolio Total Value: $${rebalancingData.totalValue.toFixed(2)}
 
 Positions:
-${rebalancingData.positions.map(p =>
-  `${p.ticker}: Current ${p.currentPercent.toFixed(2)}% → Target ${p.targetPercent.toFixed(2)}% (${p.action} $${Math.abs(p.difference).toFixed(2)})`
-).join('\n')}
+${rebalancingData.positions
+  .map((p) => {
+    let line = `${p.ticker}: Current ${p.currentPercent.toFixed(2)}% → Target ${p.targetPercent.toFixed(2)}% (${p.action} $${Math.abs(p.difference).toFixed(2)})`;
+    if (p.action === 'SELL') {
+      line += hasRealBasis(p)
+        ? ` [REAL COST BASIS: $${parseFloat(p.costBasis).toFixed(2)} total${p.purchaseDate ? `, purchased ${p.purchaseDate}` : ', purchase date unknown'}]`
+        : ' [NO COST BASIS — ESTIMATE ONLY]';
+    }
+    return line;
+  })
+  .join('\n')}
 
 Your analysis should include:
 
@@ -107,9 +132,9 @@ Write in clear, professional language that a non-expert investor can understand.
       messages: [
         {
           role: 'user',
-          content: prompt
-        }
-      ]
+          content: prompt,
+        },
+      ],
     });
     console.log('[AI Explain] Claude API response received');
 
@@ -118,7 +143,8 @@ Write in clear, professional language that a non-expert investor can understand.
       console.error('[AI Explain] Empty or malformed response from Claude API');
       return res.status(500).json({
         error: 'Empty response from AI',
-        explanation: 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.'
+        explanation:
+          'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.',
       });
     }
 
@@ -130,15 +156,16 @@ Write in clear, professional language that a non-expert investor can understand.
     console.error('[AI Explain] Error calling Claude API:', {
       message: error.message,
       type: error.type,
-      code: error.code
+      code: error.code,
     });
     Sentry.captureException(error);
 
     return res.status(500).json({
       error: 'Failed to generate AI analysis',
-      explanation: 'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.',
+      explanation:
+        'Rebalancing your portfolio helps maintain your desired risk level and investment strategy by adjusting positions to match your target allocations.',
       // Include error details for debugging (no stack traces)
-      debug: { message: error.message?.substring(0, 200), type: error.type, code: error.code }
+      debug: { message: error.message?.substring(0, 200), type: error.type, code: error.code },
     });
   }
 }

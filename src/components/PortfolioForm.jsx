@@ -95,7 +95,9 @@ function PortfolioForm({
     canUndo,
     canRedo,
     lastAction,
-  } = useUndoRedo([{ id: 1, ticker: '', amount: '', targetPercent: '' }]);
+  } = useUndoRedo([
+    { id: 1, ticker: '', amount: '', targetPercent: '', costBasis: '', purchaseDate: '' },
+  ]);
 
   // Toast notifications
   const { addToast } = useToast();
@@ -110,6 +112,7 @@ function PortfolioForm({
   const [rebalancingMode, setRebalancingMode] = useState('standard');
   const [modeAmount, setModeAmount] = useState('');
   const [loadedSample, setLoadedSample] = useState(null);
+  const [showTaxFields, setShowTaxFields] = useState(false);
 
   // Internal positions state for live editing (synced to undo history on blur)
   const [livePositions, setLivePositions] = useState(positions);
@@ -131,6 +134,10 @@ function PortfolioForm({
   useEffect(() => {
     if (loadedPositions && loadedPositions.length > 0) {
       resetPositions(loadedPositions);
+      // Reveal the tax fields if the loaded portfolio already has cost basis data
+      if (loadedPositions.some((p) => p.costBasis || p.purchaseDate)) {
+        setShowTaxFields(true);
+      }
       setError('');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -178,7 +185,14 @@ function PortfolioForm({
   const addPosition = () => {
     const newPositions = [
       ...livePositions,
-      { id: Date.now(), ticker: '', amount: '', targetPercent: '' },
+      {
+        id: Date.now(),
+        ticker: '',
+        amount: '',
+        targetPercent: '',
+        costBasis: '',
+        purchaseDate: '',
+      },
     ];
     setLivePositions(newPositions);
     pushPositions(newPositions, 'Add holding');
@@ -219,6 +233,30 @@ function PortfolioForm({
     const num = parseFloat(value);
     if (isNaN(num) || num < 0) {
       return 'Amount must be a positive number';
+    }
+    return null;
+  };
+
+  // Optional field — only validated when non-empty
+  const validateCostBasis = (value) => {
+    if (!value) return null;
+    const num = parseFloat(value);
+    if (isNaN(num) || num <= 0) {
+      return 'Cost basis must be greater than $0';
+    }
+    return null;
+  };
+
+  const todayISO = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  };
+
+  // Optional field — only validated when non-empty
+  const validatePurchaseDate = (value) => {
+    if (!value) return null;
+    if (value > todayISO()) {
+      return 'Purchase date cannot be in the future';
     }
     return null;
   };
@@ -270,7 +308,15 @@ function PortfolioForm({
       // Only push to history if there was an actual change
       if (oldPositions !== newPositions) {
         const actionName =
-          field === 'ticker' ? 'Edit ticker' : field === 'amount' ? 'Edit amount' : 'Edit target %';
+          field === 'ticker'
+            ? 'Edit ticker'
+            : field === 'amount'
+              ? 'Edit amount'
+              : field === 'costBasis'
+                ? 'Edit cost basis'
+                : field === 'purchaseDate'
+                  ? 'Edit purchase date'
+                  : 'Edit target %';
         pushPositions(livePositions, actionName);
       }
       pendingEditRef.current = null;
@@ -291,7 +337,16 @@ function PortfolioForm({
 
   const handleClearSample = () => {
     setLoadedSample(null);
-    const emptyPositions = [{ id: Date.now(), ticker: '', amount: '', targetPercent: '' }];
+    const emptyPositions = [
+      {
+        id: Date.now(),
+        ticker: '',
+        amount: '',
+        targetPercent: '',
+        costBasis: '',
+        purchaseDate: '',
+      },
+    ];
     setLivePositions(emptyPositions);
     pushPositions(emptyPositions, 'Clear portfolio');
     setError('');
@@ -395,6 +450,20 @@ function PortfolioForm({
     if (validPositions.length === 0) {
       setError('Please add at least one complete position');
       return;
+    }
+
+    // Validate optional cost basis / purchase date fields when filled in
+    for (const p of validPositions) {
+      const costBasisError = validateCostBasis(p.costBasis);
+      if (costBasisError) {
+        setError(`${p.ticker}: ${costBasisError}`);
+        return;
+      }
+      const dateError = validatePurchaseDate(p.purchaseDate);
+      if (dateError) {
+        setError(`${p.ticker}: ${dateError}`);
+        return;
+      }
     }
 
     const totalTarget = validPositions.reduce((sum, p) => sum + parseFloat(p.targetPercent), 0);
@@ -977,7 +1046,33 @@ function PortfolioForm({
               </svg>
               Import Portfolio
             </button>
+
+            {/* Divider */}
+            <div className="w-px mx-1 self-stretch bg-border"></div>
+
+            <button
+              type="button"
+              onClick={() => setShowTaxFields(!showTaxFields)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-md bg-muted text-foreground border border-border hover:bg-accent transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              {showTaxFields ? 'Hide Tax Details' : 'Add Tax Details'}
+            </button>
           </div>
+
+          {showTaxFields && (
+            <p className="mb-4 text-xs text-muted-foreground">
+              Optional: add what you paid and when for each holding to get an accurate tax estimate
+              — otherwise we'll show a rough estimate instead.
+            </p>
+          )}
 
           {/* Empty holdings guidance */}
           {livePositions.length === 1 &&
@@ -1216,6 +1311,66 @@ function PortfolioForm({
                       </svg>
                     </button>
                   </div>
+
+                  {/* Optional tax detail fields */}
+                  {showTaxFields && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-bold mb-2 flex items-center gap-1 text-muted-foreground">
+                          What did you pay? ($) <span className="font-normal">— optional</span>
+                          <Tooltip text="Total amount you paid for this holding (your cost basis). Used to calculate your real capital gain instead of a rough estimate." />
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          pattern="[0-9]*\.?[0-9]*"
+                          placeholder="8000"
+                          value={position.costBasis || ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9.]/g, '');
+                            updatePosition(position.id, 'costBasis', value);
+                          }}
+                          onFocus={handleFieldFocus}
+                          onBlur={() => handleFieldBlur('costBasis')}
+                          className={`w-full px-3 min-h-[48px] border bg-background rounded-lg focus:ring-2 focus:ring-ring focus:outline-none text-base font-mono text-foreground ${
+                            validateCostBasis(position.costBasis) ? 'border-loss' : 'border-input'
+                          }`}
+                        />
+                        {validateCostBasis(position.costBasis) && (
+                          <p className="mt-1 text-xs text-loss">
+                            {validateCostBasis(position.costBasis)}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-bold mb-2 flex items-center gap-1 text-muted-foreground">
+                          When did you buy it? <span className="font-normal">— optional</span>
+                          <Tooltip text="Used to tell long-term from short-term holdings (over vs. under one year)." />
+                        </label>
+                        <input
+                          type="date"
+                          max={todayISO()}
+                          value={position.purchaseDate || ''}
+                          onChange={(e) =>
+                            updatePosition(position.id, 'purchaseDate', e.target.value)
+                          }
+                          onFocus={handleFieldFocus}
+                          onBlur={() => handleFieldBlur('purchaseDate')}
+                          className={`w-full px-3 min-h-[48px] border bg-background rounded-lg focus:ring-2 focus:ring-ring focus:outline-none text-base font-mono text-foreground ${
+                            validatePurchaseDate(position.purchaseDate)
+                              ? 'border-loss'
+                              : 'border-input'
+                          }`}
+                        />
+                        {validatePurchaseDate(position.purchaseDate) && (
+                          <p className="mt-1 text-xs text-loss">
+                            {validatePurchaseDate(position.purchaseDate)}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
 
                   {/* Mobile swipe hint - only show on first item */}
                   {index === 0 && livePositions.length > 1 && (
