@@ -59,7 +59,7 @@ async function logWebhookError(context, eventType, email, error) {
 }
 
 // Store orphaned purchase in pending_purchases table
-async function storePendingPurchase(email, payload) {
+async function storePendingPurchase(email, payload, eventType) {
   try {
     const { sale_id, subscription_id } = payload;
 
@@ -77,7 +77,14 @@ async function storePendingPurchase(email, payload) {
       .single();
 
     if (error) {
+      // A failed insert here means a real paid purchase could be dropped, so
+      // surface it in webhook_logs + Sentry rather than console-only. The
+      // caller still returns 200 (a retry wouldn't fix a bad insert).
       console.error('[Gumroad Webhook] Error storing pending purchase:', error);
+      await logWebhookError('store_pending_purchase', eventType, email, error);
+      try {
+        Sentry.captureException(new Error(`store pending purchase failed: ${error.message}`));
+      } catch {}
       return null;
     }
 
@@ -85,6 +92,10 @@ async function storePendingPurchase(email, payload) {
     return data;
   } catch (error) {
     console.error('[Gumroad Webhook] Exception storing pending purchase:', error);
+    await logWebhookError('store_pending_purchase', eventType, email, error);
+    try {
+      Sentry.captureException(error);
+    } catch {}
     return null;
   }
 }
@@ -318,11 +329,21 @@ export default async function handler(req, res) {
       if (eventType === 'subscription_created' || eventType === 'sale') {
         console.log(`[Gumroad Webhook] Storing as pending purchase for: ${email}`);
 
-        const pendingPurchase = await storePendingPurchase(email, payload);
+        const pendingPurchase = await storePendingPurchase(email, payload, eventType);
 
         if (pendingPurchase) {
-          // Send email prompting user to create account
-          await sendEmail('pendingPurchase', email);
+          // Send email prompting user to create account. Non-blocking: the
+          // purchase is already stored, so an email failure shouldn't fail the
+          // webhook — but log it instead of ignoring the result silently.
+          const emailResult = await sendEmail('pendingPurchase', email);
+          if (!emailResult?.success) {
+            await logWebhookError(
+              'pending_purchase_email',
+              eventType,
+              email,
+              emailResult?.error || new Error('pending purchase email failed')
+            );
+          }
 
           return res.status(200).json({
             success: true,
@@ -373,7 +394,15 @@ export default async function handler(req, res) {
 
       // For cancellations/refunds of non-existent users, just log
       if (!user) {
-        return res.status(200).json({ message: 'User not found, event logged' });
+        // A sale/subscription reaching here means storePendingPurchase failed
+        // (a successful store returns above), so don't claim it was logged as a
+        // normal event — the revocation path below is the real "event logged".
+        const storeFailed = eventType === 'subscription_created' || eventType === 'sale';
+        return res.status(200).json({
+          message: storeFailed
+            ? 'User not found, purchase storage failed, logged for follow-up'
+            : 'User not found, event logged',
+        });
       }
     }
 
