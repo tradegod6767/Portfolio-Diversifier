@@ -80,7 +80,34 @@
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!--
+        SEO / no-JS fallback content. React (createRoot) clears these children
+        on mount, so visitors who run JS never see this. It exists so crawlers
+        and Google's OAuth branding review — which do not execute JS and would
+        otherwise receive an empty <div id="root"> — get real, visible text
+        naming the app and describing what it does. This is a safety net for
+        the production build, where build-time prerendering is disabled on
+        Vercel. Static content only; do not rely on it for behavior.
+      -->
+      <main style="max-width: 42rem; margin: 0 auto; padding: 3rem 1.5rem; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #525252; line-height: 1.6;">
+        <h1 style="font-size: 2rem; font-weight: 700; margin: 0 0 1rem; color: #525252;">
+          RebalanceKit — Tax-Smart Portfolio Rebalancing
+        </h1>
+        <p style="font-size: 1.125rem; margin: 0 0 1rem;">
+          RebalanceKit is a free portfolio rebalancing tool for DIY investors. Enter your
+          current holdings and target allocation, and it calculates the exact buy and sell
+          amounts needed to restore your target weights in seconds — with a tax-efficient
+          add-only mode, a portfolio health score, AI-powered analysis, and PDF reports.
+          No signup required.
+        </p>
+        <p style="margin: 0;">
+          <a href="/app" style="color: inherit;">Open the rebalancing calculator</a> &middot;
+          <a href="/features" style="color: inherit;">Features</a> &middot;
+          <a href="/pricing" style="color: inherit;">Pricing</a>
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
