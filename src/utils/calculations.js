@@ -9,7 +9,8 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
   // Filter out invalid positions
   const validPositions = positions.filter((pos) => {
     const amount = parseFloat(pos.amount);
-    return !isNaN(amount) && amount >= 0;
+    const targetPercent = parseFloat(pos.targetPercent);
+    return !isNaN(amount) && amount >= 0 && !isNaN(targetPercent) && targetPercent >= 0;
   });
 
   if (validPositions.length === 0) {
@@ -224,11 +225,22 @@ function calculateContribution(positions, currentTotal, contribution) {
     };
   });
 
-  // Verify total allocation equals contribution
+  // Sum of the buys needed to fully close every underweight gap.
   const totalAllocated = positionsWithCalcs.reduce((sum, pos) => sum + pos.difference, 0);
 
-  // If allocated less than contribution, distribute remainder proportionally to targets
-  if (totalAllocated < contribution) {
+  if (totalAllocated > contribution && totalAllocated > 0) {
+    // Closing every gap would cost more than the contribution. Since we can't
+    // sell in contribution mode, scale each buy down proportionally to its gap
+    // so the recommended buys sum to exactly the contribution.
+    const scale = contribution / totalAllocated;
+    positionsWithCalcs.forEach((pos) => {
+      pos.difference *= scale;
+      pos.newAmount = pos.currentAmount + pos.difference;
+      pos.newPercent = (pos.newAmount / newTotal) * 100;
+      pos.action = pos.difference > 0 ? 'BUY' : 'HOLD';
+    });
+  } else if (totalAllocated < contribution) {
+    // If allocated less than contribution, distribute remainder proportionally to targets
     const remainder = contribution - totalAllocated;
     const totalTargetPercent = positions.reduce(
       (sum, pos) => sum + parseFloat(pos.targetPercent),
@@ -246,6 +258,9 @@ function calculateContribution(positions, currentTotal, contribution) {
     });
   }
 
+  // Report what was actually allocated, not the raw contribution.
+  const finalAllocated = positionsWithCalcs.reduce((sum, pos) => sum + pos.difference, 0);
+
   return {
     totalValue: currentTotal,
     positions: positionsWithCalcs,
@@ -253,7 +268,7 @@ function calculateContribution(positions, currentTotal, contribution) {
     modeData: {
       contributionAmount: contribution,
       newTotalValue: newTotal,
-      totalAllocated: contribution,
+      totalAllocated: finalAllocated,
     },
   };
 }
@@ -296,11 +311,22 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
     };
   });
 
-  // Verify total sold equals withdrawal
+  // Sum of the sells needed to trim every overweight position to target.
   const totalSold = positionsWithCalcs.reduce((sum, pos) => sum + Math.abs(pos.difference), 0);
 
-  // If sold less than withdrawal, distribute remainder proportionally
-  if (totalSold < withdrawal) {
+  if (totalSold > withdrawal && totalSold > 0) {
+    // Trimming every overweight position would sell more than the withdrawal.
+    // Since we can't buy in withdrawal mode, scale each sell down proportionally
+    // so the recommended sells sum to exactly the withdrawal.
+    const scale = withdrawal / totalSold;
+    positionsWithCalcs.forEach((pos) => {
+      pos.difference *= scale;
+      pos.newAmount = pos.currentAmount + pos.difference;
+      pos.newPercent = newTotal > 0 ? (pos.newAmount / newTotal) * 100 : 0;
+      pos.action = pos.difference < 0 ? 'SELL' : 'HOLD';
+    });
+  } else if (totalSold < withdrawal) {
+    // If sold less than withdrawal, distribute remainder proportionally
     const remainder = withdrawal - totalSold;
     const totalCurrentAmount = positions.reduce((sum, pos) => sum + parseFloat(pos.amount), 0);
 
@@ -316,6 +342,9 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
     });
   }
 
+  // Report what was actually sold, not the raw withdrawal.
+  const finalSold = positionsWithCalcs.reduce((sum, pos) => sum + Math.abs(pos.difference), 0);
+
   return {
     totalValue: currentTotal,
     positions: positionsWithCalcs,
@@ -323,7 +352,7 @@ function calculateWithdrawal(positions, currentTotal, withdrawal) {
     modeData: {
       withdrawalAmount: withdrawal,
       newTotalValue: newTotal,
-      totalSold: withdrawal,
+      totalSold: finalSold,
     },
   };
 }

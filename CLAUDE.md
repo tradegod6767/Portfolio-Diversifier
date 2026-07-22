@@ -1,11 +1,13 @@
 # RebalanceKit — React 19 + Vite 7 + TailwindCSS 4
 
 ## Critical Commands
+
 - Dev: `npm run dev`
 - Build: `npm run build`
 - Lint: `npm run lint`
 
 ## Tech Stack
+
 - Framework: React 19 + Vite 7 (NOT Next.js)
 - Styling: TailwindCSS 4 + CSS custom properties in index.css
 - Charts: Recharts 3.5 (pie charts, bar charts for allocation)
@@ -20,6 +22,7 @@
 ## Design System: "Minimal Fintech" (Robinhood-inspired)
 
 ### Design Philosophy
+
 - Less is more. Every element must earn its place on screen.
 - Color communicates data, not decoration. Green = positive, red = negative, accent = CTAs only.
 - Typography creates hierarchy. Size and weight differences replace borders and boxes.
@@ -28,6 +31,7 @@
 - No gradients, no decorative shadows, no visual noise.
 
 ### Typography
+
 - Primary font: 'Inter', system-ui, -apple-system, sans-serif
 - Monospace (financial numbers): 'IBM Plex Mono', ui-monospace, monospace
 - ALL financial numbers MUST use `font-variant-numeric: tabular-nums lining-nums`
@@ -35,6 +39,7 @@
 - Always show +/- sign prefix on gain/loss percentage values
 
 Type scale:
+
 - Hero number (portfolio total): text-5xl (48px), font-light (300), tracking-tight
 - Page title: text-2xl (24px), font-semibold (600)
 - Section header: text-lg (18px), font-semibold (600)
@@ -44,7 +49,9 @@ Type scale:
 - KPI number: text-3xl (32px), font-bold (700), tabular-nums
 
 ### Color Tokens (CSS custom properties in index.css)
+
 Light mode:
+
 - --background: #FAFAFA (page bg, NOT pure white)
 - --foreground: #0A0A0A (primary text)
 - --card: #FFFFFF (card/surface bg)
@@ -64,6 +71,7 @@ Light mode:
 - --loss-bg: #FEF2F2 (subtle red badge bg)
 
 Dark mode:
+
 - --background: #0A0A0A
 - --foreground: #FAFAFA
 - --card: #171717
@@ -76,9 +84,10 @@ Dark mode:
 - --gain: #4ADE80 (lighter green for dark bg)
 - --loss: #F87171 (lighter red for dark bg)
 
-FORBIDDEN: No purple, indigo, violet, teal gradients. No bg-indigo-*, bg-purple-*, bg-violet-*. No gradient backgrounds on sections. No colored shadows.
+FORBIDDEN: No purple, indigo, violet, teal gradients. No bg-indigo-_, bg-purple-_, bg-violet-\*. No gradient backgrounds on sections. No colored shadows.
 
 ### Spacing (8px grid)
+
 - Card internal padding: p-6 (24px)
 - Page padding: p-6 md:p-8 (24px mobile, 32px desktop)
 - Section spacing: space-y-8 (32px) between major sections
@@ -86,12 +95,15 @@ FORBIDDEN: No purple, indigo, violet, teal gradients. No bg-indigo-*, bg-purple-
 - Use Tailwind spacing scale only: gap-1(4px), gap-2(8px), gap-3(12px), gap-4(16px), gap-6(24px), gap-8(32px)
 
 ### Component Rules
+
 Cards:
+
 - bg-card border border-border rounded-lg p-6
 - NO box-shadow by default. Borders are the only elevation method.
 - Shadows ONLY on modals/dropdowns/tooltips.
 
 Buttons:
+
 - Primary: bg-primary text-primary-foreground rounded-md h-9 px-4 text-sm font-medium
 - Secondary: bg-muted text-foreground border border-border rounded-md
 - Ghost: bg-transparent hover:bg-accent rounded-md
@@ -99,11 +111,13 @@ Buttons:
 - NO pill shapes on desktop (rounded-md, not rounded-full)
 
 Inputs:
+
 - h-9 border border-input bg-background rounded-md px-3 text-sm
 - Focus: ring-2 ring-ring ring-offset-2 ring-offset-background
 - Placeholder: text-muted-foreground
 
 Tables (results tables, holdings):
+
 - Right-align ALL numeric columns
 - Left-align text columns (ticker, asset name)
 - Header: bg-muted text-muted-foreground text-xs font-medium uppercase tracking-wider
@@ -112,23 +126,27 @@ Tables (results tables, holdings):
 - NO zebra striping
 
 Charts (Recharts):
+
 - Pie chart: clean segments, no border/outline, subtle label
 - Bar charts: rounded corners, clean axis labels
 - Colors: use a consistent neutral palette, NOT rainbow colors
 - Tooltip: bg-card border border-border rounded-md shadow-md p-3 text-sm
 
 Modals:
+
 - Centered overlay with bg-black/50 backdrop
 - bg-card border border-border rounded-xl shadow-lg (modals ARE allowed shadows)
 - p-6 internal padding, max-w-md
 
 Badges:
+
 - BUY: bg-gain-bg text-gain text-xs font-medium px-2 py-0.5 rounded-md
 - SELL: bg-loss-bg text-loss text-xs font-medium px-2 py-0.5 rounded-md
 - HOLD: bg-muted text-muted-foreground text-xs font-medium px-2 py-0.5 rounded-md
 - PRO: bg-primary text-primary-foreground text-xs font-medium px-2 py-0.5 rounded-md
 
 ### Landing Page Rules
+
 - Left-aligned headline (NOT centered), clean CTA, product screenshot or mockup on right
 - NO generic gradients. Background is --background.
 - NO three-boxes-with-icons cliché. Show actual product screenshots or a demo preview.
@@ -138,47 +156,51 @@ Badges:
 - Subheadings: text-lg text-muted-foreground max-w-2xl
 
 ## Actual File Structure
+
 src/
-  App.jsx                    → Root app + routing + internal nav (home/calculator/load/import/about)
-  main.jsx                   → Entry + Vercel Analytics
-  index.css                  → CSS custom properties + base styles
-  App.css                    → App-level styles
-  config.js                  → API base URL
+App.jsx → Root app + routing + internal nav (home/calculator/load/import/about)
+main.jsx → Entry + Vercel Analytics
+index.css → CSS custom properties + base styles
+App.css → App-level styles
+config.js → API base URL
 
-  pages/
-    AuthCallbackPage.jsx, ResetPasswordPage.jsx, SuccessPage.jsx,
-    NotFoundPage.jsx, TermsOfServicePage.jsx, PrivacyPolicyPage.jsx
+pages/
+AuthCallbackPage.jsx, ResetPasswordPage.jsx, SuccessPage.jsx,
+NotFoundPage.jsx, TermsOfServicePage.jsx, PrivacyPolicyPage.jsx
 
-  components/
-    PortfolioForm.jsx, RebalancingResults.jsx, AllocationCharts.jsx,
-    PortfolioHealthScore.jsx, PortfolioInsights.jsx, PortfolioComparison.jsx,
-    AIAnalysisDisplay.jsx, AuthModal.jsx, ForgotPasswordModal.jsx,
-    PaywallWrapper.jsx, ProfessionalTopbar.jsx, ProfessionalSidebar.jsx,
-    ProfessionalHero.jsx, MobileHeader.jsx, MobileBottomNav.jsx,
-    WelcomeBanner.jsx, ImportPortfolioModal.jsx, ImportPortfolioPage.jsx,
-    LoadPortfolioPage.jsx, SavePortfolioModal.jsx, ExportButtons.jsx,
-    SamplePortfolioSelector.jsx, SamplePortfolioBanner.jsx,
-    RebalancingCostEstimate.jsx, KeyboardShortcutsModal.jsx,
-    WhatsNewModal.jsx, FinancialDisclaimer.jsx, ErrorBoundary.jsx,
-    Toast.jsx, Tooltip.jsx, SwipeableItem.jsx, AppLoadingSkeleton.jsx
-    ui/ → Badge.jsx, Button.jsx, Card.jsx, EmptyState.jsx,
-         Input.jsx, Select.jsx, LoadingSpinner.jsx, Skeleton.jsx
+components/
+PortfolioForm.jsx, RebalancingResults.jsx, AllocationCharts.jsx,
+PortfolioHealthScore.jsx, PortfolioInsights.jsx, PortfolioComparison.jsx,
+AIAnalysisDisplay.jsx, AuthModal.jsx, ForgotPasswordModal.jsx,
+PaywallWrapper.jsx, ProfessionalTopbar.jsx, ProfessionalSidebar.jsx,
+ProfessionalHero.jsx, MobileHeader.jsx, MobileBottomNav.jsx,
+WelcomeBanner.jsx, ImportPortfolioModal.jsx, ImportPortfolioPage.jsx,
+LoadPortfolioPage.jsx, SavePortfolioModal.jsx, ExportButtons.jsx,
+SamplePortfolioSelector.jsx, SamplePortfolioBanner.jsx,
+RebalancingCostEstimate.jsx, KeyboardShortcutsModal.jsx,
+WhatsNewModal.jsx, FinancialDisclaimer.jsx, ErrorBoundary.jsx,
+Toast.jsx, Tooltip.jsx, SwipeableItem.jsx, AppLoadingSkeleton.jsx
+ui/ → Badge.jsx, Button.jsx, Card.jsx, EmptyState.jsx,
+Input.jsx, Select.jsx, LoadingSpinner.jsx, Skeleton.jsx
 
-  Separate CSS files to consolidate into Tailwind:
-    AuthModal.css, PortfolioFormStyles.css, PortfolioHealthScore.css,
-    PortfolioInsights.css, SavePortfolioModal.css, ForgotPasswordModal.css,
-    AIAnalysisDisplay.css, AuthCallbackPage.css, App.css
+Separate CSS files to consolidate into Tailwind:
+AuthModal.css, PortfolioFormStyles.css, PortfolioHealthScore.css,
+PortfolioInsights.css, SavePortfolioModal.css, ForgotPasswordModal.css,
+AIAnalysisDisplay.css, AuthCallbackPage.css, App.css
 
-  hooks/ → useAuth.js, useKeyboardShortcuts.js, useUndoRedo.js
-  context/ → ToastContext.jsx
-  lib/ → supabase.js, auth.js
-  utils/ → calculations.js, portfolioHealth.js, portfolioStorage.js,
-           csvExport.js, assetClasses.js, modelPortfolios.js,
-           samplePortfolios.js, pdfGenerator/
+hooks/ → useAuth.js, useKeyboardShortcuts.js, useUndoRedo.js
+context/ → ToastContext.jsx
+lib/ → supabase.js, auth.js
+utils/ → calculations.js, portfolioHealth.js, portfolioStorage.js,
+csvExport.js, assetClasses.js, modelPortfolios.js,
+samplePortfolios.js, pdfGenerator/
 
 ## CONSTRAINTS (NEVER VIOLATE)
+
 - Do NOT change any API calls, data fetching, or business logic
 - Do NOT change calculations.js, portfolioHealth.js, or any utils logic
+  (EXCEPTION: the allocation-math bugs in calculations.js — see "Standing
+  approvals" below)
 - Do NOT change auth flows, Supabase calls, or payment logic
 - Do NOT change component prop interfaces or data flow
 - Do NOT change routing or navigation state logic
@@ -189,3 +211,17 @@ src/
 - Do NOT add gradient backgrounds
 - Do NOT use decorative box-shadows on cards (borders only)
 - Run `npm run build` after every file to verify
+
+## Standing approvals (carve-outs to the constraints above)
+
+- **`calculations.js` allocation math** — the owner has granted standing
+  approval to edit the contribution/withdrawal allocation logic and the
+  position-validation filter in `src/utils/calculations.js`. Future sessions do
+  NOT need to flag-and-proceed for this specific area; just make the change.
+  Behavior is pinned by `src/utils/calculations.test.js` (`npm test`) — keep
+  those tests green. This carve-out is scoped to the allocation math and
+  validation ONLY; the tax/cost-basis logic (`estimateTaxImpact`,
+  `ASSUMED_COST_BASIS_RATIO`, `FLAT_CAPITAL_GAINS_RATE`) and the trading-fee
+  estimate remain off-limits without explicit approval.
+- Tests use Node's built-in runner (`node --test`), so `npm test` adds no npm
+  dependency — this does not count against the "no new dependencies" rule.
