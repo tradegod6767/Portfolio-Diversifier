@@ -7,16 +7,20 @@ import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import DeleteAccountModal from './DeleteAccountModal';
+import UnsubscribeModal from './UnsubscribeModal';
 import { Badge } from './ui';
 
 export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
   const { user, isPro } = useAuth();
   // DIAGNOSTIC — remove once useAuth call-site blast radius is confirmed
-  useEffect(() => { console.log('[mount] MobileHeader'); }, []);
+  useEffect(() => {
+    console.log('[mount] MobileHeader');
+  }, []);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [showUnsubscribe, setShowUnsubscribe] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -33,7 +37,9 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
   }, [menuOpen]);
 
   useEffect(() => {
-    const handleEscape = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
@@ -52,9 +58,7 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
           <div className="w-7 h-7 rounded-md bg-foreground flex items-center justify-center text-background font-bold text-xs">
             RK
           </div>
-          <span className="font-semibold text-sm text-foreground">
-            {title || 'RebalanceKit'}
-          </span>
+          <span className="font-semibold text-sm text-foreground">{title || 'RebalanceKit'}</span>
         </div>
 
         {/* Right */}
@@ -73,9 +77,19 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
             {showUpdateDot && !menuOpen && (
@@ -105,7 +119,12 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
                 className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -116,26 +135,42 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      <svg
+                        className="w-5 h-5 text-muted-foreground"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
-                      <p className="text-xs text-muted-foreground">{isPro ? 'Pro Account' : 'Free Account'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isPro ? 'Pro Account' : 'Free Account'}
+                      </p>
                     </div>
                   </div>
                   {!isPro && (
                     <a
-                      href={user?.email
-                        ? `https://rebalancekit.gumroad.com/l/fvdfk?wanted=true&email=${encodeURIComponent(user.email)}`
-                        : 'https://rebalancekit.gumroad.com/l/fvdfk?wanted=true'}
+                      href={
+                        user?.email
+                          ? `https://rebalancekit.gumroad.com/l/fvdfk?wanted=true&email=${encodeURIComponent(user.email)}`
+                          : 'https://rebalancekit.gumroad.com/l/fvdfk?wanted=true'
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center justify-center gap-2 w-full py-2 px-3 text-sm font-semibold rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 transition-colors"
                     >
-                      <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-4 h-4 flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                       </svg>
                       Upgrade to Pro
@@ -147,8 +182,22 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
                   >
                     Sign Out
                   </button>
+                  {isPro && (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setShowUnsubscribe(true);
+                      }}
+                      className="w-full py-2 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors text-left"
+                    >
+                      Unsubscribe
+                    </button>
+                  )}
                   <button
-                    onClick={() => { setMenuOpen(false); setShowDeleteAccount(true); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setShowDeleteAccount(true);
+                    }}
                     className="w-full py-2 px-3 text-sm font-medium text-muted-foreground hover:text-loss hover:bg-loss-bg rounded-md transition-colors text-left"
                   >
                     Delete Account
@@ -157,13 +206,19 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
               ) : (
                 <div className="space-y-2">
                   <button
-                    onClick={() => { setMenuOpen(false); setShowAuthModal(true); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setShowAuthModal(true);
+                    }}
                     className="w-full h-9 bg-primary text-primary-foreground text-sm font-medium rounded-md transition-opacity hover:opacity-90"
                   >
                     Sign In
                   </button>
                   <button
-                    onClick={() => { setMenuOpen(false); setShowAuthModal(true); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setShowAuthModal(true);
+                    }}
                     className="flex items-center justify-center gap-2 w-full h-9 text-sm font-semibold rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 transition-colors"
                   >
                     <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
@@ -178,25 +233,64 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
             {/* Menu items */}
             <div className="p-2">
               <MenuLink
-                icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                }
                 label="About"
                 onClick={() => setMenuOpen(false)}
               />
               <MenuLink
-                icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>}
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                    />
+                  </svg>
+                }
                 label="What's New"
                 badge={showUpdateDot}
-                onClick={() => { setMenuOpen(false); onShowWhatsNew?.(); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onShowWhatsNew?.();
+                }}
               />
               <div className="my-2 h-px bg-border" />
               <MenuLink
-                icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                }
                 label="Terms of Service"
                 href="/terms"
                 onClick={() => setMenuOpen(false)}
               />
               <MenuLink
-                icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                }
                 label="Privacy Policy"
                 href="/privacy"
                 onClick={() => setMenuOpen(false)}
@@ -209,22 +303,24 @@ export default function MobileHeader({ title, onShowWhatsNew, showUpdateDot }) {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        onForgotPassword={() => { setShowAuthModal(false); setShowForgotPassword(true); }}
+        onForgotPassword={() => {
+          setShowAuthModal(false);
+          setShowForgotPassword(true);
+        }}
       />
       <ForgotPasswordModal
         isOpen={showForgotPassword}
         onClose={() => setShowForgotPassword(false)}
       />
-      <DeleteAccountModal
-        isOpen={showDeleteAccount}
-        onClose={() => setShowDeleteAccount(false)}
-      />
+      <DeleteAccountModal isOpen={showDeleteAccount} onClose={() => setShowDeleteAccount(false)} />
+      <UnsubscribeModal isOpen={showUnsubscribe} onClose={() => setShowUnsubscribe(false)} />
     </>
   );
 }
 
 function MenuLink({ icon, label, badge, onClick, href }) {
-  const cls = "w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors";
+  const cls =
+    'w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors';
 
   const content = (
     <>
@@ -235,7 +331,15 @@ function MenuLink({ icon, label, badge, onClick, href }) {
   );
 
   if (href) {
-    return <a href={href} className={cls} onClick={onClick}>{content}</a>;
+    return (
+      <a href={href} className={cls} onClick={onClick}>
+        {content}
+      </a>
+    );
   }
-  return <button onClick={onClick} className={cls}>{content}</button>;
+  return (
+    <button onClick={onClick} className={cls}>
+      {content}
+    </button>
+  );
 }
