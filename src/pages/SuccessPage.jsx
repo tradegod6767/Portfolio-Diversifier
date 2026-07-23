@@ -25,7 +25,7 @@ function SuccessPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate('/');
+          navigate('/app');
           return 0;
         }
         return prev - 1;
@@ -79,7 +79,7 @@ function SuccessPage() {
         </p>
 
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/app')}
           className="bg-primary text-primary-foreground hover:opacity-90 font-bold py-3 px-8 rounded-lg transition-opacity"
         >
           Go to Dashboard Now

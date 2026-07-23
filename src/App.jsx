@@ -56,6 +56,7 @@ const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
 
 // Marketing layout (static import — lightweight, used at route level)
 import MarketingLayout from "./layouts/MarketingLayout";
+import LandingRoute from "./components/LandingRoute";
 const HomePage = React.lazy(() => import("./pages/Home"));
 const CalculatorPage = React.lazy(() => import("./pages/Calculator"));
 const PricingPage = React.lazy(() => import("./pages/Pricing"));
@@ -995,7 +996,14 @@ export default function App(){
 
               {/* Marketing pages — wrapped in shared layout */}
               <Route element={<MarketingLayout />}>
-                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/"
+                  element={
+                    <LandingRoute>
+                      <HomePage />
+                    </LandingRoute>
+                  }
+                />
                 <Route path="/calculator" element={<CalculatorPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/features" element={<FeaturesPage />} />
