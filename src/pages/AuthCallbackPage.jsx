@@ -18,6 +18,17 @@ function AuthCallbackPage() {
     let timeoutId;
 
     if (user) {
+      // A valid session exists — it may have arrived after the 10s error timer
+      // already fired on an earlier run of this effect (e.g. the user signed in
+      // in another tab). Reset error/loading so the error UI isn't left showing
+      // while we redirect to /app. These synchronous resets on the success path
+      // are intentional; the react-hooks v7 set-state-in-effect rule is
+      // suppressed for them.
+      /* eslint-disable react-hooks/set-state-in-effect */
+      setError('');
+      setLoading(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
+
       supabase.auth.getSession().then(({ data: { session } }) => {
         const headers = { 'Content-Type': 'application/json' };
         if (session?.access_token) {
@@ -41,13 +52,11 @@ function AuthCallbackPage() {
       timeoutId = setTimeout(() => {
         navigate('/app');
       }, 2000);
-      // Pre-existing: setState-in-effect flagged by eslint-plugin-react-hooks v7.
-      // Not part of the landing-redirect change; suppressed to keep this commit's
-      // lint-staged run clean without touching auth-flow behavior. See known issue
-      // with this effect (uncleared error state / timer cleanup) for the real fix.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoading(false);
-      return;
+
+      // Clear the redirect timer if the component unmounts before it fires.
+      return () => {
+        if (timeoutId) clearTimeout(timeoutId);
+      };
     }
 
     timeoutId = setTimeout(() => {
