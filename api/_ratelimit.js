@@ -261,12 +261,31 @@ export async function checkRateLimit(req, res, options = {}) {
     }
 
   } catch (error) {
-    // If rate limit check errors (e.g. Redis connection issue), allow through with warning
-    console.error('[Rate Limit] Error checking rate limit, allowing request through:', error.message)
+    // SECURITY: Rate limiting is the cost-control guardrail on a paid endpoint.
+    // If the limiter backend (Upstash Redis) is unreachable we FAIL CLOSED and
+    // deny the request, rather than letting unlimited unmetered calls through.
+    // error.cause carries the underlying transport reason (DNS/connection/TLS
+    // failure) that error.message ("fetch failed") alone hides — log both so a
+    // future outage is diagnosable immediately.
+    console.error(
+      '[Rate Limit] Backend error - failing closed, denying request:',
+      error.message,
+      error.cause ?? ''
+    )
+
+    if (!res.headersSent) {
+      res.setHeader('Retry-After', '30')
+      res.status(503).json({
+        error: 'Rate limiter unavailable',
+        message: 'Service temporarily unavailable. Please try again in a moment.',
+        retryAfter: 30,
+      })
+    }
+
     return {
-      success: true,
+      success: false,
       error: error.message,
-      bypassed: true
+      failedClosed: true
     }
   }
 }
