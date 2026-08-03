@@ -106,9 +106,15 @@ export function calculateRebalancing(positions, mode = 'standard', modeAmount = 
 // Fallback when the user hasn't entered a cost basis: assume basis is 80% of
 // the sale amount (i.e. a 20% gain), the app's original flat assumption.
 export const ASSUMED_COST_BASIS_RATIO = 0.8;
-// Flat rate applied to net gains. Real bracket/short-term rates are out of
-// scope until approved — purchase dates only classify the holding period.
-export const FLAT_CAPITAL_GAINS_RATE = 0.15;
+// Long-term gains (held > 1 year) use the common 15% federal bracket. This is
+// an ASSUMED rate, not a computed one — the actual long-term rate is 0/15/20%
+// depending on taxable income and filing status.
+export const LONG_TERM_CAPITAL_GAINS_RATE = 0.15;
+// Short-term gains (held <= 1 year) are taxed as ordinary income, which is
+// bracket-dependent and typically higher than the long-term rate. We don't
+// know the user's bracket, so we apply a conservative placeholder and flag it
+// as an estimate rather than presenting it as a calculated rate.
+export const SHORT_TERM_ESTIMATE_RATE = 0.24;
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -121,12 +127,25 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
  * Positions without one fall back to the assumed 80% basis and are flagged
  * `hasRealBasis: false` so the UI can mark them as estimated.
  *
+ * The tax rate applied depends on the holding period, derived from
+ * `purchaseDate`:
+ *   - long-term (held > 1 year): the assumed 15% long-term rate
+ *   - short-term (held <= 1 year): a conservative 24% placeholder, flagged as
+ *     an estimate because the real rate is the user's ordinary-income bracket
+ *   - unknown (no purchaseDate on file): the rate CANNOT be determined, so the
+ *     position's gain is excluded from `estimatedTaxes` and surfaced via
+ *     `undeterminedGains` instead of silently assuming long-term treatment
+ *
+ * Losses offset gains within the same holding-period bucket before the rate is
+ * applied, so a net loss in a bucket owes no tax.
+ *
  * @param {Array} positions - Positions from calculateRebalancing (with action,
  *   difference, currentAmount, and optional costBasis/purchaseDate)
  * @param {Date} [today] - Injectable for testing; defaults to now
  * @returns {Object} { sellEstimates, totalCapitalGains, estimatedTaxes,
- *   hasAssumedPositions } — sellEstimates entries carry { ticker, sellAmount,
- *   gain, hasRealBasis, holdingPeriod: 'long'|'short'|null }
+ *   undeterminedGains, hasAssumedPositions, hasUndeterminedHolding,
+ *   hasShortTerm } — sellEstimates entries carry { ticker, sellAmount, gain,
+ *   hasRealBasis, holdingPeriod: 'long'|'short'|null, taxRate: number|null }
  */
 export function estimateTaxImpact(positions, today = new Date()) {
   const sellEstimates = positions
@@ -149,17 +168,47 @@ export function estimateTaxImpact(positions, today = new Date()) {
         }
       }
 
-      return { ticker: p.ticker, sellAmount, gain, hasRealBasis, holdingPeriod };
+      // Rate is a function of the holding period; null means "can't determine"
+      // (unknown purchase date), which the UI must surface rather than guess.
+      const taxRate =
+        holdingPeriod === 'long'
+          ? LONG_TERM_CAPITAL_GAINS_RATE
+          : holdingPeriod === 'short'
+            ? SHORT_TERM_ESTIMATE_RATE
+            : null;
+
+      return { ticker: p.ticker, sellAmount, gain, hasRealBasis, holdingPeriod, taxRate };
     });
 
   const totalCapitalGains = sellEstimates.reduce((sum, e) => sum + e.gain, 0);
-  // Real basis data can produce losses; losses offset gains and no tax is
-  // owed on a net loss. The assumed-basis path always yields positive gains,
-  // so legacy behavior is unchanged.
-  const estimatedTaxes = Math.max(0, totalCapitalGains) * FLAT_CAPITAL_GAINS_RATE;
-  const hasAssumedPositions = sellEstimates.some((e) => !e.hasRealBasis);
 
-  return { sellEstimates, totalCapitalGains, estimatedTaxes, hasAssumedPositions };
+  // Net gains and losses within each holding-period bucket, then apply that
+  // bucket's rate to the net gain. Losses reduce the taxable amount but never
+  // create a negative tax. The unknown bucket has no determinable rate, so its
+  // net gain is reported separately and NOT folded into the tax total.
+  const buckets = { long: 0, short: 0, unknown: 0 };
+  for (const e of sellEstimates) {
+    buckets[e.holdingPeriod ?? 'unknown'] += e.gain;
+  }
+
+  const estimatedTaxes =
+    Math.max(0, buckets.long) * LONG_TERM_CAPITAL_GAINS_RATE +
+    Math.max(0, buckets.short) * SHORT_TERM_ESTIMATE_RATE;
+  const undeterminedGains = Math.max(0, buckets.unknown);
+
+  const hasAssumedPositions = sellEstimates.some((e) => !e.hasRealBasis);
+  const hasUndeterminedHolding = undeterminedGains > 0;
+  const hasShortTerm = buckets.short > 0;
+
+  return {
+    sellEstimates,
+    totalCapitalGains,
+    estimatedTaxes,
+    undeterminedGains,
+    hasAssumedPositions,
+    hasUndeterminedHolding,
+    hasShortTerm,
+  };
 }
 
 /**

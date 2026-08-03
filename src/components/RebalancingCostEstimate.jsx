@@ -14,8 +14,14 @@ function RebalancingCostEstimate({ results }) {
   // Tax impact (only on SELL actions) — real gains where the user entered a
   // cost basis, assumed 80% basis otherwise
   const sellActions = positions.filter((p) => p.action === 'SELL');
-  const { sellEstimates, totalCapitalGains, estimatedTaxes, hasAssumedPositions } =
-    estimateTaxImpact(positions);
+  const {
+    sellEstimates,
+    totalCapitalGains,
+    estimatedTaxes,
+    undeterminedGains,
+    hasAssumedPositions,
+    hasUndeterminedHolding,
+  } = estimateTaxImpact(positions);
 
   // Total cost
   const totalCost = tradingCosts + estimatedTaxes;
@@ -110,9 +116,28 @@ function RebalancingCostEstimate({ results }) {
                   </span>
                 </span>
                 <span className="flex items-center gap-1 flex-shrink-0">
-                  {estimate.holdingPeriod && (
-                    <span className="px-1.5 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-medium">
-                      {estimate.holdingPeriod === 'long' ? 'long-term' : 'short-term'}
+                  {estimate.holdingPeriod === 'long' && (
+                    <span
+                      className="px-1.5 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-medium"
+                      title="Held over 1 year. Estimated at an assumed 15% long-term rate (actual long-term rate is 0/15/20% depending on income)."
+                    >
+                      long-term · 15% (assumed)
+                    </span>
+                  )}
+                  {estimate.holdingPeriod === 'short' && (
+                    <span
+                      className="px-1.5 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-medium"
+                      title="Held 1 year or less — likely taxed as ordinary income (rate varies by bracket, typically higher than long-term rates). Shown using a conservative 24% estimate."
+                    >
+                      short-term · ~24% (est.)
+                    </span>
+                  )}
+                  {!estimate.holdingPeriod && (
+                    <span
+                      className="px-1.5 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-medium"
+                      title="No purchase date on file — holding period is unknown, so the tax treatment (and therefore the rate) can't be determined. Add a purchase date in the portfolio form."
+                    >
+                      holding period unknown
                     </span>
                   )}
                   {estimate.hasRealBasis ? (
@@ -148,7 +173,9 @@ function RebalancingCostEstimate({ results }) {
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Est. taxes (15% rate):</span>
+              <span className="text-muted-foreground">
+                Est. taxes{hasUndeterminedHolding ? ' (determinable positions)' : ''}:
+              </span>
               <span
                 className="font-semibold text-foreground font-mono"
                 style={{ fontVariantNumeric: 'tabular-nums lining-nums' }}
@@ -156,14 +183,40 @@ function RebalancingCostEstimate({ results }) {
                 {formatCurrency(estimatedTaxes)}
               </span>
             </div>
+            {hasUndeterminedHolding && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Gains with unknown holding period:</span>
+                <span
+                  className="font-semibold text-foreground font-mono"
+                  style={{ fontVariantNumeric: 'tabular-nums lining-nums' }}
+                >
+                  {formatCurrency(undeterminedGains)} · rate TBD
+                </span>
+              </div>
+            )}
 
-            <div className="mt-2 p-2 bg-muted border border-border rounded-md text-xs text-muted-foreground">
-              <strong className="text-foreground">Note:</strong> Actual taxes depend on your tax
-              bracket and filing status — a flat 15% rate is applied here regardless of holding
-              period.{' '}
-              {hasAssumedPositions
-                ? 'Positions marked "estimated" have no cost basis on file, so their gain assumes an 80% cost basis. Add what you paid (and when) in the portfolio form to make those figures exact.'
-                : 'Gains are calculated from the cost basis you entered, prorated for partial sales.'}
+            <div className="mt-2 p-2 bg-muted border border-border rounded-md text-xs text-muted-foreground space-y-1.5">
+              <p>
+                <strong className="text-foreground">How the rate is applied:</strong> Long-term
+                positions (held over 1 year) use an <em>assumed</em> 15% rate — an assumption, not a
+                calculated figure. Short-term positions (held 1 year or less) are likely taxed as
+                ordinary income (rate varies by bracket, typically higher than long-term rates);
+                they use a conservative 24% estimate.{' '}
+                {hasUndeterminedHolding
+                  ? 'Positions with no purchase date have an unknown holding period, so their tax treatment and rate can’t be determined — those gains are shown separately and excluded from the tax total above.'
+                  : 'Add a purchase date per position to classify its holding period.'}
+              </p>
+              <p>
+                <strong className="text-foreground">This estimate is federal-only.</strong> It does
+                not include state capital gains tax and does not account for the Net Investment
+                Income Tax (NIIT, an extra 3.8% for higher earners). It is for planning purposes
+                only and is not a substitute for advice from a tax professional.
+              </p>
+              <p>
+                {hasAssumedPositions
+                  ? 'Positions marked "estimated" have no cost basis on file, so their gain assumes an 80% cost basis. Add what you paid (and when) in the portfolio form to make those figures exact.'
+                  : 'Gains are calculated from the cost basis you entered, prorated for partial sales.'}
+              </p>
             </div>
           </div>
         ) : (
@@ -205,6 +258,12 @@ function RebalancingCostEstimate({ results }) {
               {formatCurrency(totalCost)}
             </span>
           </div>
+          {hasUndeterminedHolding && (
+            <p className="text-xs text-muted-foreground">
+              Excludes {formatCurrency(undeterminedGains)} of gains whose holding period is unknown
+              — actual taxes will be higher once those are classified.
+            </p>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Cost as % of portfolio:</span>
             <span

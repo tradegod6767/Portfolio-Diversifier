@@ -10,7 +10,12 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateRebalancing } from './calculations.js';
+import {
+  calculateRebalancing,
+  estimateTaxImpact,
+  LONG_TERM_CAPITAL_GAINS_RATE,
+  SHORT_TERM_ESTIMATE_RATE,
+} from './calculations.js';
 
 const near = (a, b, eps = 1e-6) => Math.abs(a - b) <= eps;
 
@@ -68,6 +73,59 @@ test('an under-allocated contribution still distributes the full amount', () => 
   const totalBuys = r.positions.reduce((s, p) => s + (p.difference > 0 ? p.difference : 0), 0);
   assert.ok(near(totalBuys, 1000), `buys ${totalBuys} should equal the contribution`);
   assert.ok(near(r.modeData.totalAllocated, 1000));
+});
+
+// --- estimateTaxImpact: holding-period-aware rates -------------------------
+
+const TODAY = new Date('2026-07-31T00:00:00');
+// A SELL of $10,000 with a $6,000 basis on the full position => $4,000 gain.
+const sellPosition = (overrides) => ({
+  ticker: 'AAA',
+  action: 'SELL',
+  difference: -10000,
+  currentAmount: '10000',
+  costBasis: '6000',
+  ...overrides,
+});
+
+test('long-term sales use the assumed 15% rate', () => {
+  const r = estimateTaxImpact([sellPosition({ purchaseDate: '2020-01-01' })], TODAY);
+  assert.equal(r.sellEstimates[0].holdingPeriod, 'long');
+  assert.equal(r.sellEstimates[0].taxRate, LONG_TERM_CAPITAL_GAINS_RATE);
+  assert.ok(Math.abs(r.estimatedTaxes - 4000 * 0.15) < 1e-6);
+  assert.equal(r.hasUndeterminedHolding, false);
+});
+
+test('short-term sales use the conservative estimate rate, not 15%', () => {
+  const r = estimateTaxImpact([sellPosition({ purchaseDate: '2026-03-01' })], TODAY);
+  assert.equal(r.sellEstimates[0].holdingPeriod, 'short');
+  assert.equal(r.sellEstimates[0].taxRate, SHORT_TERM_ESTIMATE_RATE);
+  assert.ok(Math.abs(r.estimatedTaxes - 4000 * SHORT_TERM_ESTIMATE_RATE) < 1e-6);
+});
+
+test('unknown holding period is excluded from the tax total and surfaced separately', () => {
+  const r = estimateTaxImpact([sellPosition({ purchaseDate: undefined })], TODAY);
+  assert.equal(r.sellEstimates[0].holdingPeriod, null);
+  assert.equal(r.sellEstimates[0].taxRate, null);
+  assert.equal(r.estimatedTaxes, 0, 'no rate can be determined, so no tax is asserted');
+  assert.equal(r.hasUndeterminedHolding, true);
+  assert.ok(Math.abs(r.undeterminedGains - 4000) < 1e-6);
+});
+
+test('losses offset gains within the same holding-period bucket', () => {
+  // Two long-term sales: +$4,000 gain and a -$2,000 loss net to $2,000 taxed.
+  const positions = [
+    sellPosition({ ticker: 'AAA', purchaseDate: '2020-01-01' }),
+    sellPosition({
+      ticker: 'BBB',
+      purchaseDate: '2019-01-01',
+      difference: -10000,
+      currentAmount: '10000',
+      costBasis: '12000', // sold at a loss
+    }),
+  ];
+  const r = estimateTaxImpact(positions, TODAY);
+  assert.ok(Math.abs(r.estimatedTaxes - 2000 * 0.15) < 1e-6);
 });
 
 test('positions with a non-numeric targetPercent are filtered out', () => {

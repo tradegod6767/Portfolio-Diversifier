@@ -77,6 +77,10 @@ export default async function handler(req, res) {
       return !isNaN(basis) && basis > 0;
     };
 
+    // Standing disclaimer that MUST appear in every tax-related output,
+    // regardless of subscription tier.
+    const TAX_DISCLAIMER_INSTRUCTION = `You MUST end the tax section with this disclaimer, as its own short paragraph, in your own words but preserving every point: this tax estimate is federal-only and does NOT include state capital gains tax; it does NOT account for the Net Investment Income Tax (NIIT, an extra 3.8% for higher earners); and it is for planning purposes only, not a substitute for advice from a qualified tax professional.`;
+
     // Create conditional tax section based on subscription status
     const taxSection = isProUser
       ? `**Paragraph 3 - Tax & Implementation Considerations:**
@@ -90,9 +94,13 @@ Provide COMPREHENSIVE tax analysis including:
 - Suggest specific tax optimization strategies relevant to this portfolio
 - Provide actionable recommendations for minimizing tax liability
 
-Be detailed and specific - this is a Pro subscriber who paid for comprehensive tax guidance. Accuracy about what is exact vs. estimated matters more than sounding precise.`
+Be detailed and specific - this is a Pro subscriber who paid for comprehensive tax guidance. Accuracy about what is exact vs. estimated matters more than sounding precise.
+
+${TAX_DISCLAIMER_INSTRUCTION}`
       : `**Paragraph 3 - Tax & Implementation Considerations:**
-Provide a brief 2-3 sentence teaser about tax implications. If the rebalancing only involves deploying cash (no selling positions), acknowledge there are no immediate tax implications. If selling positions is required, mention that it may trigger capital gains. Always end with: "Upgrade to Pro for detailed tax optimization strategies including tax-loss harvesting, capital gains minimization, and wash sale rule guidance."`;
+Provide a brief 2-3 sentence teaser about tax implications. If the rebalancing only involves deploying cash (no selling positions), acknowledge there are no immediate tax implications. If selling positions is required, mention that it may trigger capital gains. Always end with: "Upgrade to Pro for detailed tax optimization strategies including tax-loss harvesting, capital gains minimization, and wash sale rule guidance."
+
+${TAX_DISCLAIMER_INSTRUCTION}`;
 
     // Create prompt for Claude
     const prompt = `You are an experienced financial advisor providing detailed portfolio rebalancing analysis. Based on the following data, provide a comprehensive 2-3 paragraph analysis that includes:

@@ -11,9 +11,9 @@ export default function AIAnalysisDisplay({ content, isPro = false, user = null 
   const sections = useMemo(() => parseAIContent(content), [content]);
 
   const toggleSection = (index) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [index]: !prev[index]
+      [index]: !prev[index],
     }));
   };
 
@@ -25,20 +25,35 @@ export default function AIAnalysisDisplay({ content, isPro = false, user = null 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 bg-muted border-b border-border">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground flex-shrink-0">
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="9" cy="13" r="1" fill="currentColor"/>
-              <circle cx="15" cy="13" r="1" fill="currentColor"/>
-              <path d="M9 17h6" strokeLinecap="round"/>
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle cx="9" cy="13" r="1" fill="currentColor" />
+              <circle cx="15" cy="13" r="1" fill="currentColor" />
+              <path d="M9 17h6" strokeLinecap="round" />
             </svg>
           </div>
           <div>
             <h3 className="text-base font-semibold text-foreground">AI Portfolio Analysis</h3>
-            <p className="text-xs text-muted-foreground">Personalized insights based on your holdings</p>
+            <p className="text-xs text-muted-foreground">
+              Personalized insights based on your holdings
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-background border border-border rounded-md self-start sm:self-auto">
-          <span className="w-1.5 h-1.5 bg-gain rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+          <span
+            className="w-1.5 h-1.5 bg-gain rounded-full"
+            style={{ animation: 'pulse 2s ease-in-out infinite' }}
+          />
           <span className="text-xs font-medium text-muted-foreground">AI-Powered</span>
         </div>
       </div>
@@ -58,15 +73,21 @@ export default function AIAnalysisDisplay({ content, isPro = false, user = null 
 
       {/* Rate Limit Notice */}
       <div className="flex items-center justify-center gap-2 px-4 py-3 bg-muted border-t border-border">
-        <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg
+          className="w-4 h-4 text-muted-foreground"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
         <span className="text-xs text-muted-foreground">
-          {isPro
-            ? 'Pro: 100 analyses/hour'
-            : user
-              ? 'Free: 20 analyses/hour'
-              : '5 analyses/hour'}
+          {isPro ? 'Pro: 100 analyses/hour' : user ? 'Free: 20 analyses/hour' : '5 analyses/hour'}
           {!isPro && ' · Upgrade for more'}
         </span>
       </div>
@@ -84,14 +105,18 @@ function AISection({ section, isExpanded, onToggle }) {
   const colorClasses = getSectionColors(color);
 
   return (
-    <div className={`bg-background border rounded-xl overflow-hidden transition-colors ${colorClasses.border}`}>
+    <div
+      className={`bg-background border rounded-xl overflow-hidden transition-colors ${colorClasses.border}`}
+    >
       {/* Section Header */}
       <button
         className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
         onClick={onToggle}
         aria-expanded={isExpanded}
       >
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClasses.icon}`}>
+        <div
+          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClasses.icon}`}
+        >
           {iconSvg}
         </div>
         <h4 className="flex-1 text-sm font-semibold text-foreground">{title}</h4>
@@ -111,7 +136,11 @@ function AISection({ section, isExpanded, onToggle }) {
           {/* Prose under a list-typed header (models may write paragraphs where
               the title keywords suggest a list) — render it so the body is never blank */}
           {(type === 'bullets' || type === 'numbered') && content && (
-            <p className={`text-sm text-muted-foreground leading-relaxed whitespace-pre-line${items?.length ? ' mb-3' : ''}`}>{content}</p>
+            <p
+              className={`text-sm text-muted-foreground leading-relaxed whitespace-pre-line${items?.length ? ' mb-3' : ''}`}
+            >
+              {content}
+            </p>
           )}
 
           {type === 'bullets' && items && (
@@ -120,7 +149,11 @@ function AISection({ section, isExpanded, onToggle }) {
                 <li key={i} className="flex items-start gap-2.5">
                   <span className={`flex-shrink-0 mt-0.5 ${colorClasses.marker}`}>
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </span>
                   <span className="text-sm text-muted-foreground leading-relaxed">{item}</span>
@@ -133,8 +166,14 @@ function AISection({ section, isExpanded, onToggle }) {
             <ol className="space-y-3">
               {items.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold flex-shrink-0 ${colorClasses.number}`}>{i + 1}</span>
-                  <span className="text-sm text-muted-foreground leading-relaxed pt-0.5">{item}</span>
+                  <span
+                    className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold flex-shrink-0 ${colorClasses.number}`}
+                  >
+                    {i + 1}
+                  </span>
+                  <span className="text-sm text-muted-foreground leading-relaxed pt-0.5">
+                    {item}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -147,7 +186,9 @@ function AISection({ section, isExpanded, onToggle }) {
           )}
 
           {type === 'paragraph' && content && (
-            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{content}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+              {content}
+            </p>
           )}
 
           {type === 'keyInsight' && content && (
@@ -155,13 +196,31 @@ function AISection({ section, isExpanded, onToggle }) {
               <div className="inline-flex items-center px-2.5 py-1 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wide rounded-md mb-3">
                 Key Insight
               </div>
-              <p className="text-sm text-foreground leading-relaxed font-medium whitespace-pre-line">{content}</p>
+              <p className="text-sm text-foreground leading-relaxed font-medium whitespace-pre-line">
+                {content}
+              </p>
             </div>
           )}
         </div>
       )}
     </div>
   );
+}
+
+/**
+ * Strip one or more leading list enumerators from a numbered-item line so the
+ * rendered number badge is the only number shown. Handles repeated markers
+ * ("1. 1. text") and markers wrapped in bold ("**1.** text"), which models
+ * occasionally emit and which otherwise render as a doubled "1. 1".
+ */
+function stripLeadingEnumerators(line) {
+  let text = line.trim();
+  let prev;
+  do {
+    prev = text;
+    text = text.replace(/^\*{0,2}\d+[.)]\*{0,2}\s+/, '').trim();
+  } while (text !== prev && text.length > 0);
+  return text;
 }
 
 /**
@@ -210,7 +269,9 @@ function parseAIContent(text) {
     }
 
     // Detect headers (## Header, **Header**, or HEADER:)
-    const headerMatch = line.match(/^(?:#{1,3}\s*)?(?:\*\*)?([A-Za-z][A-Za-z\s&-]+?)(?:\*\*)?:?\s*$/);
+    const headerMatch = line.match(
+      /^(?:#{1,3}\s*)?(?:\*\*)?([A-Za-z][A-Za-z\s&-]+?)(?:\*\*)?:?\s*$/
+    );
     const isAllCaps = /^[A-Z][A-Z\s&-]+:?\s*$/.test(line);
 
     if (headerMatch || isAllCaps) {
@@ -224,7 +285,12 @@ function parseAIContent(text) {
     // Detect bullet points
     if (line.match(/^[-•*]\s+/)) {
       if (!currentSection) {
-        currentSection = { type: 'bullets', title: 'Insights', icon: 'lightbulb', color: 'neutral' };
+        currentSection = {
+          type: 'bullets',
+          title: 'Insights',
+          icon: 'lightbulb',
+          color: 'neutral',
+        };
       }
       currentSection.type = 'bullets';
       currentItems.push(line.replace(/^[-•*]\s+/, '').trim());
@@ -234,10 +300,19 @@ function parseAIContent(text) {
     // Detect numbered items
     if (line.match(/^\d+[.)]\s+/)) {
       if (!currentSection) {
-        currentSection = { type: 'numbered', title: 'Recommendations', icon: 'list', color: 'gain' };
+        currentSection = {
+          type: 'numbered',
+          title: 'Recommendations',
+          icon: 'list',
+          color: 'gain',
+        };
       }
       currentSection.type = 'numbered';
-      currentItems.push(line.replace(/^\d+[.)]\s+/, '').trim());
+      // Numbered lists render their own number badge, so strip the enumerator
+      // from the text. Strip repeatedly (and through bold markers) because
+      // models sometimes restate the marker — e.g. "1. 1." or "**1.** 1)" —
+      // which otherwise renders doubled ("1. 1", "2. 2") next to the badge.
+      currentItems.push(stripLeadingEnumerators(line));
       continue;
     }
 
@@ -260,14 +335,19 @@ function parseAIContent(text) {
       title: 'Analysis Summary',
       icon: 'overview',
       color: 'neutral',
-      content: text.trim()
+      content: text.trim(),
     });
   }
 
   // Enhance sections with key insights
   return sections.map((section, i) => {
     // First section with substantial content becomes a key insight
-    if (i === 0 && section.type === 'paragraph' && section.content && section.content.length > 100) {
+    if (
+      i === 0 &&
+      section.type === 'paragraph' &&
+      section.content &&
+      section.content.length > 100
+    ) {
       return { ...section, type: 'keyInsight' };
     }
     return section;
@@ -283,7 +363,12 @@ function detectSectionType(title) {
   if (lower.includes('risk') || lower.includes('concern') || lower.includes('warning')) {
     return { icon: 'warning', color: 'loss', type: 'bullets' };
   }
-  if (lower.includes('recommend') || lower.includes('action') || lower.includes('step') || lower.includes('suggestion')) {
+  if (
+    lower.includes('recommend') ||
+    lower.includes('action') ||
+    lower.includes('step') ||
+    lower.includes('suggestion')
+  ) {
     return { icon: 'list', color: 'gain', type: 'numbered' };
   }
   if (lower.includes('tax') || lower.includes('cost') || lower.includes('fee')) {
@@ -311,43 +396,88 @@ function detectSectionType(title) {
 const SECTION_ICONS = {
   warning: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+      />
     </svg>
   ),
   list: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+      />
     </svg>
   ),
   dollar: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
     </svg>
   ),
   chart: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
+      />
     </svg>
   ),
   check: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
     </svg>
   ),
   overview: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
     </svg>
   ),
   info: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
     </svg>
   ),
   lightbulb: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+      />
     </svg>
   ),
 };
@@ -366,22 +496,22 @@ function getSectionColors(color) {
       icon: 'bg-gain-bg text-gain',
       marker: 'text-gain',
       number: 'bg-gain-bg text-gain',
-      callout: 'bg-gain-bg border-gain/30 text-gain'
+      callout: 'bg-gain-bg border-gain/30 text-gain',
     },
     loss: {
       border: 'border-loss/30',
       icon: 'bg-loss-bg text-loss',
       marker: 'text-loss',
       number: 'bg-loss-bg text-loss',
-      callout: 'bg-loss-bg border-loss/30 text-loss'
+      callout: 'bg-loss-bg border-loss/30 text-loss',
     },
     neutral: {
       border: 'border-border',
       icon: 'bg-muted text-muted-foreground',
       marker: 'text-muted-foreground',
       number: 'bg-muted text-foreground',
-      callout: 'bg-muted border-border text-muted-foreground'
-    }
+      callout: 'bg-muted border-border text-muted-foreground',
+    },
   };
 
   return colors[color] || colors.neutral;
