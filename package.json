@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/generate-404.js",
     "lint": "eslint .",
-    "test": "node --test \"src/**/*.test.js\"",
+    "test": "node --test \"src/**/*.test.js\" \"api/**/*.test.js\"",
     "preview": "vite preview",
     "prepare": "husky",
     "analyze": "ANALYZE=true vite build"

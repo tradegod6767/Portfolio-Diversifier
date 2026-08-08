@@ -4,6 +4,7 @@ import { handleCors } from './_cors.js'
 import { authenticateRequest } from './_auth.js'
 import { retryQuery } from './_retry-utils.js'
 import { Sentry } from './_sentry.js'
+import { buildActivationRow } from './_activation.js'
 
 const supabaseAdmin = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -11,6 +12,30 @@ const supabaseAdmin = createClient(
 )
 
 const resend = new Resend(process.env.RESEND_API_KEY?.trim())
+
+// Log a claim failure to webhook_logs so it is visible from the database, not
+// just Vercel runtime logs. Mirrors logWebhookError in gumroad-webhook.js so a
+// paying user who never receives Pro leaves a queryable trail. sale_id stays
+// null so these rows never trip the webhook's duplicate-sale_id idempotency check.
+async function logClaimError(context, email, error) {
+  try {
+    await supabaseAdmin.from('webhook_logs').insert({
+      sale_id: null,
+      event_type: 'processing_error',
+      payload: {
+        context,
+        source: 'claim-pending-purchase',
+        email,
+        error_message: error?.message || String(error),
+        error_code: error?.code || null,
+        error_details: error?.details || null,
+      },
+      processed_at: new Date().toISOString(),
+    })
+  } catch (err) {
+    console.error('[Claim Purchase] Exception logging claim error:', err)
+  }
+}
 
 // Send Pro upgrade email
 async function sendProUpgradeEmail(email, userName) {
@@ -142,20 +167,24 @@ export default async function handler(req, res) {
       console.error('[Claim Purchase] Error updating pending purchase:', updatePendingError)
     }
 
-    // Primary: upsert into user_subscriptions table
+    // Primary: upsert into user_subscriptions table.
+    // id + email are NOT NULL in production and no row exists yet for a user
+    // claiming a pre-signup purchase, so the upsert resolves to an INSERT that
+    // must supply them (see _activation.js). email comes from the verified JWT
+    // (authUser.email), never the request body.
     const { error: subError } = await supabaseAdmin
       .from('user_subscriptions')
-      .upsert({
-        user_id: userId,
-        is_pro: true,
-        subscription_status: 'active',
-        gumroad_subscription_id: pendingPurchase.gumroad_subscription_id || pendingPurchase.sale_id,
-        gumroad_product_id: pendingPurchase.gumroad_product_id,
-        gumroad_email: email,
-      }, { onConflict: 'user_id' })
+      .upsert(
+        buildActivationRow({ userId, authEmail: authUser.email, pendingPurchase }),
+        { onConflict: 'user_id' }
+      )
 
     if (subError) {
       console.error('[Claim Purchase] Error upserting user_subscriptions:', subError)
+      await logClaimError('activate_upsert', authUser.email, subError)
+      try {
+        Sentry.captureException(new Error(`claim upsert failed: ${subError.message}`))
+      } catch {}
       return res.status(500).json({ error: 'Failed to activate Pro subscription' })
     }
 
@@ -180,11 +209,12 @@ export default async function handler(req, res) {
       // Non-fatal: user_subscriptions is the source of truth
     }
 
-    console.log(`[Claim Purchase] Pro activated for ${email} (claimed from pending)`)
+    console.log(`[Claim Purchase] Pro activated for ${authUser.email} (claimed from pending)`)
 
-    // Send confirmation email
-    const userName = email.split('@')[0]
-    await sendProUpgradeEmail(email, userName)
+    // Send confirmation email to the verified account email, never the request
+    // body — the body email is untrusted (only userId is checked against the JWT).
+    const userName = authUser.email.split('@')[0]
+    await sendProUpgradeEmail(authUser.email, userName)
 
     return res.status(200).json({
       found: true,
