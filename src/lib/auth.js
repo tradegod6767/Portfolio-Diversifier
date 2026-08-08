@@ -18,18 +18,35 @@ async function claimPendingPurchase(email, userId) {
       body: JSON.stringify({ email, userId }),
     });
 
-    if (response.ok) {
-      const result = await response.json();
-      if (result.found && result.claimed) {
-        console.log('[Auth] Claimed pending Pro purchase!');
-        return true;
+    if (!response.ok) {
+      // A pre-signup purchase that fails to activate means a paying user
+      // silently never gets Pro (this was F1). Do NOT swallow it. The server
+      // records the detail in webhook_logs; surface it on the client too so the
+      // failure is not invisible here.
+      let detail = '';
+      try {
+        detail = JSON.stringify(await response.json());
+      } catch {
+        detail = await response.text().catch(() => '');
       }
+      console.error(
+        `[Auth] Pending-purchase claim FAILED (HTTP ${response.status}) for ${email}: ${detail}`
+      );
+      return false;
     }
+
+    const result = await response.json();
+    if (result.found && result.claimed) {
+      console.log('[Auth] Claimed pending Pro purchase!');
+      return true;
+    }
+    return false;
   } catch (error) {
-    // Don't block auth on claim errors
+    // Network/parse failure — still don't block auth, but make it visible
+    // instead of swallowing it.
     console.error('[Auth] Error claiming pending purchase:', error);
+    return false;
   }
-  return false;
 }
 
 export async function login(email, password) {
